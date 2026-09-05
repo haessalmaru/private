@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MyGolfNotes</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 상단 헤더 -->
+  <header class="app-header">
+    <h1>MyGolfNotes</h1>
+    <span class="badge" id="header-status">부상 방지 & 힘빼기</span>
+  </header>
+
+  <!-- 메인 컨텐츠 영역 -->
+  <main class="app-content">
+    <!-- 탭 1: 연습 일지 -->
+    <section id="tab-log" class="tab-panel active">
+      <h2>연습 일지</h2>
+      <p class="placeholder-text">연습 전 과제 점검 및 연습 후 통증·구질 복기 영역입니다.</p>
+    </section>
+
+    <!-- 탭 2: 클럽 스펙 -->
+    <section id="tab-gear" class="tab-panel">
+      <h2>마이 클럽 스펙</h2>
+      <p class="placeholder-text">클럽별 라이각, 토크, 로프트, 샤프트 스펙 관리 영역입니다.</p>
+    </section>
+
+    <!-- 탭 3: 드릴 & 레슨 -->
+    <section id="tab-drills" class="tab-panel">
+      <h2>드릴 & 레슨 보관함</h2>
+      <p class="placeholder-text">허리 부담 없는 스윙 드릴 및 유튜브 영상 보관 영역입니다.</p>
+    </section>
+  </main>
+
+  <!-- 하단 고정 탭 내비게이션 바 -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-tab="tab-log">
+      <span class="icon">📝</span>
+      <span class="label">일지</span>
+    </button>
+    <button class="nav-btn" data-tab="tab-gear">
+      <span class="icon">🏌️</span>
+      <span class="label">클럽</span>
+    </button>
+    <button class="nav-btn" data-tab="tab-drills">
+      <span class="icon">📺</span>
+      <span class="label">드릴</span>
+    </button>
+  </nav>
+
+  <script src="app.js"></script>
+</body>
+</html>
