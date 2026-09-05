@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>MyGolfNotes</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1e1e1e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MyGolfNotes">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,11 +20,38 @@
   <main class="app-content">
     <!-- 탭 1: 연습 일지 -->
     <section id="tab-log" class="tab-panel active">
+      
+      <!-- 0. 스윙 & 신체 분석 요약 카드 -->
+      <div class="card card-summary">
+        <div class="card-title">📊 누적 연습 & 스윙 분석 요약</div>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="summary-label">총 연습 세션</span>
+            <span class="summary-val" id="sum-total-sessions">0회</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">드로우 달성률</span>
+            <span class="summary-val" id="sum-draw-rate">0%</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">허리 통증 빈도</span>
+            <span class="summary-val" id="sum-back-pain-rate">0%</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">평균 텐션(힘빼기)</span>
+            <span class="summary-val" id="sum-avg-tension">-</span>
+          </div>
+        </div>
+        <div class="summary-sub" id="sum-top-miss">주요 미스샷 트리거: 데이터 수집 중</div>
+      </div>
+
+      <!-- 1. 직전 연습 핵심 복기 (Must Do) -->
       <div class="card card-accent">
         <div class="card-title">🚨 직전 연습 핵심 복기 (Must Do)</div>
         <div id="prev-action-display" class="highlight-text">아직 이전 기록이 없습니다. 힘빼고 가볍게 스윙을 시작하세요!</div>
       </div>
 
+      <!-- 입력 폼 -->
       <form id="practice-form">
         <div class="card">
           <div class="card-title">⏱️ 연습 시간</div>
@@ -94,6 +126,20 @@
 
         <button type="submit" class="submit-btn">오늘의 연습 기록 저장</button>
       </form>
+
+      <!-- 데이터 백업 & 내보내기 영역 -->
+      <div class="card" style="margin-top: 10px;">
+        <div class="card-title">💾 데이터 백업 & 엑셀 내보내기</div>
+        <p class="field-label">브라우저 캐시 삭제 전 안전하게 데이터를 저장해 두세요.</p>
+        <div class="button-row">
+          <button type="button" id="export-csv-btn" class="backup-btn btn-csv">📊 엑셀 CSV 다운로드</button>
+          <button type="button" id="export-json-btn" class="backup-btn btn-json">📦 전체 백업(JSON)</button>
+        </div>
+        <div style="margin-top: 10px;">
+          <label for="import-file" class="backup-btn btn-import" style="display:block; text-align:center;">📂 백업 데이터 복원하기</label>
+          <input type="file" id="import-file" accept=".json" style="display:none;">
+        </div>
+      </div>
     </section>
 
     <!-- 탭 2: 클럽 스펙 -->
@@ -103,7 +149,6 @@
         <button type="button" id="toggle-club-form-btn" class="sub-action-btn">+ 클럽 추가</button>
       </div>
 
-      <!-- 클럽 입력 폼 (토글) -->
       <form id="club-form" class="card hidden-form">
         <div class="card-title">신규 클럽 스펙 등록</div>
         <div class="form-row">
@@ -121,7 +166,6 @@
         <button type="submit" class="submit-btn" style="margin: 12px 0 0;">클럽 저장</button>
       </form>
 
-      <!-- 클럽 카드 리스트 -->
       <div id="club-list" class="item-list"></div>
     </section>
 
@@ -132,7 +176,6 @@
         <button type="button" id="toggle-drill-form-btn" class="sub-action-btn">+ 레슨 추가</button>
       </div>
 
-      <!-- 드릴 입력 폼 (토글) -->
       <form id="drill-form" class="card hidden-form">
         <div class="card-title">신규 레슨/드릴 저장</div>
         <input type="text" id="drill-category" class="form-input" placeholder="카테고리 (예: 허리편한 스윙, 드로우 드릴)" required>
@@ -142,7 +185,6 @@
         <button type="submit" class="submit-btn" style="margin: 12px 0 0;">드릴 저장</button>
       </form>
 
-      <!-- 드릴 카드 리스트 -->
       <div id="drill-list" class="item-list"></div>
     </section>
   </main>

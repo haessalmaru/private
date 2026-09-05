@@ -12,6 +12,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -107,6 +108,46 @@ body {
   border: 1px solid #2e4d2e;
 }
 
+.card-summary {
+  background-color: #18222d;
+  border: 1px solid #233b54;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.summary-item {
+  background-color: #121a24;
+  padding: 10px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-label {
+  font-size: 0.72rem;
+  color: #8ca3ba;
+}
+
+.summary-val {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #64b5f6;
+}
+
+.summary-sub {
+  font-size: 0.8rem;
+  color: #90caf9;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #22374e;
+}
+
 .card-title {
   font-size: 0.92rem;
   font-weight: 700;
@@ -191,14 +232,50 @@ body {
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  margin: 10px 0 24px;
+  margin: 10px 0 16px;
 }
 
 .submit-btn:active {
   background-color: #388e3c;
 }
 
-/* 아이템 리스트 (클럽 & 드릴 카드) */
+/* 백업 및 CSV 내보내기 버튼 */
+.button-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.backup-btn {
+  flex: 1;
+  border: none;
+  padding: 10px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-csv {
+  background-color: #1b5e20;
+  color: #a5d6a7;
+  border: 1px solid #2e7d32;
+}
+
+.btn-json {
+  background-color: #37474f;
+  color: #cfd8dc;
+  border: 1px solid #455a64;
+}
+
+.btn-import {
+  background-color: #263238;
+  color: #b0bec5;
+  border: 1px dashed #546e7a;
+  padding: 10px;
+}
+
+/* 리스트 컴포넌트 */
 .item-list {
   display: flex;
   flex-direction: column;
@@ -213,7 +290,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  position: relative;
 }
 
 .item-header {
@@ -283,14 +359,17 @@ body {
   padding: 24px 0;
 }
 
-/* 하단 내비게이션 바 */
+/* 하단 내비게이션 바 (모바일 하단 홈바 대응) */
 .bottom-nav {
   display: flex;
   justify-content: space-around;
+  align-items: center;
   background-color: #1e1e1e;
   border-top: 1px solid #2d2d2d;
-  padding: 6px 0 max(6px, env(safe-area-inset-bottom));
-  min-height: 56px;
+  padding-top: 6px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  min-height: calc(56px + env(safe-area-inset-bottom));
+  flex-shrink: 0;
 }
 
 .nav-btn {
