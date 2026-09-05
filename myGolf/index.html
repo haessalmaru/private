@@ -7,34 +7,105 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- 상단 헤더 -->
   <header class="app-header">
     <h1>MyGolfNotes</h1>
     <span class="badge" id="header-status">부상 방지 & 힘빼기</span>
   </header>
 
-  <!-- 메인 컨텐츠 영역 -->
   <main class="app-content">
-    <!-- 탭 1: 연습 일지 -->
     <section id="tab-log" class="tab-panel active">
-      <h2>연습 일지</h2>
-      <p class="placeholder-text">연습 전 과제 점검 및 연습 후 통증·구질 복기 영역입니다.</p>
+      <div class="card card-accent">
+        <div class="card-title">🚨 직전 연습 핵심 복기 (Must Do)</div>
+        <div id="prev-action-display" class="highlight-text">아직 이전 기록이 없습니다. 힘빼고 가볍게 스윙을 시작하세요!</div>
+      </div>
+
+      <form id="practice-form">
+        <div class="card">
+          <div class="card-title">⏱️ 연습 시간</div>
+          <div class="chip-group" id="duration-group">
+            <button type="button" class="chip-btn active" data-val="30">30분</button>
+            <button type="button" class="chip-btn" data-val="60">60분</button>
+            <button type="button" class="chip-btn" data-val="90">90분</button>
+            <button type="button" class="chip-btn" data-val="120">120분</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🩹 신체 통증 & 피로도</div>
+          <div class="field-label">통증 부위 (중복 선택)</div>
+          <div class="chip-group multiple" id="pain-part-group">
+            <button type="button" class="chip-btn active" data-val="이상 없음">이상 없음</button>
+            <button type="button" class="chip-btn" data-val="허리/요추">허리/요추</button>
+            <button type="button" class="chip-btn" data-val="왼쪽 손목">왼손목</button>
+            <button type="button" class="chip-btn" data-val="오른쪽 팔꿈치">우측 팔꿈치</button>
+            <button type="button" class="chip-btn" data-val="왼쪽 어깨">왼어깨</button>
+            <button type="button" class="chip-btn" data-val="갈비뼈/늑골">갈비뼈</button>
+          </div>
+
+          <div class="field-label" style="margin-top:12px;">통증 정도</div>
+          <select id="pain-level" class="form-select">
+            <option value="0">0: 통증 전혀 없음 (쾌적)</option>
+            <option value="1">1: 가벼운 뻐근함 (무리 없음)</option>
+            <option value="2">2: 스윙 시 불편함 (주의 필요)</option>
+            <option value="3">3: 휴식 필요 (통증 큼)</option>
+          </select>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🎯 주요 구질 분포 (목표: 드로우)</div>
+          <div class="chip-group" id="ball-flight-group">
+            <button type="button" class="chip-btn active" data-val="드로우(성공)">드로우 70%+</button>
+            <button type="button" class="chip-btn" data-val="스트레이트">스트레이트</button>
+            <button type="button" class="chip-btn" data-val="푸시 발생">푸시(우측 밀림)</button>
+            <button type="button" class="chip-btn" data-val="훅 발생">훅/풀훅</button>
+            <button type="button" class="chip-btn" data-val="슬라이스">슬라이스</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">⚙️ 스윙 핵심 체크포인트</div>
+          <div class="field-label">상체 힘빼기 (그립 & 어깨 텐션)</div>
+          <div class="range-wrap">
+            <input type="range" id="tension-level" min="1" max="5" value="3" class="form-range">
+            <span id="tension-val" class="range-display">3 (적당함)</span>
+          </div>
+
+          <div class="field-label" style="margin-top:12px;">체중 이동 & 회전</div>
+          <select id="weight-transfer" class="form-select">
+            <option value="자연스러운 힙턴">자연스러운 힙턴 (허리 편안함)</option>
+            <option value="오른발에 남음">오른발에 남음 (체중 미이동)</option>
+            <option value="과도한 힙 슬라이드">과도한 힙 슬라이드 (밀림)</option>
+          </select>
+
+          <div class="field-label" style="margin-top:12px;">주요 미스샷 원인 자가 진단</div>
+          <div class="chip-group multiple" id="miss-reason-group">
+            <button type="button" class="chip-btn" data-val="급한 템포">급한 템포/전환 서두름</button>
+            <button type="button" class="chip-btn" data-val="배치기">배치기(얼리익스텐션)</button>
+            <button type="button" class="chip-btn" data-val="헤드업">헤드업/시선 분산</button>
+            <button type="button" class="chip-btn" data-val="그립 과악력">그립 힘 과다</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">💡 다음 연습 시 반드시 지킬 One-Thing</div>
+          <input type="text" id="next-action-input" class="form-input" placeholder="예: 백스윙 탑에서 템포 쉬어가기" required>
+        </div>
+
+        <button type="submit" class="submit-btn">오늘의 연습 기록 저장</button>
+      </form>
     </section>
 
-    <!-- 탭 2: 클럽 스펙 -->
     <section id="tab-gear" class="tab-panel">
       <h2>마이 클럽 스펙</h2>
-      <p class="placeholder-text">클럽별 라이각, 토크, 로프트, 샤프트 스펙 관리 영역입니다.</p>
+      <p class="placeholder-text">Phase 3에서 구현될 예정입니다.</p>
     </section>
 
-    <!-- 탭 3: 드릴 & 레슨 -->
     <section id="tab-drills" class="tab-panel">
       <h2>드릴 & 레슨 보관함</h2>
-      <p class="placeholder-text">허리 부담 없는 스윙 드릴 및 유튜브 영상 보관 영역입니다.</p>
+      <p class="placeholder-text">Phase 3에서 구현될 예정입니다.</p>
     </section>
   </main>
 
-  <!-- 하단 고정 탭 내비게이션 바 -->
   <nav class="bottom-nav">
     <button class="nav-btn active" data-tab="tab-log">
       <span class="icon">📝</span>
