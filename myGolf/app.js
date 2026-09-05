@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // 1. 하단 탭 전환
   const navButtons = document.querySelectorAll(".nav-btn");
   const tabPanels = document.querySelectorAll(".tab-panel");
 
@@ -14,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // 2. 칩 그룹 셋업 (일지 탭)
   function setupSingleChipGroup(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -50,6 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupMultiChipGroup("pain-part-group");
   setupMultiChipGroup("miss-reason-group");
 
+  // 3. 힘빼기 슬라이더
   const tensionRange = document.getElementById("tension-level");
   const tensionDisplay = document.getElementById("tension-val");
   const tensionLabels = {
@@ -63,6 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
     tensionDisplay.textContent = tensionLabels[e.target.value] || e.target.value;
   });
 
+  // 4. 이전 Next-Action 불러오기
   const prevActionDisplay = document.getElementById("prev-action-display");
   function loadPreviousAction() {
     const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
@@ -73,8 +77,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   loadPreviousAction();
 
-  const form = document.getElementById("practice-form");
-  form.addEventListener("submit", (e) => {
+  // 5. 연습 일지 저장
+  const practiceForm = document.getElementById("practice-form");
+  practiceForm.addEventListener("submit", (e) => {
     e.preventDefault();
 
     const getActiveSingle = (containerId) => {
@@ -107,4 +112,152 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("next-action-input").value = "";
     loadPreviousAction();
   });
+
+  // ==========================================
+  // 6. 클럽 스펙 관리 모듈 (My Gear)
+  // ==========================================
+  const toggleClubFormBtn = document.getElementById("toggle-club-form-btn");
+  const clubForm = document.getElementById("club-form");
+  const clubList = document.getElementById("club-list");
+
+  toggleClubFormBtn.addEventListener("click", () => {
+    clubForm.classList.toggle("show");
+    toggleClubFormBtn.textContent = clubForm.classList.contains("show") ? "닫기" : "+ 클럽 추가";
+  });
+
+  function renderClubs() {
+    const clubs = JSON.parse(localStorage.getItem("golf_my_clubs") || "[]");
+    clubList.innerHTML = "";
+
+    if (clubs.length === 0) {
+      clubList.innerHTML = '<div class="empty-notice">등록된 클럽이 없습니다. 상단의 "+ 클럽 추가"를 눌러 장비를 등록하세요.</div>';
+      return;
+    }
+
+    clubs.forEach((club) => {
+      const item = document.createElement("div");
+      item.className = "item-card";
+      item.innerHTML = `
+        <div class="item-header">
+          <div>
+            <span class="item-badge">${club.type}</span>
+            <div class="item-main-title">${club.name}</div>
+          </div>
+          <button type="button" class="delete-btn" data-id="${club.id}">삭제</button>
+        </div>
+        <div class="spec-grid">
+          <div>샤프트: <strong>${club.shaft || "-"}</strong></div>
+          <div>로프트: <strong>${club.loft || "-"}</strong></div>
+          <div>라이각: <strong>${club.lie || "-"}</strong></div>
+          <div>토크값: <strong>${club.torque || "-"}</strong></div>
+        </div>
+      `;
+      clubList.appendChild(item);
+    });
+
+    // 클럽 삭제 이벤트
+    clubList.querySelectorAll(".delete-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const targetId = Number(e.target.getAttribute("data-id"));
+        const updated = clubs.filter((c) => c.id !== targetId);
+        localStorage.setItem("golf_my_clubs", JSON.stringify(updated));
+        renderClubs();
+      });
+    });
+  }
+
+  clubForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const newClub = {
+      id: Date.now(),
+      type: document.getElementById("club-type").value.trim(),
+      name: document.getElementById("club-name").value.trim(),
+      shaft: document.getElementById("club-shaft").value.trim(),
+      loft: document.getElementById("club-loft").value.trim(),
+      lie: document.getElementById("club-lie").value.trim(),
+      torque: document.getElementById("club-torque").value.trim()
+    };
+
+    const clubs = JSON.parse(localStorage.getItem("golf_my_clubs") || "[]");
+    clubs.push(newClub);
+    localStorage.setItem("golf_my_clubs", JSON.stringify(clubs));
+
+    clubForm.reset();
+    clubForm.classList.remove("show");
+    toggleClubFormBtn.textContent = "+ 클럽 추가";
+    renderClubs();
+  });
+
+  renderClubs();
+
+  // ==========================================
+  // 7. 드릴 & 레슨 관리 모듈 (Drills & Links)
+  // ==========================================
+  const toggleDrillFormBtn = document.getElementById("toggle-drill-form-btn");
+  const drillForm = document.getElementById("drill-form");
+  const drillList = document.getElementById("drill-list");
+
+  toggleDrillFormBtn.addEventListener("click", () => {
+    drillForm.classList.toggle("show");
+    toggleDrillFormBtn.textContent = drillForm.classList.contains("show") ? "닫기" : "+ 레슨 추가";
+  });
+
+  function renderDrills() {
+    const drills = JSON.parse(localStorage.getItem("golf_drills") || "[]");
+    drillList.innerHTML = "";
+
+    if (drills.length === 0) {
+      drillList.innerHTML = '<div class="empty-notice">보관된 드릴이 없습니다. 유튜브 레슨 링크를 등록해 보세요.</div>';
+      return;
+    }
+
+    drills.forEach((drill) => {
+      const item = document.createElement("div");
+      item.className = "item-card";
+      item.innerHTML = `
+        <div class="item-header">
+          <div>
+            <span class="item-badge">${drill.category}</span>
+            <div class="item-main-title">${drill.title}</div>
+          </div>
+          <button type="button" class="delete-btn" data-id="${drill.id}">삭제</button>
+        </div>
+        ${drill.memo ? `<div style="font-size:0.83rem; color:#aaaaaa; margin-top:4px;">💡 ${drill.memo}</div>` : ""}
+        <a href="${drill.url}" target="_blank" rel="noopener noreferrer" class="link-action-btn">▶ YouTube 영상 열기</a>
+      `;
+      drillList.appendChild(item);
+    });
+
+    // 드릴 삭제 이벤트
+    drillList.querySelectorAll(".delete-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const targetId = Number(e.target.getAttribute("data-id"));
+        const updated = drills.filter((d) => d.id !== targetId);
+        localStorage.setItem("golf_drills", JSON.stringify(updated));
+        renderDrills();
+      });
+    });
+  }
+
+  drillForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const newDrill = {
+      id: Date.now(),
+      category: document.getElementById("drill-category").value.trim(),
+      title: document.getElementById("drill-title").value.trim(),
+      url: document.getElementById("drill-url").value.trim(),
+      memo: document.getElementById("drill-memo").value.trim()
+    };
+
+    const drills = JSON.parse(localStorage.getItem("golf_drills") || "[]");
+    drills.push(newDrill);
+    localStorage.setItem("golf_drills", JSON.stringify(drills));
+
+    drillForm.reset();
+    drillForm.classList.remove("show");
+    toggleDrillFormBtn.textContent = "+ 레슨 추가";
+    renderDrills();
+  });
+
+  renderDrills();
 });

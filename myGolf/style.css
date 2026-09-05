@@ -53,6 +53,47 @@ body {
   display: block;
 }
 
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.section-header h2 {
+  font-size: 1.05rem;
+  color: #ffffff;
+}
+
+.sub-action-btn {
+  background-color: #2e4d2e;
+  color: #81c784;
+  border: 1px solid #3e6d3e;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.hidden-form {
+  display: none;
+}
+
+.hidden-form.show {
+  display: block;
+}
+
+.form-row {
+  display: flex;
+  gap: 8px;
+}
+
+.form-row .form-input {
+  flex: 1;
+}
+
+/* 카드 공통 */
 .card {
   background-color: #1e1e1e;
   border-radius: 10px;
@@ -86,6 +127,7 @@ body {
   margin-bottom: 6px;
 }
 
+/* 칩 그룹 */
 .chip-group {
   display: flex;
   flex-wrap: wrap;
@@ -110,6 +152,7 @@ body {
   font-weight: 600;
 }
 
+/* 폼 요소 */
 .form-select, .form-input {
   width: 100%;
   background-color: #2a2a2a;
@@ -155,6 +198,92 @@ body {
   background-color: #388e3c;
 }
 
+/* 아이템 리스트 (클럽 & 드릴 카드) */
+.item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item-card {
+  background-color: #1e1e1e;
+  border: 1px solid #2e2e2e;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.item-badge {
+  font-size: 0.72rem;
+  background-color: #2b3a2b;
+  color: #81c784;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.item-main-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.spec-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  background-color: #181818;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #bbbbbb;
+  margin-top: 4px;
+}
+
+.link-action-btn {
+  display: inline-block;
+  text-decoration: none;
+  background-color: #c4302b;
+  color: #ffffff;
+  font-size: 0.75rem;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-weight: 600;
+  text-align: center;
+  margin-top: 4px;
+  width: fit-content;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #777;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.delete-btn:hover {
+  color: #ff5252;
+}
+
+.empty-notice {
+  text-align: center;
+  color: #666;
+  font-size: 0.85rem;
+  padding: 24px 0;
+}
+
+/* 하단 내비게이션 바 */
 .bottom-nav {
   display: flex;
   justify-content: space-around;

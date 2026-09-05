@@ -13,6 +13,7 @@
   </header>
 
   <main class="app-content">
+    <!-- 탭 1: 연습 일지 -->
     <section id="tab-log" class="tab-panel active">
       <div class="card card-accent">
         <div class="card-title">🚨 직전 연습 핵심 복기 (Must Do)</div>
@@ -95,14 +96,54 @@
       </form>
     </section>
 
+    <!-- 탭 2: 클럽 스펙 -->
     <section id="tab-gear" class="tab-panel">
-      <h2>마이 클럽 스펙</h2>
-      <p class="placeholder-text">Phase 3에서 구현될 예정입니다.</p>
+      <div class="section-header">
+        <h2>마이 클럽 스펙</h2>
+        <button type="button" id="toggle-club-form-btn" class="sub-action-btn">+ 클럽 추가</button>
+      </div>
+
+      <!-- 클럽 입력 폼 (토글) -->
+      <form id="club-form" class="card hidden-form">
+        <div class="card-title">신규 클럽 스펙 등록</div>
+        <div class="form-row">
+          <input type="text" id="club-type" class="form-input" placeholder="클럽 분류 (예: 7번 우드, 4번 유틸)" required>
+          <input type="text" id="club-name" class="form-input" placeholder="모델명 (예: Stealth 2)" required>
+        </div>
+        <div class="form-row" style="margin-top: 8px;">
+          <input type="text" id="club-shaft" class="form-input" placeholder="샤프트/강도 (예: 60S, R)">
+          <input type="text" id="club-loft" class="form-input" placeholder="로프트 각도 (예: 21°)">
+        </div>
+        <div class="form-row" style="margin-top: 8px;">
+          <input type="text" id="club-lie" class="form-input" placeholder="라이각 (예: 59°)">
+          <input type="text" id="club-torque" class="form-input" placeholder="토크값 (예: 3.5)">
+        </div>
+        <button type="submit" class="submit-btn" style="margin: 12px 0 0;">클럽 저장</button>
+      </form>
+
+      <!-- 클럽 카드 리스트 -->
+      <div id="club-list" class="item-list"></div>
     </section>
 
+    <!-- 탭 3: 드릴 & 레슨 -->
     <section id="tab-drills" class="tab-panel">
-      <h2>드릴 & 레슨 보관함</h2>
-      <p class="placeholder-text">Phase 3에서 구현될 예정입니다.</p>
+      <div class="section-header">
+        <h2>드릴 & 레슨 보관함</h2>
+        <button type="button" id="toggle-drill-form-btn" class="sub-action-btn">+ 레슨 추가</button>
+      </div>
+
+      <!-- 드릴 입력 폼 (토글) -->
+      <form id="drill-form" class="card hidden-form">
+        <div class="card-title">신규 레슨/드릴 저장</div>
+        <input type="text" id="drill-category" class="form-input" placeholder="카테고리 (예: 허리편한 스윙, 드로우 드릴)" required>
+        <input type="text" id="drill-title" class="form-input" style="margin-top: 8px;" placeholder="레슨 제목 (예: 힘빼고 치는 테이크백)" required>
+        <input type="url" id="drill-url" class="form-input" style="margin-top: 8px;" placeholder="유튜브 영상 링크 URL (https://...)" required>
+        <input type="text" id="drill-memo" class="form-input" style="margin-top: 8px;" placeholder="핵심 체크포인트 메모 1줄">
+        <button type="submit" class="submit-btn" style="margin: 12px 0 0;">드릴 저장</button>
+      </form>
+
+      <!-- 드릴 카드 리스트 -->
+      <div id="drill-list" class="item-list"></div>
     </section>
   </main>
 
