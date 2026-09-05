@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MyGolfNotes</title>
+  <title>MyGolfNotes by Monk Studio</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#1e1e1e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,16 +12,19 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- 상단 헤더: Monk Studio 브랜딩 적용 -->
   <header class="app-header">
-    <h1>MyGolfNotes</h1>
+    <div class="brand-wrap">
+      <h1>MyGolfNotes</h1>
+      <span class="creator-sub">by Monk Studio</span>
+    </div>
     <span class="badge" id="header-status">부상 방지 & 힘빼기</span>
   </header>
 
   <main class="app-content">
     <!-- 탭 1: 연습 일지 -->
     <section id="tab-log" class="tab-panel active">
-      
-      <!-- 0. 스윙 & 신체 분석 요약 카드 -->
+      <!-- 스윙 & 신체 분석 요약 카드 -->
       <div class="card card-summary">
         <div class="card-title">📊 누적 연습 & 스윙 분석 요약</div>
         <div class="summary-grid">
@@ -45,13 +48,13 @@
         <div class="summary-sub" id="sum-top-miss">주요 미스샷 트리거: 데이터 수집 중</div>
       </div>
 
-      <!-- 1. 직전 연습 핵심 복기 (Must Do) -->
+      <!-- 직전 연습 핵심 복기 -->
       <div class="card card-accent">
         <div class="card-title">🚨 직전 연습 핵심 복기 (Must Do)</div>
         <div id="prev-action-display" class="highlight-text">아직 이전 기록이 없습니다. 힘빼고 가볍게 스윙을 시작하세요!</div>
       </div>
 
-      <!-- 입력 폼 -->
+      <!-- 일지 입력 폼 -->
       <form id="practice-form">
         <div class="card">
           <div class="card-title">⏱️ 연습 시간</div>
@@ -127,7 +130,7 @@
         <button type="submit" class="submit-btn">오늘의 연습 기록 저장</button>
       </form>
 
-      <!-- 데이터 백업 & 내보내기 영역 -->
+      <!-- 백업 및 내보내기 -->
       <div class="card" style="margin-top: 10px;">
         <div class="card-title">💾 데이터 백업 & 엑셀 내보내기</div>
         <p class="field-label">브라우저 캐시 삭제 전 안전하게 데이터를 저장해 두세요.</p>
@@ -140,6 +143,9 @@
           <input type="file" id="import-file" accept=".json" style="display:none;">
         </div>
       </div>
+
+      <!-- 릴리즈 노트 푸터 (일지 탭) -->
+      <footer class="release-footer">골프연습 & 기록앱 by Monk 260906</footer>
     </section>
 
     <!-- 탭 2: 클럽 스펙 -->
@@ -167,6 +173,9 @@
       </form>
 
       <div id="club-list" class="item-list"></div>
+
+      <!-- 릴리즈 노트 푸터 (클럽 탭) -->
+      <footer class="release-footer">골프연습 & 기록앱 by Monk 260906</footer>
     </section>
 
     <!-- 탭 3: 드릴 & 레슨 -->
@@ -186,6 +195,9 @@
       </form>
 
       <div id="drill-list" class="item-list"></div>
+
+      <!-- 릴리즈 노트 푸터 (드릴 탭) -->
+      <footer class="release-footer">골프연습 & 기록앱 by Monk 260906</footer>
     </section>
   </main>
 
