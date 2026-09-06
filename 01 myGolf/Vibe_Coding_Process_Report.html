@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>바이브 코딩 실전 리포트: MyGolfNotes 구축기</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 15mm 18mm 15mm;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", sans-serif;
+      background-color: #ffffff;
+      color: #24292f;
+      line-height: 1.65;
+      font-size: 13.5px;
+      margin: 0;
+      padding: 24px;
+    }
+    .report-container {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+    .header {
+      border-bottom: 2px solid #1b5e20;
+      padding-bottom: 14px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .header h1 {
+      font-size: 24px;
+      color: #1b5e20;
+      margin: 0 0 6px 0;
+      letter-spacing: -0.5px;
+    }
+    .header .subtitle {
+      font-size: 13px;
+      color: #57606a;
+      margin: 0;
+    }
+    .header .doc-meta {
+      text-align: right;
+      font-size: 12px;
+      color: #6e7781;
+    }
+    .section-title {
+      font-size: 16px;
+      color: #0f3812;
+      border-left: 4px solid #2e7d32;
+      padding-left: 10px;
+      margin: 28px 0 12px 0;
+      font-weight: 700;
+    }
+    p {
+      margin: 6px 0 10px 0;
+    }
+    ul, ol {
+      margin: 6px 0 12px 0;
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 4px;
+    }
+    /* 상태 및 주의 태그 */
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+    .badge-check {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #a5d6a7;
+    }
+    .badge-caution {
+      background-color: #ffebee;
+      color: #c62828;
+      border: 1px solid #ef9a9a;
+    }
+    /* 콜아웃 박스 */
+    .callout {
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin: 12px 0;
+      font-size: 12.5px;
+    }
+    .callout-check {
+      background-color: #f1f8e9;
+      border-left: 4px solid #43a047;
+      color: #2e7d32;
+    }
+    .callout-caution {
+      background-color: #fff8e1;
+      border-left: 4px solid #ffa000;
+      color: #b78103;
+    }
+    .callout-error {
+      background-color: #ffebee;
+      border-left: 4px solid #e53935;
+      color: #c62828;
+    }
+    .callout strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+    /* 테이블 */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 12.5px;
+    }
+    th, td {
+      border: 1px solid #d0d7de;
+      padding: 8px 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f6f8fa;
+      font-weight: 600;
+      color: #24292f;
+    }
+    /* 코드 블록 */
+    code {
+      font-family: "Consolas", "Courier New", monospace;
+      background-color: #f6f8fa;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #cf222e;
+    }
+    pre {
+      background-color: #f6f8fa;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      padding: 10px;
+      overflow-x: auto;
+      font-size: 11.5px;
+      line-height: 1.45;
+      color: #24292f;
+    }
+    .footer {
+      border-top: 1px solid #d0d7de;
+      margin-top: 36px;
+      padding-top: 12px;
+      text-align: center;
+      font-size: 11.5px;
+      color: #8c959f;
+    }
+    /* 페이지 나눔 방지 */
+    .page-break-avoid {
+      page-break-inside: avoid;
+    }
+  </style>
+</head>
+<body>
+  <div class="report-container">
+
+    <header class="header">
+      <div>
+        <h1>MyGolfNotes 바이브 코딩 프로세스 리포트</h1>
+        <p class="subtitle">기획부터 PWA 모바일 패키징, 엑셀 연동 및 GitHub Pages 실전 배포까지</p>
+      </div>
+      <div class="doc-meta">
+        <strong>Author:</strong> Monk Studio<br>
+        <strong>Date:</strong> 2026-09-06<br>
+        <strong>Release:</strong> v1.0 (Public Live)
+      </div>
+    </header>
+
+    <section>
+      <div class="section-title">1. 프로젝트 기획 및 핵심 설계 사상</div>
+      <p>
+        기존 골프 앱의 파편화된 기능(단순 스코어 카드 또는 복잡한 센서 장비)에서 벗어나, 
+        <strong>부상 방지(허리/관절 부담 최소화), 상체 힘빼기, 지향 구질(드로우) 궤도 유지</strong>라는 골퍼 본연의 목적을 추적하기 위해 바이브 코딩(Vibe Coding) 방식으로 1인 웹 앱을 설계했습니다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">구분</th>
+            <th>채택 기술 및 사상</th>
+            <th>기획 의도</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>구동 형태</strong></td>
+            <td>PWA (Progressive Web App)</td>
+            <td>앱스토어 등록 없이 홈 화면에 바로가기 설치, 전체화면 네이티브 구동</td>
+          </tr>
+          <tr>
+            <td><strong>데이터 스토리지</strong></td>
+            <td>Browser LocalStorage (JSON)</td>
+            <td>서버 구축 비용 0원, 오프라인(연습장 지하)에서도 완벽한 읽기/쓰기 보장</td>
+          </tr>
+          <tr>
+            <td><strong>배포 환경</strong></td>
+            <td>GitHub Pages (HTTPS 무료 호스팅)</td>
+            <td>PC를 꺼두어도 365일 모바일에서 독립 작동하는 환경 구현</td>
+          </tr>
+          <tr>
+            <td><strong>데이터 분석성</strong></td>
+            <td>정형 Key-Value 구조 & CSV 내보내기</td>
+            <td>상관분석(통증 부위 vs 힘빼기 텐션) 및 캐시 삭제 시 안전 백업 보장</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <div class="section-title">2. 단계별 구현 및 시행착오 가이드 (주의 & 체크 포인트)</div>
+
+      <!-- Phase 1 & 2 -->
+      <div class="page-break-avoid">
+        <p><strong>[Step 1] UI 뼈대 및 연습 일지 로컬 저장 구축</strong></p>
+        <ul>
+          <li>하단 탭 구조(일지/클럽/드릴)와 30분 단위 시간 칩, 다중 통증 부위 선택 로직 구축.</li>
+          <li>다음 연습 시 반드시 상기할 <code>Next-Action</code>을 최상단 카드에 노출하는 피드백 루프 완성.</li>
+        </ul>
+
+        <div class="callout callout-check">
+          <strong><span class="badge badge-check">체크!</span> 코드 수정 후 실시간 브라우저 확인 루틴</strong>
+          파일을 매번 새로 더블클릭하여 열 필요 없이, 브라우저 탭 하나를 띄워두고 VS Code에서 <code>Ctrl + S</code>(저장) ➔ 브라우저에서 <code>F5</code>(새로고침)만 누르면 즉시 반영됩니다. (VS Code 확장 <code>Live Server</code> 활용 시 자동 새로고침 지원)
+        </div>
+      </div>
+
+      <!-- Phase 3 -->
+      <div class="page-break-avoid">
+        <p><strong>[Step 2] 클럽 스펙 & 드릴 보관함 구현</strong></p>
+        <ul>
+          <li>클럽별 스펙(샤프트, 로프트, 라이각, 토크) 등록 및 삭제 카드 UI.</li>
+          <li>유튜브 드릴 원포인트 메모 및 딥링크(URL 바로가기) 연동.</li>
+        </ul>
+
+        <div class="callout callout-caution">
+          <strong><span class="badge badge-caution">주의!</span> 자바스크립트 블록 괄호 계층 구조</strong>
+          이벤트 리스너 끝단 괄호(<code>});</code>) 안쪽에 다른 독립 기능 코드를 중첩해 붙여넣으면 구문 오류가 발생합니다. 서비스 워커 등 상위 글로벌 코드는 반드시 파일 최하단 완전히 바깥 블록에 독립 선언해야 안전합니다.
+        </div>
+      </div>
+
+      <!-- Phase 4 (모바일/서버 문제) -->
+      <div class="page-break-avoid">
+        <p><strong>[Step 3] 모바일 Live Server 로컬 접속 디버깅</strong></p>
+        <ul>
+          <li>PC의 Live Server 포트(5500)를 동일 Wi-Fi 상의 스마트폰으로 접속 시도.</li>
+        </ul>
+
+        <div class="callout callout-error">
+          <strong><span class="badge badge-caution">주의!</span> 모바일 로컬 접속 시 발생하는 2대 허들</strong>
+          <ol style="margin: 4px 0 0 0; padding-left: 18px;">
+            <li><strong>보안 연결 에러 (HTTPS 강제 전환):</strong> 모바일 브라우저 주소창이 IP 주소를 검색어로 인식하여 <code>https://</code>로 강제 리다이렉트하는 현상. ➔ 주소창 맨 앞에 <code>http://</code>를 명시적으로 직접 입력하여 해결.</li>
+            <li><strong>Cannot GET /myGolf/ 에러:</strong> 폴더명 불일치 현상. VS Code 상의 실제 경로가 <code>01 myGolf</code>처럼 공백/숫자가 포함된 경우, <code>%20</code>(공백 코드)을 넣거나 <code>http://IP:5500</code> 루트로 접속 후 폴더를 직접 클릭하여 해결.</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Phase 5 (PWA 및 높이 이슈) -->
+      <div class="page-break-avoid">
+        <p><strong>[Step 4] 모바일 반응형 UI 보정 & PWA 환경 안착</strong></p>
+        
+        <div class="callout callout-caution">
+          <strong><span class="badge badge-caution">주의!</span> 스마트폰 기종별 하단 홈 바(제스처 바) 잘림 현상</strong>
+          기존 CSS의 <code>100vh</code>는 모바일 시스템 UI 영역을 고려하지 않아 하단 네비게이션 메뉴가 화면 아래로 밀려 잘립니다.<br>
+          ➔ <code>height: 100dvh;</code>(동적 뷰포트 높이)와 <code>env(safe-area-inset-bottom)</code>를 하단 패딩으로 확보하여 모바일 전 기종 완벽 안착.
+        </div>
+      </div>
+
+      <!-- Phase 6 (데이터 분석 및 CSV 엑셀 이슈) -->
+      <div class="page-break-avoid">
+        <p><strong>[Step 5] 데이터 분석 요약 및 엑셀(CSV) 내보내기/백업</strong></p>
+        <ul>
+          <li>상단 요약 카드: 총 연습 회차, 드로우 달성률(%), 허리 통증 빈도(%), 평균 텐션, 최빈 미스샷 트리거 실시간 계산.</li>
+          <li>엑셀 CSV 내보내기 및 브라우저 캐시 삭제 대비 JSON 전체 백업/복원 기능.</li>
+        </ul>
+
+        <div class="callout callout-check">
+          <strong><span class="badge badge-check">체크!</span> 엑셀 CSV 지수 표기(1.7886E+12) 및 한글 깨짐 방지</strong>
+          <ol style="margin: 4px 0 0 0; padding-left: 18px;">
+            <li><strong>지수 표기 해결:</strong> 13자리 밀리초 ID 대신 <code>index + 1</code>(1회차, 2회차...) 순번으로 매핑 변경.</li>
+            <li><strong>엑셀 한글 깨짐 해결:</strong> CSV 텍스트 맨 앞에 UTF-8 BOM 바이트(<code>\uFEFF</code>)를 결합하여 브라우저에서 다운로드하도록 설계.</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Phase 7 (배포 및 동기화 이슈) -->
+      <div class="page-break-avoid">
+        <p><strong>[Step 6] GitHub Pages 배포 및 원격 동기화</strong></p>
+        <ul>
+          <li>PC가 꺼져도 작동하도록 GitHub Pages를 통한 24시간 상시 호스팅.</li>
+        </ul>
+
+        <div class="callout callout-error">
+          <strong><span class="badge badge-caution">주의!</span> 무료 계정 Pages 정책 및 Git 동기화(Sync) 누락</strong>
+          <ol style="margin: 4px 0 0 0; padding-left: 18px;">
+            <li><strong>Pages 메뉴 비활성화:</strong> 무료 플랜은 <code>Private</code> 저장소에서 Pages를 지원하지 않음. ➔ <code>Settings ➔ General ➔ Danger Zone</code>에서 <strong>`Make Public`</strong>으로 전환하여 해결. (개인 데이터는 깃허브가 아닌 스마트폰 로컬에 보관되므로 안전)</li>
+            <li><strong>모바일 화면 미반영 (커밋 vs 푸시):</strong> 로컬에서 Commit만 하고 <strong>`Push (Sync Changes)`</strong>를 누르지 않으면 깃허브 서버로 코드가 넘어가지 않음. VS Code에서 푸시 후 <code>Actions</code> 탭에서 초록색 체크(<code>✓</code>) 완료를 확인해야 함.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-break-avoid">
+      <div class="section-title">3. 바이브 코딩(Vibe Coding) 핵심 교훈 및 인사이트</div>
+      <ol>
+        <li>
+          <strong>작은 단위의 실행 및 점진적 확인 (Iterative Loop):</strong>
+          방대한 코드를 한 번에 짜려 하지 않고, <code>UI 뼈대 ➔ 폼 데이터 검증 ➔ 모바일 연결 ➔ 배포 ➔ 분석 고도화</code> 순으로 한 번에 한 단계씩 동작을 눈으로 보며 조율할 때 디버깅이 가장 쉽습니다.
+        </li>
+        <li>
+          <strong>정형화된 데이터 설계의 힘:</strong>
+          첫 단추에서 통증, 구질, 텐션을 문자열 덩어리가 아닌 <strong>정형 Key-Value 구조</strong>로 설계해 두었기 때문에, 추후 대시보드 통계 계산과 엑셀 추출 기능을 10분 만에 얹을 수 있었습니다.
+        </li>
+        <li>
+          <strong>완전 독립형 아키텍처:</strong>
+          별도의 유료 클라우드 DB 없이도 <strong>LocalStorage + GitHub Pages + PWA</strong> 조합을 활용하면, 비용 0원으로 언제 어디서나 오프라인 구동이 가능한 개인 최적화 도구를 완성할 수 있습니다.
+        </li>
+      </ol>
+    </section>
+
+    <footer class="footer">
+      MyGolfNotes by Monk Studio &bull; 골프연습 & 기록앱 by Monk 260906 &bull; All Rights Reserved.
+    </footer>
+
+  </div>
+</body>
+</html>

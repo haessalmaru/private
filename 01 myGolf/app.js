@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. 하단 탭 전환
+  // ==========================================
+  // 1. 하단 탭 전환 네비게이션
+  // ==========================================
   const navButtons = document.querySelectorAll(".nav-btn");
   const tabPanels = document.querySelectorAll(".tab-panel");
 
@@ -15,7 +17,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 2. 칩 그룹 바인딩
+  // ==========================================
+  // 2. 칩 그룹 바인딩 (단일/다중 선택)
+  // ==========================================
   function setupSingleChipGroup(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -52,7 +56,9 @@ document.addEventListener("DOMContentLoaded", () => {
   setupMultiChipGroup("pain-part-group");
   setupMultiChipGroup("miss-reason-group");
 
-  // 3. 힘빼기 슬라이더 라벨
+  // ==========================================
+  // 3. 힘빼기 슬라이더 텍스트 라벨
+  // ==========================================
   const tensionRange = document.getElementById("tension-level");
   const tensionDisplay = document.getElementById("tension-val");
   const tensionLabels = {
@@ -66,7 +72,9 @@ document.addEventListener("DOMContentLoaded", () => {
     tensionDisplay.textContent = tensionLabels[e.target.value] || e.target.value;
   });
 
+  // ==========================================
   // 4. 통계 요약 및 직전 연습 복기 로직
+  // ==========================================
   function updateSummaryAndPrevAction() {
     const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
     
@@ -79,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
       prevActionDisplay.textContent = "아직 이전 기록이 없습니다. 힘빼고 가볍게 스윙을 시작하세요!";
     }
 
-    // 통계 계산
+    // 누적 통계 계산
     const totalCount = logs.length;
     document.getElementById("sum-total-sessions").textContent = `${totalCount}회`;
 
@@ -106,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const avgTension = (totalTension / totalCount).toFixed(1);
     document.getElementById("sum-avg-tension").textContent = `${avgTension} / 5.0`;
 
-    // 최빈 미스샷 트리거
+    // 최빈 미스샷 원인 트리거
     const missMap = {};
     logs.forEach(l => {
       if (Array.isArray(l.missReasons)) {
@@ -129,7 +137,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   updateSummaryAndPrevAction();
 
-  // 5. 일지 저장
+  // ==========================================
+  // 5. 연습 일지 저장
+  // ==========================================
   const practiceForm = document.getElementById("practice-form");
   practiceForm.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -166,10 +176,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ==========================================
-  // 6. 엑셀 CSV 내보내기 & 데이터 백업/복원 모듈
+  // 6. 연습 일지 엑셀 CSV 내보내기 & 전체 백업/복원
   // ==========================================
-  
-  // CSV 내보내기 (한글 깨짐 방지 UTF-8 BOM 탑재)
   document.getElementById("export-csv-btn").addEventListener("click", () => {
     const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
     if (logs.length === 0) {
@@ -178,14 +186,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const headers = [
-      "No", "날짜", "연습시간(분)", "통증부위", "통증정도(0-3)", 
+      "연습회차", "날짜", "연습시간(분)", "통증부위", "통증정도(0-3)", 
       "구질결과", "힘빼기텐션(1-5)", "체중이동방식", "미스샷원인", "다음과제"
     ];
 
-    // 기존: const rows = logs.map(l => [ l.id, ...
-    // 수정: 순번(index + 1)으로 직관적으로 출력
     const rows = logs.map((l, index) => [
-      index + 1, // 1, 2, 3... 회차 순번
+      index + 1,
       `"${l.date}"`,
       l.duration,
       `"${(l.painParts || []).join(', ')}"`,
@@ -208,7 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
     URL.revokeObjectURL(url);
   });
 
-  // JSON 전체 백업 내보내기
+  // 전체 JSON 백업
   document.getElementById("export-json-btn").addEventListener("click", () => {
     const backupData = {
       logs: JSON.parse(localStorage.getItem("golf_practice_logs") || "[]"),
@@ -226,7 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
     URL.revokeObjectURL(url);
   });
 
-  // 백업 파일 불러와서 복원하기
+  // JSON 백업 복원
   const importFileInput = document.getElementById("import-file");
   importFileInput.addEventListener("change", (e) => {
     const file = e.target.files[0];
@@ -253,17 +259,49 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ==========================================
-  // 7. 클럽 스펙 관리 모듈
+  // 7. 클럽 정밀 피팅 스펙 관리 모듈 (무게 세분화 & CSV)
   // ==========================================
   const toggleClubFormBtn = document.getElementById("toggle-club-form-btn");
   const clubForm = document.getElementById("club-form");
   const clubList = document.getElementById("club-list");
+  const clubTypeSelect = document.getElementById("club-type");
+  const headSpecGroup = document.getElementById("head-spec-group");
+  const wedgeSpecGroup = document.getElementById("wedge-spec-group");
+
+  // 조건부 입력 필드 토글 로직
+  function updateConditionalFields() {
+    const selected = clubTypeSelect.value;
+    
+    // 1. 드라이버/우드/유틸 ➔ 헤드 체적, 헤드 본체 무게, 무게추 노출
+    if (["드라이버", "우드", "유틸"].includes(selected)) {
+      headSpecGroup.style.display = "block";
+    } else {
+      headSpecGroup.style.display = "none";
+      document.getElementById("club-head-volume").value = "";
+      document.getElementById("club-head-weight").value = "";
+      document.getElementById("club-head-weight-screw").value = "";
+    }
+
+    // 2. 웨지 ➔ 바운스각, 그라인드 노출
+    if (selected === "웨지") {
+      wedgeSpecGroup.style.display = "flex";
+    } else {
+      wedgeSpecGroup.style.display = "none";
+      document.getElementById("club-wedge-bounce").value = "";
+      document.getElementById("club-wedge-grind").value = "";
+    }
+  }
+
+  clubTypeSelect.addEventListener("change", updateConditionalFields);
+  updateConditionalFields();
 
   toggleClubFormBtn.addEventListener("click", () => {
     clubForm.classList.toggle("show");
     toggleClubFormBtn.textContent = clubForm.classList.contains("show") ? "닫기" : "+ 클럽 추가";
+    if (clubForm.classList.contains("show")) updateConditionalFields();
   });
 
+  // 클럽 카드 렌더링
   function renderClubs() {
     const clubs = JSON.parse(localStorage.getItem("golf_my_clubs") || "[]");
     clubList.innerHTML = "";
@@ -274,21 +312,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     clubs.forEach((club) => {
+      const statusBadgeColor = club.status === "사용" ? "#2e7d32" : (club.status === "보유" ? "#1565c0" : "#757575");
       const item = document.createElement("div");
       item.className = "item-card";
       item.innerHTML = `
         <div class="item-header">
           <div>
-            <span class="item-badge">${club.type}</span>
-            <div class="item-main-title">${club.name}</div>
+            <span class="item-badge" style="background-color: ${statusBadgeColor}; color:#fff;">${club.status || "사용"}</span>
+            <span class="item-badge" style="margin-left:4px;">${club.type} · ${club.subname || ""}</span>
+            <span class="item-badge" style="margin-left:4px; background-color:#1e3d2f; color:#81c784;">🎯 ${club.distance || "-"}</span>
+            <div class="item-main-title" style="margin-top:4px;">${club.maker} ${club.model}</div>
           </div>
           <button type="button" class="delete-btn" data-id="${club.id}">삭제</button>
         </div>
-        <div class="spec-grid">
-          <div>샤프트: <strong>${club.shaft || "-"}</strong></div>
-          <div>로프트: <strong>${club.loft || "-"}</strong></div>
-          <div>라이각: <strong>${club.lie || "-"}</strong></div>
-          <div>토크값: <strong>${club.torque || "-"}</strong></div>
+        <div class="spec-grid" style="grid-template-columns: 1fr 1fr; gap: 6px;">
+          <div>총중량 / SW: <strong style="color:#81c784;">${club.totalWeight || "-"} / ${club.swingweight || "-"}</strong></div>
+          <div>샤프트: <strong>${club.shaftName || "-"} (${club.shaftWeight || "-"}, ${club.flex || "-"})</strong></div>
+          <div>로프트/라이: <strong>${club.loft || "-"} / ${club.lie || "-"}</strong></div>
+          ${club.type === "웨지" ? `<div>웨지스펙: <strong>${club.wedgeBounce || "-"} / ${club.wedgeGrind || "-"}</strong></div>` : ""}
+          <div>CPM / 토크: <strong>${club.cpm ? club.cpm + ' cpm' : '-'} / ${club.torque || '-'}</strong></div>
+          <div>길이 / 킥: <strong>${club.length || "-"} / ${club.kickpoint || "-"}</strong></div>
+          <div>그립: <strong>${club.gripType || "-"} (${club.gripSize || "표준"}, ${club.gripWeight || "-"})</strong></div>
+          ${club.headVolume || club.headWeight || club.headWeightScrew ? `<div>헤드/추: <strong>${club.headVolume || '-'} / ${club.headWeight || '-'}(추 ${club.headWeightScrew || '0g'})</strong></div>` : ""}
+          <div>구입정보: <strong>${club.buyDate || '-'} (${club.price ? club.price + '원' : '-'})</strong></div>
         </div>
       `;
       clubList.appendChild(item);
@@ -296,6 +342,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     clubList.querySelectorAll(".delete-btn").forEach((btn) => {
       btn.addEventListener("click", (e) => {
+        if (!confirm("이 클럽 스펙을 삭제하시겠습니까?")) return;
         const targetId = Number(e.target.getAttribute("data-id"));
         const updated = clubs.filter((c) => c.id !== targetId);
         localStorage.setItem("golf_my_clubs", JSON.stringify(updated));
@@ -304,16 +351,40 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // 클럽 스펙 저장
   clubForm.addEventListener("submit", (e) => {
     e.preventDefault();
+
     const newClub = {
       id: Date.now(),
-      type: document.getElementById("club-type").value.trim(),
-      name: document.getElementById("club-name").value.trim(),
-      shaft: document.getElementById("club-shaft").value.trim(),
+      distance: document.getElementById("club-distance").value.trim(),
+      status: document.getElementById("club-status").value,
+      type: document.getElementById("club-type").value,
+      subname: document.getElementById("club-subname").value.trim(),
+      maker: document.getElementById("club-maker").value.trim(),
+      model: document.getElementById("club-model").value.trim(),
+      headVolume: document.getElementById("club-head-volume").value.trim(),
+      headWeight: document.getElementById("club-head-weight").value.trim(),
+      headWeightScrew: document.getElementById("club-head-weight-screw").value.trim(),
       loft: document.getElementById("club-loft").value.trim(),
       lie: document.getElementById("club-lie").value.trim(),
-      torque: document.getElementById("club-torque").value.trim()
+      wedgeBounce: document.getElementById("club-wedge-bounce").value.trim(),
+      wedgeGrind: document.getElementById("club-wedge-grind").value.trim(),
+      shaftMaterial: document.getElementById("club-shaft-material").value,
+      shaftName: document.getElementById("club-shaft-name").value.trim(),
+      shaftWeight: document.getElementById("club-shaft-weight").value.trim(),
+      flex: document.getElementById("club-flex").value,
+      cpm: document.getElementById("club-cpm").value.trim(),
+      torque: document.getElementById("club-torque").value.trim(),
+      kickpoint: document.getElementById("club-kickpoint").value.trim(),
+      gripType: document.getElementById("club-grip-type").value.trim(),
+      gripSize: document.getElementById("club-grip-size").value.trim(),
+      gripWeight: document.getElementById("club-grip-weight").value.trim(),
+      totalWeight: document.getElementById("club-total-weight").value.trim(),
+      swingweight: document.getElementById("club-swingweight").value.trim(),
+      length: document.getElementById("club-length").value.trim(),
+      price: document.getElementById("club-price").value.trim(),
+      buyDate: document.getElementById("club-buy-date").value
     };
 
     const clubs = JSON.parse(localStorage.getItem("golf_my_clubs") || "[]");
@@ -323,10 +394,70 @@ document.addEventListener("DOMContentLoaded", () => {
     clubForm.reset();
     clubForm.classList.remove("show");
     toggleClubFormBtn.textContent = "+ 클럽 추가";
+    updateConditionalFields();
     renderClubs();
   });
 
   renderClubs();
+
+  // 클럽 데이터 전용 CSV 내보내기 (22단계 완벽 매핑 + UTF-8 BOM)
+  document.getElementById("export-club-csv-btn").addEventListener("click", () => {
+    const clubs = JSON.parse(localStorage.getItem("golf_my_clubs") || "[]");
+    if (clubs.length === 0) {
+      alert("내보낼 클럽 스펙 데이터가 없습니다.");
+      return;
+    }
+
+    const headers = [
+      "No", "목표비거리", "구분", "종류", "클럽구분(넘버/각도)", "메이커", "모델명",
+      "헤드체적(cc)", "헤드본체무게(g)", "헤드무게추(g)", "로프트", "라이각", "웨지바운스", "웨지그라인드",
+      "샤프트소재", "샤프트모델", "샤프트단품무게(g)", "강도", "CPM", "토크", "킥포인트",
+      "그립종류", "그립사이즈", "그립무게(g)", "토털웨이트(총중량g)", "스윙웨이트", "길이(inch)",
+      "구입가격", "구입일자"
+    ];
+
+    const rows = clubs.map((c, index) => [
+      index + 1,
+      `"${c.distance || ''}"`,
+      `"${c.status || ''}"`,
+      `"${c.type || ''}"`,
+      `"${c.subname || ''}"`,
+      `"${c.maker || ''}"`,
+      `"${c.model || ''}"`,
+      `"${c.headVolume || ''}"`,
+      `"${c.headWeight || ''}"`,
+      `"${c.headWeightScrew || ''}"`,
+      `"${c.loft || ''}"`,
+      `"${c.lie || ''}"`,
+      `"${c.wedgeBounce || ''}"`,
+      `"${c.wedgeGrind || ''}"`,
+      `"${c.shaftMaterial || ''}"`,
+      `"${c.shaftName || ''}"`,
+      `"${c.shaftWeight || ''}"`,
+      `"${c.flex || ''}"`,
+      `"${c.cpm || ''}"`,
+      `"${c.torque || ''}"`,
+      `"${c.kickpoint || ''}"`,
+      `"${c.gripType || ''}"`,
+      `"${c.gripSize || ''}"`,
+      `"${c.gripWeight || ''}"`,
+      `"${c.totalWeight || ''}"`,
+      `"${c.swingweight || ''}"`,
+      `"${c.length || ''}"`,
+      `"${c.price || ''}"`,
+      `"${c.buyDate || ''}"`
+    ]);
+
+    const csvContent = "\uFEFF" + [headers.join(","), ...rows.map(r => r.join(","))].join("\r\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `마이클럽스펙_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
 
   // ==========================================
   // 8. 드릴 & 레슨 관리 모듈
@@ -399,7 +530,9 @@ document.addEventListener("DOMContentLoaded", () => {
   renderDrills();
 });
 
-// PWA 서비스 워커 등록
+// ==========================================
+// 9. PWA 서비스 워커 등록
+// ==========================================
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js")

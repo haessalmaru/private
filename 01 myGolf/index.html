@@ -22,9 +22,11 @@
   </header>
 
   <main class="app-content">
+    <!-- ========================================== -->
     <!-- 탭 1: 연습 일지 -->
+    <!-- ========================================== -->
     <section id="tab-log" class="tab-panel active">
-      <!-- 스윙 & 신체 분석 요약 카드 -->
+      <!-- 0. 스윙 & 신체 분석 요약 카드 -->
       <div class="card card-summary">
         <div class="card-title">📊 누적 연습 & 스윙 분석 요약</div>
         <div class="summary-grid">
@@ -48,13 +50,13 @@
         <div class="summary-sub" id="sum-top-miss">주요 미스샷 트리거: 데이터 수집 중</div>
       </div>
 
-      <!-- 직전 연습 핵심 복기 -->
+      <!-- 1. 직전 연습 핵심 복기 (Must Do) -->
       <div class="card card-accent">
         <div class="card-title">🚨 직전 연습 핵심 복기 (Must Do)</div>
         <div id="prev-action-display" class="highlight-text">아직 이전 기록이 없습니다. 힘빼고 가볍게 스윙을 시작하세요!</div>
       </div>
 
-      <!-- 일지 입력 폼 -->
+      <!-- 2. 연습 일지 입력 폼 -->
       <form id="practice-form">
         <div class="card">
           <div class="card-title">⏱️ 연습 시간</div>
@@ -130,12 +132,12 @@
         <button type="submit" class="submit-btn">오늘의 연습 기록 저장</button>
       </form>
 
-      <!-- 백업 및 내보내기 -->
+      <!-- 3. 데이터 백업 & 내보내기 영역 -->
       <div class="card" style="margin-top: 10px;">
         <div class="card-title">💾 데이터 백업 & 엑셀 내보내기</div>
         <p class="field-label">브라우저 캐시 삭제 전 안전하게 데이터를 저장해 두세요.</p>
         <div class="button-row">
-          <button type="button" id="export-csv-btn" class="backup-btn btn-csv">📊 엑셀 CSV 다운로드</button>
+          <button type="button" id="export-csv-btn" class="backup-btn btn-csv">📊 일지 CSV 다운로드</button>
           <button type="button" id="export-json-btn" class="backup-btn btn-json">📦 전체 백업(JSON)</button>
         </div>
         <div style="margin-top: 10px;">
@@ -144,41 +146,211 @@
         </div>
       </div>
 
-      <!-- 릴리즈 노트 푸터 (일지 탭) -->
-      <footer class="release-footer">골프연습 & 기록앱 by Monk 260906</footer>
+      <footer class="release-footer">골프연습 & 기록앱 v1.0.1 by Monk 260906</footer>
     </section>
 
-    <!-- 탭 2: 클럽 스펙 -->
+    <!-- ========================================== -->
+    <!-- 탭 2: 클럽 스펙 (피팅 & 무게 정밀 분리 체계) -->
+    <!-- ========================================== -->
     <section id="tab-gear" class="tab-panel">
       <div class="section-header">
         <h2>마이 클럽 스펙</h2>
-        <button type="button" id="toggle-club-form-btn" class="sub-action-btn">+ 클럽 추가</button>
+        <div style="display: flex; gap: 6px;">
+          <button type="button" id="export-club-csv-btn" class="sub-action-btn" style="background-color: #1b5e20; border-color: #2e7d32; color: #a5d6a7;">📊 클럽 CSV</button>
+          <button type="button" id="toggle-club-form-btn" class="sub-action-btn">+ 클럽 추가</button>
+        </div>
       </div>
 
+      <!-- 클럽 등록 폼 -->
       <form id="club-form" class="card hidden-form">
-        <div class="card-title">신규 클럽 스펙 등록</div>
+        <div class="card-title">신규 클럽 상세 스펙 등록</div>
+
+        <!-- 1. 기본 식별 -->
+        <div style="margin-bottom: 8px;">
+          <label class="field-label" style="color:#81c784; font-weight:600;">1차 목표 비거리 (m)</label>
+          <input type="text" id="club-distance" class="form-input" placeholder="예: 180m, 캐리 165m" required>
+        </div>
+        
         <div class="form-row">
-          <input type="text" id="club-type" class="form-input" placeholder="클럽 분류 (예: 7번 우드, 4번 유틸)" required>
-          <input type="text" id="club-name" class="form-input" placeholder="모델명 (예: Stealth 2)" required>
+          <div style="flex: 1;">
+            <label class="field-label">2차 구분</label>
+            <select id="club-status" class="form-select" required>
+              <option value="사용">사용 (주전)</option>
+              <option value="보유">보유 (서브)</option>
+              <option value="방출">방출 (매각/보관)</option>
+            </select>
+          </div>
+          <div style="flex: 1;">
+            <label class="field-label">3차 클럽종류</label>
+            <select id="club-type" class="form-select" required>
+              <option value="드라이버">드라이버</option>
+              <option value="우드">우드</option>
+              <option value="유틸">유틸</option>
+              <option value="아이언">아이언</option>
+              <option value="웨지">웨지</option>
+            </select>
+          </div>
         </div>
+
         <div class="form-row" style="margin-top: 8px;">
-          <input type="text" id="club-shaft" class="form-input" placeholder="샤프트/강도 (예: 60S, R)">
-          <input type="text" id="club-loft" class="form-input" placeholder="로프트 각도 (예: 21°)">
+          <div style="flex: 1;">
+            <label class="field-label">4차 클럽구분 (넘버/각도)</label>
+            <input type="text" id="club-subname" class="form-input" placeholder="예: 1W, 7번(21°), 56°" required>
+          </div>
+          <div style="flex: 1;">
+            <label class="field-label">5차 메이커</label>
+            <input type="text" id="club-maker" class="form-input" placeholder="예: 테일러메이드, 핑, 데이비드" required>
+          </div>
         </div>
+
+        <div style="margin-top: 8px;">
+          <label class="field-label">6차 모델명</label>
+          <input type="text" id="club-model" class="form-input" placeholder="예: Stealth 2, G430 Max" required>
+        </div>
+
+        <!-- 2. 헤드 상세 스펙 (체적, 헤드본체무게, 무게추: 드라이버/우드/유틸만 표시) -->
+        <div id="head-spec-group" style="margin-top: 8px;">
+          <div class="form-row">
+            <div style="flex: 1;">
+              <label class="field-label">헤드 체적 (cc)</label>
+              <input type="text" id="club-head-volume" class="form-input" placeholder="예: 460cc, 165cc">
+            </div>
+            <div style="flex: 1;">
+              <label class="field-label">헤드 본체 무게 (g)</label>
+              <input type="text" id="club-head-weight" class="form-input" placeholder="예: 195g">
+            </div>
+            <div style="flex: 1;">
+              <label class="field-label">헤드 무게추 (g)</label>
+              <input type="text" id="club-head-weight-screw" class="form-input" placeholder="예: 10g, 슬라이더 12g">
+            </div>
+          </div>
+        </div>
+
         <div class="form-row" style="margin-top: 8px;">
-          <input type="text" id="club-lie" class="form-input" placeholder="라이각 (예: 59°)">
-          <input type="text" id="club-torque" class="form-input" placeholder="토크값 (예: 3.5)">
+          <div style="flex: 1;">
+            <label class="field-label">7차 로프트각</label>
+            <input type="text" id="club-loft" class="form-input" placeholder="예: 9.5°, 21°">
+          </div>
+          <div style="flex: 1;">
+            <label class="field-label">8차 라이각</label>
+            <input type="text" id="club-lie" class="form-input" placeholder="예: 58°">
+          </div>
         </div>
-        <button type="submit" class="submit-btn" style="margin: 12px 0 0;">클럽 저장</button>
+
+        <!-- 웨지 전용 조건부 필드 (웨지 선택 시에만 표시) -->
+        <div id="wedge-spec-group" class="form-row" style="margin-top: 8px; display: none;">
+          <div style="flex: 1;">
+            <label class="field-label">웨지 바운스각</label>
+            <input type="text" id="club-wedge-bounce" class="form-input" placeholder="예: 10°, 12°">
+          </div>
+          <div style="flex: 1;">
+            <label class="field-label">웨지 그라인드</label>
+            <input type="text" id="club-wedge-grind" class="form-input" placeholder="예: F, S, C그라인드">
+          </div>
+        </div>
+
+        <!-- 3. 샤프트 상세 스펙 -->
+        <div class="form-row" style="margin-top: 8px;">
+          <div style="flex: 0.9;">
+            <label class="field-label">9차 샤프트 소재</label>
+            <select id="club-shaft-material" class="form-select">
+              <option value="그라파이트">그라파이트(카본)</option>
+              <option value="스틸">스틸</option>
+              <option value="복합">복합(스틸파이버 등)</option>
+            </select>
+          </div>
+          <div style="flex: 1.1;">
+            <label class="field-label">10차 샤프트 모델</label>
+            <input type="text" id="club-shaft-name" class="form-input" placeholder="예: 벤투스 블루 TR">
+          </div>
+        </div>
+
+        <div class="form-row" style="margin-top: 8px;">
+          <div style="flex: 1;">
+            <label class="field-label">샤프트 단품무게 (g)</label>
+            <input type="text" id="club-shaft-weight" class="form-input" placeholder="예: 62g, 95g">
+          </div>
+          <div style="flex: 0.8;">
+            <label class="field-label">11차 강도</label>
+            <select id="club-flex" class="form-select">
+              <option value="S">S</option>
+              <option value="SR">SR</option>
+              <option value="R">R</option>
+              <option value="X">X</option>
+            </select>
+          </div>
+          <div style="flex: 1;">
+            <label class="field-label">12차 CPM (진동수)</label>
+            <input type="text" id="club-cpm" class="form-input" placeholder="예: 250">
+          </div>
+        </div>
+
+        <div class="form-row" style="margin-top: 8px;">
+          <div style="flex: 1;">
+            <label class="field-label">14차 샤프트 토크</label>
+            <input type="text" id="club-torque" class="form-input" placeholder="예: 3.4">
+          </div>
+          <div style="flex: 1;">
+            <label class="field-label">15차 킥포인트</label>
+            <input type="text" id="club-kickpoint" class="form-input" placeholder="예: 미드, 하이, 로우">
+          </div>
+        </div>
+
+        <!-- 4. 그립 스펙 -->
+        <div class="form-row" style="margin-top: 8px;">
+          <div style="flex: 1.1;">
+            <label class="field-label">18차 그립 모델</label>
+            <input type="text" id="club-grip-type" class="form-input" placeholder="예: 골프프라이드 MCC">
+          </div>
+          <div style="flex: 0.9;">
+            <label class="field-label">19차 그립 사이즈</label>
+            <input type="text" id="club-grip-size" class="form-input" placeholder="예: 60R, 58R">
+          </div>
+          <div style="flex: 0.8;">
+            <label class="field-label">20차 그립무게 (g)</label>
+            <input type="text" id="club-grip-weight" class="form-input" placeholder="예: 50g">
+          </div>
+        </div>
+
+        <!-- 5. 완제품 결합 스펙 (토털웨이트 & 스윙웨이트) -->
+        <div class="form-row" style="margin-top: 8px; background-color: #172418; padding: 8px; border-radius: 6px; border: 1px solid #234226;">
+          <div style="flex: 1.1;">
+            <label class="field-label" style="color:#81c784; font-weight:700;">토털 웨이트 (총중량 g)</label>
+            <input type="text" id="club-total-weight" class="form-input" placeholder="예: 312g (완제품 총합)" required>
+          </div>
+          <div style="flex: 0.9;">
+            <label class="field-label" style="color:#81c784; font-weight:700;">스윙웨이트</label>
+            <input type="text" id="club-swingweight" class="form-input" placeholder="예: D2, D1.5" required>
+          </div>
+          <div style="flex: 1;">
+            <label class="field-label">길이 (inch)</label>
+            <input type="text" id="club-length" class="form-input" placeholder="예: 45.25인치">
+          </div>
+        </div>
+
+        <!-- 6. 구입 정보 -->
+        <div class="form-row" style="margin-top: 8px;">
+          <div style="flex: 1;">
+            <label class="field-label">21차 구입가격 (원)</label>
+            <input type="text" id="club-price" class="form-input" placeholder="예: 650,000">
+          </div>
+          <div style="flex: 1;">
+            <label class="field-label">22차 구입일자</label>
+            <input type="date" id="club-buy-date" class="form-select">
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn" style="margin: 16px 0 0;">클럽 정밀 스펙 저장</button>
       </form>
 
-      <div id="club-list" class="item-list"></div>
+      <div id="club-list" class="item-list" style="margin-top: 12px;"></div>
 
-      <!-- 릴리즈 노트 푸터 (클럽 탭) -->
-      <footer class="release-footer">골프연습 & 기록앱 by Monk 260906</footer>
+      <footer class="release-footer">골프연습 & 기록앱 v1.0.1 by Monk 260906</footer>
     </section>
 
+    <!-- ========================================== -->
     <!-- 탭 3: 드릴 & 레슨 -->
+    <!-- ========================================== -->
     <section id="tab-drills" class="tab-panel">
       <div class="section-header">
         <h2>드릴 & 레슨 보관함</h2>
@@ -196,11 +368,11 @@
 
       <div id="drill-list" class="item-list"></div>
 
-      <!-- 릴리즈 노트 푸터 (드릴 탭) -->
-      <footer class="release-footer">골프연습 & 기록앱 by Monk 260906</footer>
+      <footer class="release-footer">골프연습 & 기록앱 v1.0.1 by Monk 260906</footer>
     </section>
   </main>
 
+  <!-- 하단 고정 내비게이션 바 -->
   <nav class="bottom-nav">
     <button class="nav-btn active" data-tab="tab-log">
       <span class="icon">📝</span>
