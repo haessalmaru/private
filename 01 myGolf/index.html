@@ -146,7 +146,7 @@
         </div>
       </div>
 
-      <footer class="release-footer">골프연습 & 기록앱 v1.0.1 by Monk 260906</footer>
+      <footer class="release-footer">골프연습 & 기록앱 by Monk v1.0.1</footer>
     </section>
 
     <!-- ========================================== -->
@@ -161,20 +161,20 @@
         </div>
       </div>
 
-      <!-- 클럽 등록 폼 -->
+      <!-- 클럽 등록 폼: novalidate 추가 및 필수입력 충돌 방지 -->
       <form id="club-form" class="card hidden-form">
         <div class="card-title">신규 클럽 상세 스펙 등록</div>
 
         <!-- 1. 기본 식별 -->
         <div style="margin-bottom: 8px;">
           <label class="field-label" style="color:#81c784; font-weight:600;">1차 목표 비거리 (m)</label>
-          <input type="text" id="club-distance" class="form-input" placeholder="예: 180m, 캐리 165m" required>
+          <input type="text" id="club-distance" class="form-input" placeholder="예: 180m, 캐리 165m">
         </div>
         
         <div class="form-row">
           <div style="flex: 1;">
             <label class="field-label">2차 구분</label>
-            <select id="club-status" class="form-select" required>
+            <select id="club-status" class="form-select">
               <option value="사용">사용 (주전)</option>
               <option value="보유">보유 (서브)</option>
               <option value="방출">방출 (매각/보관)</option>
@@ -182,7 +182,7 @@
           </div>
           <div style="flex: 1;">
             <label class="field-label">3차 클럽종류</label>
-            <select id="club-type" class="form-select" required>
+            <select id="club-type" class="form-select">
               <option value="드라이버">드라이버</option>
               <option value="우드">우드</option>
               <option value="유틸">유틸</option>
@@ -194,21 +194,21 @@
 
         <div class="form-row" style="margin-top: 8px;">
           <div style="flex: 1;">
-            <label class="field-label">4차 클럽구분 (넘버/각도)</label>
+            <label class="field-label">4차 클럽구분 (넘버/각도) *필수</label>
             <input type="text" id="club-subname" class="form-input" placeholder="예: 1W, 7번(21°), 56°" required>
           </div>
           <div style="flex: 1;">
             <label class="field-label">5차 메이커</label>
-            <input type="text" id="club-maker" class="form-input" placeholder="예: 테일러메이드, 핑, 데이비드" required>
+            <input type="text" id="club-maker" class="form-input" placeholder="예: 테일러메이드, 핑">
           </div>
         </div>
 
         <div style="margin-top: 8px;">
-          <label class="field-label">6차 모델명</label>
+          <label class="field-label">6차 모델명 *필수</label>
           <input type="text" id="club-model" class="form-input" placeholder="예: Stealth 2, G430 Max" required>
         </div>
 
-        <!-- 2. 헤드 상세 스펙 (체적, 헤드본체무게, 무게추: 드라이버/우드/유틸만 표시) -->
+        <!-- 2. 헤드 상세 스펙 (드라이버/우드/유틸만 표시) -->
         <div id="head-spec-group" style="margin-top: 8px;">
           <div class="form-row">
             <div style="flex: 1;">
@@ -237,7 +237,7 @@
           </div>
         </div>
 
-        <!-- 웨지 전용 조건부 필드 (웨지 선택 시에만 표시) -->
+        <!-- 웨지 전용 조건부 필드 -->
         <div id="wedge-spec-group" class="form-row" style="margin-top: 8px; display: none;">
           <div style="flex: 1;">
             <label class="field-label">웨지 바운스각</label>
@@ -316,11 +316,11 @@
         <div class="form-row" style="margin-top: 8px; background-color: #172418; padding: 8px; border-radius: 6px; border: 1px solid #234226;">
           <div style="flex: 1.1;">
             <label class="field-label" style="color:#81c784; font-weight:700;">토털 웨이트 (총중량 g)</label>
-            <input type="text" id="club-total-weight" class="form-input" placeholder="예: 312g (완제품 총합)" required>
+            <input type="text" id="club-total-weight" class="form-input" placeholder="예: 312g (완제품 총합)">
           </div>
           <div style="flex: 0.9;">
             <label class="field-label" style="color:#81c784; font-weight:700;">스윙웨이트</label>
-            <input type="text" id="club-swingweight" class="form-input" placeholder="예: D2, D1.5" required>
+            <input type="text" id="club-swingweight" class="form-input" placeholder="예: D2, D1.5">
           </div>
           <div style="flex: 1;">
             <label class="field-label">길이 (inch)</label>
@@ -340,12 +340,12 @@
           </div>
         </div>
 
-        <button type="submit" class="submit-btn" style="margin: 16px 0 0;">클럽 정밀 스펙 저장</button>
+        <button type="submit" id="submit-club-btn" class="submit-btn" style="margin: 16px 0 0;">클럽 정밀 스펙 저장</button>
       </form>
 
       <div id="club-list" class="item-list" style="margin-top: 12px;"></div>
 
-      <footer class="release-footer">골프연습 & 기록앱 v1.0.1 by Monk 260906</footer>
+      <footer class="release-footer">골프연습 & 기록앱 by Monk v1.0.1</footer>
     </section>
 
     <!-- ========================================== -->
@@ -368,7 +368,7 @@
 
       <div id="drill-list" class="item-list"></div>
 
-      <footer class="release-footer">골프연습 & 기록앱 v1.0.1 by Monk 260906</footer>
+      <footer class="release-footer">골프연습 & 기록앱 by Monk v1.0.1</footer>
     </section>
   </main>
 
