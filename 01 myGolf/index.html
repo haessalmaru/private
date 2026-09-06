@@ -150,7 +150,7 @@
     </section>
 
     <!-- ========================================== -->
-    <!-- 탭 2: 클럽 스펙 (피팅 & 무게 정밀 분리 체계) -->
+    <!-- 탭 2: 클럽 스펙 (피팅 & 요약/확장 뷰 & 수정 기능) -->
     <!-- ========================================== -->
     <section id="tab-gear" class="tab-panel">
       <div class="section-header">
@@ -161,9 +161,10 @@
         </div>
       </div>
 
-      <!-- 클럽 등록 폼: novalidate 추가 및 필수입력 충돌 방지 -->
+      <!-- 클럽 등록 및 수정 폼 -->
       <form id="club-form" class="card hidden-form">
-        <div class="card-title">신규 클럽 상세 스펙 등록</div>
+        <div class="card-title" id="club-form-title">신규 클럽 상세 스펙 등록</div>
+        <input type="hidden" id="club-edit-id" value="">
 
         <!-- 1. 기본 식별 -->
         <div style="margin-bottom: 8px;">
@@ -340,16 +341,20 @@
           </div>
         </div>
 
-        <button type="submit" id="submit-club-btn" class="submit-btn" style="margin: 16px 0 0;">클럽 정밀 스펙 저장</button>
+        <div class="button-row" style="margin-top: 16px;">
+          <button type="submit" id="submit-club-btn" class="submit-btn" style="margin: 0;">클럽 정밀 스펙 저장</button>
+          <button type="button" id="cancel-club-edit-btn" class="backup-btn" style="background:#424242; color:#fff; display:none;">취소</button>
+        </div>
       </form>
 
+      <!-- 클럽 비교 리스트 -->
       <div id="club-list" class="item-list" style="margin-top: 12px;"></div>
 
       <footer class="release-footer">골프연습 & 기록앱 by Monk v1.0.1</footer>
     </section>
 
     <!-- ========================================== -->
-    <!-- 탭 3: 드릴 & 레슨 -->
+    <!-- 탭 3: 드릴 & 레슨 (수정 기능 추가) -->
     <!-- ========================================== -->
     <section id="tab-drills" class="tab-panel">
       <div class="section-header">
@@ -358,12 +363,17 @@
       </div>
 
       <form id="drill-form" class="card hidden-form">
-        <div class="card-title">신규 레슨/드릴 저장</div>
+        <div class="card-title" id="drill-form-title">신규 레슨/드릴 저장</div>
+        <input type="hidden" id="drill-edit-id" value="">
         <input type="text" id="drill-category" class="form-input" placeholder="카테고리 (예: 허리편한 스윙, 드로우 드릴)" required>
         <input type="text" id="drill-title" class="form-input" style="margin-top: 8px;" placeholder="레슨 제목 (예: 힘빼고 치는 테이크백)" required>
         <input type="url" id="drill-url" class="form-input" style="margin-top: 8px;" placeholder="유튜브 영상 링크 URL (https://...)" required>
         <input type="text" id="drill-memo" class="form-input" style="margin-top: 8px;" placeholder="핵심 체크포인트 메모 1줄">
-        <button type="submit" class="submit-btn" style="margin: 12px 0 0;">드릴 저장</button>
+        
+        <div class="button-row" style="margin-top: 12px;">
+          <button type="submit" id="submit-drill-btn" class="submit-btn" style="margin: 0;">드릴 저장</button>
+          <button type="button" id="cancel-drill-edit-btn" class="backup-btn" style="background:#424242; color:#fff; display:none;">취소</button>
+        </div>
       </form>
 
       <div id="drill-list" class="item-list"></div>

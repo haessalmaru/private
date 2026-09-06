@@ -304,12 +304,57 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+.club-expandable-card {
+  cursor: pointer;
+}
+
+.club-expandable-card:hover {
+  border-color: #3e5a3e;
 }
 
 .item-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+}
+
+.card-action-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.action-text-btn {
+  background: none;
+  border: none;
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.edit-club-btn, .edit-drill-btn {
+  color: #81c784;
+  background-color: #1a2e1a;
+  border: 1px solid #2e4d2e;
+}
+
+.edit-club-btn:hover, .edit-drill-btn:hover {
+  background-color: #244224;
+}
+
+.delete-club-btn, .delete-drill-btn {
+  color: #ff8a80;
+  background-color: #2e1a1a;
+  border: 1px solid #4d2424;
+}
+
+.delete-club-btn:hover, .delete-drill-btn:hover {
+  background-color: #442222;
 }
 
 .item-badge {
@@ -327,16 +372,45 @@ body {
   color: #ffffff;
 }
 
+/* 스펙 그리드 (요약 비교뷰) */
 .spec-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4px;
+  gap: 5px;
   background-color: #181818;
   padding: 8px;
   border-radius: 6px;
   font-size: 0.8rem;
   color: #bbbbbb;
   margin-top: 4px;
+}
+
+/* 확장 서랍 (아코디언) */
+.club-detail-drawer {
+  display: none;
+}
+
+.club-detail-drawer.open {
+  display: block;
+}
+
+.detail-divider {
+  height: 1px;
+  background-color: #2a2a2a;
+  margin: 6px 0;
+}
+
+.spec-detail-grid {
+  background-color: #141414;
+  border: 1px solid #252525;
+}
+
+.expand-hint {
+  text-align: center;
+  font-size: 0.7rem;
+  color: #666666;
+  margin-top: 4px;
+  letter-spacing: 0.3px;
 }
 
 .link-action-btn {
@@ -351,19 +425,6 @@ body {
   text-align: center;
   margin-top: 4px;
   width: fit-content;
-}
-
-.delete-btn {
-  background: none;
-  border: none;
-  color: #777;
-  font-size: 0.8rem;
-  cursor: pointer;
-  padding: 2px 6px;
-}
-
-.delete-btn:hover {
-  color: #ff5252;
 }
 
 .empty-notice {
