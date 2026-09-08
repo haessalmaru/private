@@ -18,8 +18,52 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ==========================================
-  // 2. 칩 그룹 바인딩 (단일/다중 선택)
+  // 2. 칩 그룹 바인딩 및 연습 시간 Stepper (+,-)
   // ==========================================
+  let currentDuration = 30;
+  const customDurationDisplay = document.getElementById("custom-duration-display");
+  const durationGroup = document.getElementById("duration-group");
+  const minusBtn = document.getElementById("duration-minus-btn");
+  const plusBtn = document.getElementById("duration-plus-btn");
+
+  function setDuration(val) {
+    currentDuration = Math.max(10, val);
+    if (customDurationDisplay) {
+      customDurationDisplay.textContent = currentDuration;
+    }
+    // 칩 활성화 상태 동기화
+    if (durationGroup) {
+      const chips = durationGroup.querySelectorAll(".chip-btn");
+      chips.forEach((c) => {
+        if (Number(c.getAttribute("data-val")) === currentDuration) {
+          c.classList.add("active");
+        } else {
+          c.classList.remove("active");
+        }
+      });
+    }
+  }
+
+  if (durationGroup) {
+    const chips = durationGroup.querySelectorAll(".chip-btn");
+    chips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        setDuration(Number(chip.getAttribute("data-val")));
+      });
+    });
+  }
+
+  if (minusBtn) {
+    minusBtn.addEventListener("click", () => {
+      setDuration(currentDuration - 10);
+    });
+  }
+  if (plusBtn) {
+    plusBtn.addEventListener("click", () => {
+      setDuration(currentDuration + 10);
+    });
+  }
+
   function setupSingleChipGroup(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -51,7 +95,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  setupSingleChipGroup("duration-group");
   setupSingleChipGroup("ball-flight-group");
   setupMultiChipGroup("pain-part-group");
   setupMultiChipGroup("miss-reason-group");
@@ -106,21 +149,25 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    // 드로우 달성률
     const drawCount = logs.filter(l => l.ballFlight && l.ballFlight.includes("드로우")).length;
     const drawRate = Math.round((drawCount / totalCount) * 100);
     const drawEl = document.getElementById("sum-draw-rate");
     if (drawEl) drawEl.textContent = `${drawRate}%`;
 
-    const backPainCount = logs.filter(l => Array.isArray(l.painParts) && l.painParts.includes("허리/요추")).length;
+    // 허리 통증 빈도 ('허리' 및 기존 '허리/요추' 데이터 동시 호환)
+    const backPainCount = logs.filter(l => Array.isArray(l.painParts) && (l.painParts.includes("허리") || l.painParts.includes("허리/요추"))).length;
     const backPainRate = Math.round((backPainCount / totalCount) * 100);
     const backEl = document.getElementById("sum-back-pain-rate");
     if (backEl) backEl.textContent = `${backPainRate}%`;
 
+    // 평균 텐션 점수
     const totalTension = logs.reduce((acc, cur) => acc + Number(cur.tensionLevel || 3), 0);
     const avgTension = (totalTension / totalCount).toFixed(1);
     const tenEl = document.getElementById("sum-avg-tension");
     if (tenEl) tenEl.textContent = `${avgTension} / 5.0`;
 
+    // 최빈 미스샷 원인 트리거
     const missMap = {};
     logs.forEach(l => {
       if (Array.isArray(l.missReasons)) {
@@ -164,7 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const newLog = {
         id: Date.now(),
         date: new Date().toLocaleDateString("ko-KR"),
-        duration: getActiveSingle("duration-group"),
+        duration: currentDuration, // 조절된 연습 시간 저장
         painParts: getActiveMulti("pain-part-group"),
         painLevel: document.getElementById("pain-level").value,
         ballFlight: getActiveSingle("ball-flight-group"),
@@ -178,7 +225,7 @@ document.addEventListener("DOMContentLoaded", () => {
       logs.push(newLog);
       localStorage.setItem("golf_practice_logs", JSON.stringify(logs));
 
-      alert("오늘의 연습 일지가 안전하게 저장되었습니다!");
+      alert(`✅ 오늘의 연습 일지(${currentDuration}분)가 안전하게 저장되었습니다!`);
       document.getElementById("next-action-input").value = "";
       updateSummaryAndPrevAction();
     });
@@ -309,7 +356,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateConditionalFields();
   }
 
-  // 클럽 폼 리셋 (등록/수정 모드 초기화)
   function resetClubForm() {
     if (!clubForm) return;
     clubForm.reset();
@@ -339,7 +385,6 @@ document.addEventListener("DOMContentLoaded", () => {
     cancelClubEditBtn.addEventListener("click", resetClubForm);
   }
 
-  // 안전한 값 추출/주입 헬퍼
   const getVal = (id) => {
     const el = document.getElementById(id);
     return el ? el.value.trim() : "";
@@ -349,7 +394,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (el) el.value = val || "";
   };
 
-  // 클럽 수정 모드로 폼에 데이터 채우기
   function editClub(id) {
     const clubs = JSON.parse(localStorage.getItem("golf_my_clubs") || "[]");
     const target = clubs.find((c) => c.id === id);
@@ -396,7 +440,6 @@ document.addEventListener("DOMContentLoaded", () => {
     clubForm.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  // 클럽 카드 렌더링 (요약 비교뷰 + 클릭 시 상세 확장)
   function renderClubs() {
     if (!clubList) return;
     const clubs = JSON.parse(localStorage.getItem("golf_my_clubs") || "[]");
@@ -429,7 +472,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         </div>
 
-        <!-- 1) 기본 비교 요약 뷰 (요청하신 9가지 핵심 스펙) -->
+        <!-- 기본 비교 요약 뷰 (9가지 핵심 스펙) -->
         <div class="spec-grid spec-summary-grid">
           <div>로프트/라이: <strong>${club.loft || "-"} / ${club.lie || "-"}</strong></div>
           <div>샤프트: <strong>${club.shaftWeight ? club.shaftWeight : '-'} (${club.flex || '-'})</strong></div>
@@ -437,7 +480,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div>스윙웨이트: <strong style="color:#81c784;">${club.swingweight || "-"}</strong></div>
         </div>
 
-        <!-- 2) 클릭 시 확장되는 세부 스펙 뷰 (아코디언) -->
+        <!-- 클릭 시 확장되는 세부 스펙 뷰 (아코디언) -->
         <div class="club-detail-drawer" id="detail-${club.id}">
           <div class="detail-divider"></div>
           <div class="spec-grid spec-detail-grid">
@@ -454,7 +497,6 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="expand-hint">터치하여 상세 스펙 펼치기 ▾</div>
       `;
 
-      // 카드 클릭 시 세부 스펙 토글 (단, 수정/삭제 버튼 클릭 시 제외)
       item.addEventListener("click", (e) => {
         if (e.target.closest(".action-text-btn")) return;
         const drawer = item.querySelector(".club-detail-drawer");
@@ -466,7 +508,6 @@ document.addEventListener("DOMContentLoaded", () => {
       clubList.appendChild(item);
     });
 
-    // 수정 버튼 이벤트 연결
     clubList.querySelectorAll(".edit-club-btn").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -475,7 +516,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // 삭제 버튼 이벤트 연결
     clubList.querySelectorAll(".delete-club-btn").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -489,7 +529,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 클럽 등록 및 수정 폼 제출
   if (clubForm) {
     clubForm.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -556,7 +595,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   renderClubs();
 
-  // 클럽 데이터 CSV 내보내기
+  // 클럽 데이터 CSV 내보내기 (차수 글자 제거 헤더)
   const exportClubCsvBtn = document.getElementById("export-club-csv-btn");
   if (exportClubCsvBtn) {
     exportClubCsvBtn.addEventListener("click", () => {
@@ -619,7 +658,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // 8. 드릴 & 레슨 관리 모듈 (수정 기능 추가)
+  // 8. 드릴 & 레슨 관리 모듈 (문구 변경 반영)
   // ==========================================
   const toggleDrillFormBtn = document.getElementById("toggle-drill-form-btn");
   const drillForm = document.getElementById("drill-form");
@@ -701,7 +740,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         </div>
         ${drill.memo ? `<div style="font-size:0.83rem; color:#aaaaaa; margin-top:4px;">💡 ${drill.memo}</div>` : ""}
-        <a href="${drill.url}" target="_blank" rel="noopener noreferrer" class="link-action-btn">▶ YouTube 영상 열기</a>
+        <a href="${drill.url}" target="_blank" rel="noopener noreferrer" class="link-action-btn">▶ Youtube / 레슨 바로가기</a>
       `;
       drillList.appendChild(item);
     });
