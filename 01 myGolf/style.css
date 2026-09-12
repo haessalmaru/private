@@ -176,6 +176,57 @@ body {
   line-height: 1.4;
 }
 
+/* 직전 복기 최근 3개 리스트 스타일 */
+.action-list-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.action-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background-color: #162216;
+  border: 1px solid #264228;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
+.action-item-num {
+  background-color: #2e7d32;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.action-item-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.action-item-date {
+  font-size: 0.72rem;
+  color: #81c784;
+}
+
+.action-item-text {
+  font-size: 0.9rem;
+  color: #ffffff;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
 .field-label {
   font-size: 0.8rem;
   color: #aaaaaa;
@@ -305,6 +356,65 @@ body {
   color: #b0bec5;
   border: 1px dashed #546e7a;
   padding: 10px;
+}
+
+/* 드릴 탭: 실시간 검색 & 카테고리 필터 칩 (방안 A) */
+.drill-search-box {
+  margin-bottom: 8px;
+}
+
+.category-chip-scroll {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.category-chip-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-chip-btn {
+  background-color: #252525;
+  color: #aaaaaa;
+  border: 1px solid #3d3d3d;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.filter-chip-btn.active {
+  background-color: #2e7d32;
+  color: #ffffff;
+  border-color: #4caf50;
+  font-weight: 700;
+}
+
+/* 빠른 카테고리 태그 칩 (폼 내부) */
+.quick-chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.quick-chip {
+  background-color: #222e22;
+  color: #81c784;
+  border: 1px solid #335533;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.quick-chip:hover {
+  background-color: #2e4d2e;
 }
 
 /* 리스트 컴포넌트 */

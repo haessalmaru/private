@@ -50,15 +50,17 @@
         <div class="summary-sub" id="sum-top-miss">주요 미스샷 트리거: 데이터 수집 중</div>
       </div>
 
-      <!-- 1. 직전 연습 핵심 복기 (Must Do) -->
+      <!-- 1. 최근 핵심 복기 과제 (최근 3개 최신순) -->
       <div class="card card-accent">
-        <div class="card-title">🚨 직전 연습 핵심 복기 (Must Do)</div>
-        <div id="prev-action-display" class="highlight-text">아직 이전 기록이 없습니다. 힘빼고 가볍게 스윙을 시작하세요!</div>
+        <div class="card-title">🚨 최근 핵심 복기 과제 (Recent 3 Must Do)</div>
+        <div id="prev-action-display" class="action-list-wrap">
+          <div class="highlight-text">아직 이전 기록이 없습니다. 힘빼고 가볍게 스윙을 시작하세요!</div>
+        </div>
       </div>
 
       <!-- 2. 연습 일지 입력 폼 -->
       <form id="practice-form">
-        <!-- 연습 시간: 칩 + 커스텀 Stepper (+,-) -->
+        <!-- 연습 시간: 칩 + Stepper (+,-) -->
         <div class="card">
           <div class="card-title">⏱️ 연습 시간</div>
           <div class="chip-group" id="duration-group">
@@ -158,7 +160,7 @@
         </div>
       </div>
 
-      <footer class="release-footer">골프연습 & 기록앱 by Monk v1.1</footer>
+      <footer class="release-footer">골프연습 & 기록앱 by Monk v1.2</footer>
     </section>
 
     <!-- ========================================== -->
@@ -173,7 +175,7 @@
         </div>
       </div>
 
-      <!-- 클럽 등록 및 수정 폼 (차수 글자 삭제) -->
+      <!-- 클럽 등록 및 수정 폼 -->
       <form id="club-form" class="card hidden-form">
         <div class="card-title" id="club-form-title">신규 클럽 상세 스펙 등록</div>
         <input type="hidden" id="club-edit-id" value="">
@@ -250,7 +252,7 @@
           </div>
         </div>
 
-        <!-- 웨지 전용 스펙 (웨지 선택 시에만 표시) -->
+        <!-- 웨지 전용 스펙 -->
         <div id="wedge-spec-group" class="form-row" style="margin-top: 8px; display: none;">
           <div style="flex: 1;">
             <label class="field-label">웨지 바운스각</label>
@@ -362,11 +364,11 @@
       <!-- 클럽 비교 리스트 -->
       <div id="club-list" class="item-list" style="margin-top: 12px;"></div>
 
-      <footer class="release-footer">골프연습 & 기록앱 by Monk v1.1</footer>
+      <footer class="release-footer">골프연습 & 기록앱 by Monk v1.2</footer>
     </section>
 
     <!-- ========================================== -->
-    <!-- 탭 3: 드릴 & 레슨 (플레이스홀더 및 버튼 문구 변경) -->
+    <!-- 탭 3: 드릴 & 레슨 (검색 & 카테고리 필터 탑재) -->
     <!-- ========================================== -->
     <section id="tab-drills" class="tab-panel">
       <div class="section-header">
@@ -374,23 +376,57 @@
         <button type="button" id="toggle-drill-form-btn" class="sub-action-btn">+ 레슨 추가</button>
       </div>
 
+      <!-- 실시간 검색창 & 카테고리 필터 칩 바 (방안 A) -->
+      <div class="drill-search-box">
+        <input type="text" id="drill-search-input" class="form-input" placeholder="🔍 레슨 검색 (제목, 키워드, 카테고리)">
+      </div>
+      <div class="category-chip-scroll" id="drill-filter-chips">
+        <!-- JS에서 필터 칩 동적 렌더링 -->
+      </div>
+
+      <!-- 신규/수정 드릴 입력 폼 -->
       <form id="drill-form" class="card hidden-form">
         <div class="card-title" id="drill-form-title">신규 레슨/드릴 저장</div>
         <input type="hidden" id="drill-edit-id" value="">
-        <input type="text" id="drill-category" class="form-input" placeholder="카테고리 (예: 허리편한 스윙, 드로우 드릴)" required>
-        <input type="text" id="drill-title" class="form-input" style="margin-top: 8px;" placeholder="레슨 제목 (예: 힘빼고 치는 테이크백)" required>
-        <input type="url" id="drill-url" class="form-input" style="margin-top: 8px;" placeholder="유튜브 영상, 블로그 링크 URL (바로가기 기능 제공)" required>
-        <input type="text" id="drill-memo" class="form-input" style="margin-top: 8px;" placeholder="핵심 체크포인트 메모 1줄">
+
+        <div>
+          <label class="field-label">카테고리 분류</label>
+          <input type="text" id="drill-category" class="form-input" placeholder="예: 드라이버, 허리편한 스윙, 드로우 드릴" required>
+          <!-- 빠른 카테고리 선택 태그 칩 -->
+          <div class="quick-chip-group" id="drill-quick-chips">
+            <button type="button" class="quick-chip" data-cat="드라이버">드라이버</button>
+            <button type="button" class="quick-chip" data-cat="아이언/웨지">아이언/웨지</button>
+            <button type="button" class="quick-chip" data-cat="힘빼기/부상방지">힘빼기/부상방지</button>
+            <button type="button" class="quick-chip" data-cat="궤도/드로우">궤도/드로우</button>
+            <button type="button" class="quick-chip" data-cat="퍼팅">퍼팅</button>
+          </div>
+        </div>
+
+        <div style="margin-top: 8px;">
+          <label class="field-label">레슨 제목</label>
+          <input type="text" id="drill-title" class="form-input" placeholder="예: 힘빼고 치는 테이크백 요령" required>
+        </div>
+
+        <div style="margin-top: 8px;">
+          <label class="field-label">영상/블로그 URL 링크</label>
+          <input type="url" id="drill-url" class="form-input" placeholder="유튜브 영상, 블로그 링크 URL (바로가기 기능 제공)" required>
+        </div>
+
+        <div style="margin-top: 8px;">
+          <label class="field-label">핵심 체크포인트 메모</label>
+          <input type="text" id="drill-memo" class="form-input" placeholder="핵심 체크포인트 메모 1줄">
+        </div>
         
-        <div class="button-row" style="margin-top: 12px;">
+        <div class="button-row" style="margin-top: 14px;">
           <button type="submit" id="submit-drill-btn" class="submit-btn" style="margin: 0;">드릴 저장</button>
           <button type="button" id="cancel-drill-edit-btn" class="backup-btn" style="background:#424242; color:#fff; display:none;">취소</button>
         </div>
       </form>
 
+      <!-- 필터링된 드릴 리스트 -->
       <div id="drill-list" class="item-list"></div>
 
-      <footer class="release-footer">골프연습 & 기록앱 by Monk v1.1</footer>
+      <footer class="release-footer">골프연습 & 기록앱 by Monk v1.2</footer>
     </section>
   </main>
 
