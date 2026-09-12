@@ -364,6 +364,125 @@ body {
   font-size: 0.65rem;
 }
 
+/* ========================================== */
+/* AI 프롬프트 생성 배너 및 범용 연동 버튼 */
+/* ========================================== */
+.ai-prompt-banner {
+  margin-top: 14px;
+  background: linear-gradient(135deg, #182838 0%, #15202b 100%);
+  border: 1px solid #284462;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ai-prompt-banner-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-banner-badge {
+  background-color: #1976d2;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.ai-banner-desc {
+  font-size: 0.78rem;
+  color: #90caf9;
+}
+
+.ai-prompt-btn {
+  width: 100%;
+  background: linear-gradient(90deg, #1976d2 0%, #0288d1 100%);
+  color: #ffffff;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.ai-prompt-btn:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.ai-guide-tip {
+  background-color: #172418;
+  border: 1px solid #234226;
+  color: #a5d6a7;
+  font-size: 0.75rem;
+  padding: 8px 10px;
+  border-radius: 6px;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.ai-prompt-textarea {
+  width: 100%;
+  background-color: #141414;
+  color: #e0e0e0;
+  border: 1px solid #333333;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.ai-prompt-textarea:focus {
+  border-color: #1976d2;
+}
+
+/* 빠른 AI 바로가기 그리드 (ChatGPT / Gemini) */
+.ai-fast-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.ai-service-btn {
+  border: none;
+  padding: 10px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.btn-chatgpt {
+  background-color: #10a37f;
+  color: #ffffff;
+}
+
+.btn-gemini {
+  background-color: #1e88e5;
+  color: #ffffff;
+}
+
+.ai-service-btn:active {
+  opacity: 0.88;
+  transform: scale(0.98);
+}
+
 /* Stepper 버튼 (+, -) */
 .stepper-btn {
   background-color: #333333;
@@ -729,9 +848,7 @@ body {
   transform: scale(0.98);
 }
 
-/* ========================================== */
 /* 모달 팝업 스타일 */
-/* ========================================== */
 .modal-overlay {
   display: none;
   position: fixed;
@@ -909,7 +1026,6 @@ body {
   border-color: #2e7d32;
 }
 
-/* 100분대 3자리 이상 숫자도 한 줄로 컴팩트하게 노출 */
 .cal-day .day-dot {
   font-size: 0.58rem;
   color: #81c784;

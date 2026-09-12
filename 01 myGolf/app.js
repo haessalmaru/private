@@ -1,84 +1,97 @@
 document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
-  // 0. 미스샷 10대 원인 백과 데이터 정의 (원인 / 미스샷 / 교정드릴 3단계)
+  // 0. 미스샷 10대 원인 백과 및 AI 진단 체크포인트 데이터
   // ==========================================
-  // 상단 2열 배치 그룹 (6개)
   const MISS_REASONS_PAIR = [
     {
       id: "sway",
       name: "스웨이 & 슬라이드",
       cause: "골반과 흉추의 회전(Turn) 가동성이 부족하거나, 체중 이동을 '몸을 옆으로 밀어내는 것'으로 오해하여 백스윙 시 오른쪽 골반이 우측으로 밀리거나(스웨이), 다운스윙 시 왼쪽 골반이 타깃 쪽으로 과하게 밀려남(슬라이드).",
       result: "스윙 회전축 중심이 흔들려 최저점이 불일치해지며 뒤땅, 탑볼, 심한 푸시 블록 유발.",
-      drill: "• 오른발 안쪽 에지 밟기: 백스윙 시 오른발 안쪽에 체중과 압력을 가두고, 오른쪽 고관절을 접어 '우측 엉덩이를 뒤쪽 대각선으로 집어넣는다'는 느낌으로 회전합니다.\n• 얼라인먼트 스틱 드릴: 오른쪽 골반 바깥쪽 지면에 스틱을 수직으로 꽂아두고, 백스윙 회전 시 골반이 스틱에 닿지 않도록 제자리 턴을 연습합니다."
+      drill: "• 오른발 안쪽 에지 밟기: 백스윙 시 오른발 안쪽에 체중과 압력을 가두고, 오른쪽 고관절을 접어 '우측 엉덩이를 뒤쪽 대각선으로 집어넣는다'는 느낌으로 회전합니다.\n• 얼라인먼트 스틱 드릴: 오른쪽 골반 바깥쪽 지면에 스틱을 수직으로 꽂아두고, 백스윙 회전 시 골반이 스틱에 닿지 않도록 제자리 턴을 연습합니다.",
+      aiCheckpoint: "백스윙 탑에서 우측 고관절 힌지 유지 여부 및 다운스윙 전환 시 좌측 골반이 회전 대신 타깃 방향으로 과도하게 슬라이드되는지 여부"
     },
     {
       id: "over_the_top",
       name: "오버 더 탑 (엎어치기)",
       cause: "다운스윙 전환(Transition) 시 하체 지면 반력 및 골반 언로딩이 선행되지 않고, 상체(오른쪽 어깨와 팔)에 힘이 과하게 들어가 클럽을 손으로 끌어내리면서 클럽 샤프트가 스윙 플레인 앞쪽으로 쏟아져 나옴.",
       result: "바깥에서 안으로 깎아 치는 아웃-인(Out-to-In) 궤도가 만들어져 극단적인 슬라이스(페이스 열림 시) 또는 당겨 치는 풀 훅(페이스 닫힘 시) 유발.",
-      drill: "• 스플릿 핸드 & 수직 낙하 드릴: 다운스윙 전환 시 상체 회전을 멈춘 상태에서 양팔과 그립 끝이 오른쪽 주머니 쪽으로 먼저 툭 떨어지는(Drop) 감각을 익힙니다.\n• 볼 2개 배치 드릴: 타격할 볼의 우측 상단(대각선 앞)에 볼 한 개를 두고, 바깥쪽 볼을 건드리지 않고 안쪽 볼만 치는 훈련을 통해 샬로잉(Shallowing) 인-아웃 궤도를 유도합니다."
+      drill: "• 스플릿 핸드 & 수직 낙하 드릴: 다운스윙 전환 시 상체 회전을 멈춘 상태에서 양팔과 그립 끝이 오른쪽 주머니 쪽으로 먼저 툭 떨어지는(Drop) 감각을 익힙니다.\n• 볼 2개 배치 드릴: 타격할 볼의 우측 상단(대각선 앞)에 볼 한 개를 두고, 바깥쪽 볼을 건드리지 않고 안쪽 볼만 치는 훈련을 통해 샬로잉(Shallowing) 인-아웃 궤도를 유도합니다.",
+      aiCheckpoint: "다운스윙 시작 시 하체 리드 선행 여부 및 오른쪽 어깨/팔이 앞으로 덤비며 샤프트가 스윙 플레인 바깥에서 쏟아지는 아웃-인 궤도 발생 여부"
     },
     {
       id: "early_extension",
       name: "얼리 익스텐션 (배치기)",
       cause: "다운스윙 시 골반의 후방 경사(Pelvic Tilt) 및 힌지 유지가 무너지고 하체가 타깃 방향 회전 대신 공 방향(전방)으로 전진하여 척추 각도가 조기에 펴짐.",
       result: "손과 팔이 지나갈 회전 공간이 사라져 손목이 일찍 풀리며 생크(넥 타격), 탑볼, 블록성 푸시, 급격한 악성 풀 훅 유발.",
-      drill: "• 엉덩이 벽 대기(Wall Drill): 벽에서 주먹 하나 거리만큼 떨어져 어드레스한 뒤 백스윙 때는 우측 엉덩이가, 다운스윙-임팩트 구간에서는 좌측 엉덩이가 벽에 지속적으로 닿아 있도록 유지하며 스윙합니다.\n• 의식적 포인트: 다운스윙 시작 시 '배를 내미는 것'이 아니라 '왼쪽 엉덩이를 뒤로 밀어내며(Hip Hinge 유지) 공간을 확보한다'고 생각합니다."
+      drill: "• 엉덩이 벽 대기(Wall Drill): 벽에서 주먹 하나 거리만큼 떨어져 어드레스한 뒤 백스윙 때는 우측 엉덩이가, 다운스윙-임팩트 구간에서는 좌측 엉덩이가 벽에 지속적으로 닿아 있도록 유지하며 스윙합니다.\n• 의식적 포인트: 다운스윙 시작 시 '배를 내미는 것'이 아니라 '왼쪽 엉덩이를 뒤로 밀어내며(Hip Hinge 유지) 공간을 확보한다'고 생각합니다.",
+      aiCheckpoint: "임팩트 구간에서 어드레스 시 형성된 척추 각도(Spine Angle) 유지 여부 및 골반이 볼 방향으로 전진하며 손목 공간을 좁히는지 여부"
     },
     {
       id: "casting_scooping",
       name: "캐스팅 & 스쿠핑",
       cause: "볼을 강하게 치려 하거나 공중에 띄우려는 본능적 보상으로, 탑에서 래깅(Lagging)을 유지하지 못하고 손목 코킹을 조기에 풀어버리거나(캐스팅), 임팩트 순간 왼 손목이 손등 쪽으로 꺾이며(스쿠핑) 헤드를 걷어 올림.",
       result: "로프트 각도가 누워 스핀량만 증가하고 비거리가 급감하며, 클럽이 공 앞이 아닌 뒤를 가격하는 뒤땅 및 들어 올리면서 맞는 탑볼 유발.",
-      drill: "• 왼 손목 보잉(Bowing) 인지: 임팩트 순간 왼 손목 장갑 로고가 타깃을 향하게 하고 손이 헤드보다 앞서 통과하는 핸드퍼스트(Hand-first) 상태를 유지합니다.\n• 수건 타격 드릴: 볼 뒤쪽 15cm 지점에 얇은 수건을 깔아두고, 수건을 건드리지 않고 공만 먼저 깨끗하게 찍어 치는(Compress) 다운블로 연습을 합니다."
+      drill: "• 왼 손목 보잉(Bowing) 인지: 임팩트 순간 왼 손목 장갑 로고가 타깃을 향하게 하고 손이 헤드보다 앞서 통과하는 핸드퍼스트(Hand-first) 상태를 유지합니다.\n• 수건 타격 드릴: 볼 뒤쪽 15cm 지점에 얇은 수건을 깔아두고, 수건을 건드리지 않고 공만 먼저 깨끗하게 찍어 치는(Compress) 다운블로 연습을 합니다.",
+      aiCheckpoint: "다운스윙 초기에 손목 코킹 래깅(Lagging)이 유지되는지 및 임팩트 순간 핸드퍼스트 타격 대신 왼손목이 꺾여 헤드가 손을 앞지르는 스쿠핑 여부"
     },
     {
       id: "head_up",
       name: "헤드업 & 시선 이탈",
       cause: "볼의 비행 궤적을 눈으로 확인하려는 심리적 조급함, 또는 흉추 회전 유연성이 부족해 몸통을 돌리기 위해 머리와 시선을 함께 타깃 쪽으로 들어 올리는 보상 동작.",
       result: "척추 각도가 세워지며 스윙 최저점이 지면보다 높아져 발생하는 탑볼(Topping) 및 클럽 페이스가 스퀘어로 닫히지 못해 생기는 슬라이스 유발.",
-      drill: "• 동전/마킹 응시 드릴: 볼 뒤쪽 2~3cm 지점에 동전을 두거나 볼의 특정 로고/딤플 하나를 정해놓고, 임팩트 순간을 지나 클럽 헤드가 볼을 완전히 통과할 때까지 그 지점을 시선으로 지켜봅니다.\n• 의식적 포인트: '머리를 억지로 고정해 목을 굳히는 것'이 아니라, '턱 밑으로 왼쪽 어깨가 들어오고 오른쪽 어깨가 빠져나갈 때까지 가슴의 시선 각도를 유지한다'고 이해해야 목 부상을 방지할 수 있습니다."
+      drill: "• 동전/마킹 응시 드릴: 볼 뒤쪽 2~3cm 지점에 동전을 두거나 볼의 특정 로고/딤플 하나를 정해놓고, 임팩트 순간을 지나 클럽 헤드가 볼을 완전히 통과할 때까지 그 지점을 시선으로 지켜봅니다.\n• 의식적 포인트: '머리를 억지로 고정해 목을 굳히는 것'이 아니라, '턱 밑으로 왼쪽 어깨가 들어오고 오른쪽 어깨가 빠져나갈 때까지 가슴의 시선 각도를 유지한다'고 이해해야 목 부상을 방지할 수 있습니다.",
+      aiCheckpoint: "임팩트 순간까지 시선과 머리가 어드레스 축에 안정적으로 머무는지 및 임팩트 직전 시선과 머리가 타깃 방향으로 조기 회전/들리는지 여부"
     },
     {
       id: "reverse_pivot",
       name: "리버스 피벗 (역피봇)",
       cause: "체중을 올바르게 우측으로 실어주지 못하고 머리를 고정하려고만 하다가 백스윙 탑에서 상체 척추가 타깃 쪽으로 꺾이며 체중이 왼발에 남고, 반대로 다운스윙 때 몸이 뒤로 자빠지는 역체중 이동.",
       result: "스윙의 회전 밸런스가 완전히 역전되어 클럽이 지면에 먼저 찍히는 뒤땅, 보상으로 상체를 젖히며 발생하는 탑볼 및 심한 풀 슬라이스 유발.",
-      drill: "• 스텝 스윙 드릴: 어드레스 후 백스윙을 시작하면서 오른발을 반 걸음 오른쪽으로 딛고, 다운스윙 시 왼발을 타깃 쪽으로 딛으며 스윙하는 야구 배팅 스윙 훈련.\n• 의식적 포인트: 백스윙 탑에서 흉골(명치)이 오른발 허벅지 안쪽 위에 위치한다는 느낌으로 척추 기울기(Spine Tilt)를 타깃 반대편으로 유지합니다."
+      drill: "• 스텝 스윙 드릴: 어드레스 후 백스윙을 시작하면서 오른발을 반 걸음 오른쪽으로 딛고, 다운스윙 시 왼발을 타깃 쪽으로 딛으며 스윙하는 야구 배팅 스윙 훈련.\n• 의식적 포인트: 백스윙 탑에서 흉골(명치)이 오른발 허벅지 안쪽 위에 위치한다는 느낌으로 척추 기울기(Spine Tilt)를 타깃 반대편으로 유지합니다.",
+      aiCheckpoint: "백스윙 탑에서 척추 중심축이 타깃 방향으로 꺾여 체중이 왼발에 역으로 실리는지 및 다운스윙 시 오른발로 역이동하는 밸런스 붕괴 여부"
     }
   ];
 
-  // 하단 4열 한 줄 배치 그룹 (4개)
   const MISS_REASONS_ROW = [
     {
       id: "lunging",
       name: "상체 덤빔",
       cause: "비거리를 내기 위해 몸 전체의 힘을 볼에 실으려 하거나, 다운스윙 시 하체 회전 리드 없이 상체(흉곽과 머리)가 타깃 방향으로 통째로 앞으로 돌진하는 동작.",
       result: "어택 앵글이 지나치게 가팔라져 드라이버의 경우 스카이 샷(뽕샷), 아이언의 경우 과도한 찍힘과 호젤 타격으로 인한 생크 및 슬라이스 유발.",
-      drill: "• 머리 뒤에 두고 휘두르기: 임팩트 순간 머리 위치는 어드레스 시점의 공 위치보다 뒤(오른쪽)에 머물러 있어야 한다는 기준점을 잡습니다.\n• 오른발 뒤꿈치 늦게 떼기: 임팩트 직전까지 오른발 뒤꿈치를 지면에 최대한 붙여두고 스윙하여 상체가 전방으로 쏠려 나가는 현상을 제어합니다."
+      drill: "• 머리 뒤에 두고 휘두르기: 임팩트 순간 머리 위치는 어드레스 시점의 공 위치보다 뒤(오른쪽)에 머물러 있어야 한다는 기준점을 잡습니다.\n• 오른발 뒤꿈치 늦게 떼기: 임팩트 직전까지 오른발 뒤꿈치를 지면에 최대한 붙여두고 스윙하여 상체가 전방으로 쏠려 나가는 현상을 제어합니다.",
+      aiCheckpoint: "임팩트 시 상체(가슴과 머리)가 볼보다 타깃 쪽으로 앞서 돌진하여 지나치게 가파른 입사각(Steep Angle)을 형성하는지 여부"
     },
     {
       id: "chicken_wing",
       name: "치킨 윙",
       cause: "임팩트 이후 포워드 스윙 구간에서 전완근(Forearm)의 자연스러운 외회전/내회전 릴리스(Supination)가 막히고, 손목이나 그립에 과도한 경직이 생겨 당겨치면서 왼팔꿈치가 등 뒤로 빠짐.",
       result: "클럽 페이스가 직각으로 닫히지 못해 슬라이스가 발생하고, 아크 반경이 줄어들어 임팩트 충격 전달이 안 되어 비거리 손실 극대화.",
-      drill: "• 양팔 사이 공 끼우고 스윙: 작은 연습용 볼이나 수건을 양 팔뚝 사이에 끼운 채로 하프스윙을 진행하여, 팔로우스루 구간에서도 팔꿈치 사이 간격이 벌어지지 않도록 강제합니다.\n• 의식적 포인트: 왼팔을 억지로 펴려고 힘을 주기보다, 임팩트 후 왼팔 팔꿈치 안쪽 접히는 면이 하늘을 향하도록 전완을 자연스럽게 롤링(회전)해 줍니다."
+      drill: "• 양팔 사이 공 끼우고 스윙: 작은 연습용 볼이나 수건을 양 팔뚝 사이에 끼운 채로 하프스윙을 진행하여, 팔로우스루 구간에서도 팔꿈치 사이 간격이 벌어지지 않도록 강제합니다.\n• 의식적 포인트: 왼팔을 억지로 펴려고 힘을 주기보다, 임팩트 후 왼팔 팔꿈치 안쪽 접히는 면이 하늘을 향하도록 전완을 자연스럽게 롤링(회전)해 줍니다.",
+      aiCheckpoint: "임팩트 후 팔로우스루 구간에서 왼팔 전완 롤링 릴리스가 이루어지지 않고 왼팔꿈치가 몸통 뒤쪽으로 구부러져 당겨지는지 여부"
     },
     {
       id: "hanging_back",
       name: "행잉 백",
       cause: "다운스윙 시 지면 반력 이동과 좌측 힙 턴이 일어나지 않고, 공을 높게 띄우려는 의도로 상체와 머리가 오른발 위에 머물며 뒤에 누워버리는 동작.",
       result: "스윙의 최저점이 볼 한참 뒤에 형성되어 발생하는 심한 뒤땅(Fat shot) 및 보상 작용으로 손목을 급격히 덮어버리며 발생하는 악성 풀 훅 유발.",
-      drill: "• 스텝 스루(Walk Through) 드릴: 임팩트 후 피니시를 잡을 때 자연스럽게 오른발을 떼어 타깃 방향으로 한 걸음 걸어 나가는 연습을 통해 체중이 왼발로 100% 실리도록 만듭니다.\n• 의식적 포인트: 다운스윙 전환의 첫 트리거를 손이나 어깨가 아닌 '왼발 뒤꿈치로 지면을 밟는 것'으로 시작합니다."
+      drill: "• 스텝 스루(Walk Through) 드릴: 임팩트 후 피니시를 잡을 때 자연스럽게 오른발을 떼어 타깃 방향으로 한 걸음 걸어 나가는 연습을 통해 체중이 왼발로 100% 실리도록 만듭니다.\n• 의식적 포인트: 다운스윙 전환의 첫 트리거를 손이나 어깨가 아닌 '왼발 뒤꿈치로 지면을 밟는 것'으로 시작합니다.",
+      aiCheckpoint: "다운스윙부터 임팩트 이후 피니시까지 체중이 왼발로 완전하게 전이되지 못하고 오른발에 남아 뒤로 누워 퍼올리는지 여부"
     },
     {
       id: "flying_elbow",
       name: "플라잉 엘보",
       cause: "백스윙 시 흉추와 어깨 회전이 부족한 상태에서 팔로만 클럽을 더 높이 올리려 하거나, 오른팔 회전근개의 외회전 유연성이 부족해 오른쪽 팔꿈치가 몸통 바깥 등 뒤로 벌어짐.",
       result: "백스윙 탑에서 클럽 샤프트가 타깃 오른쪽을 가리키는 크로스 오버(Cross Over)가 발생하여 다운스윙 시 필연적으로 오버 더 탑(엎어치기)을 유발, 심한 풀/슬라이스 직결.",
-      drill: "• 웨이터 쟁반 들기 느낌: 백스윙 탑에서 오른손 바닥이 하늘을 향하고, 오른팔 팔꿈치가 지면을 똑바로 가리키는 형태를 인위적으로 만듭니다.\n• 겨드랑이 헤드커버 끼우기: 오른쪽 겨드랑이에 드라이버 헤드커버나 수건을 끼우고 백스윙 탑까지 떨어뜨리지 않고 유지하는 드릴을 수행합니다."
+      drill: "• 웨이터 쟁반 들기 느낌: 백스윙 탑에서 오른손 바닥이 하늘을 향하고, 오른팔 팔꿈치가 지면을 똑바로 가리키는 형태를 인위적으로 만듭니다.\n• 겨드랑이 헤드커버 끼우기: 오른쪽 겨드랑이에 드라이버 헤드커버나 수건을 끼우고 백스윙 탑까지 떨어뜨리지 않고 유지하는 드릴을 수행합니다.",
+      aiCheckpoint: "백스윙 탑에서 오른쪽 팔꿈치가 지면을 향하지 않고 몸통 뒤로 과도하게 벌어져 크로스오버 및 엎어치기 궤도를 형성하는지 여부"
     }
   ];
+
+  const ALL_MISS_MAP = {};
+  [...MISS_REASONS_PAIR, ...MISS_REASONS_ROW].forEach(item => {
+    ALL_MISS_MAP[item.name] = item;
+  });
 
   // ==========================================
   // 0-1. 날짜 표준화 헬퍼
@@ -100,6 +113,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // 0-2. 릴리즈 노트 히스토리 데이터 정의
   // ==========================================
   const RELEASE_HISTORY = [
+    {
+      version: "v1.4",
+      title: "AI 스윙 정밀 분석 질문 자동 생성기 & 범용 AI(ChatGPT/Gemini/공유) 연동",
+      features: [
+        "미스샷 자가 진단 기반 모듈형 프롬프트 조립(Modular Prompt) 엔진 신설",
+        "미스샷 0개 선택 시 직관적 유도 안내 / 1개 이상 선택 시 전문 질문지 즉시 생성",
+        "단일 결함 분석 및 복수 결함 시 '보상 동작 인과관계 추적 & 1순위 교정 처방' 자동 결합",
+        "범용 AI 친화적 구성: 메인 질문 복사 + ChatGPT/Gemini 원터치 열기 + 스마트폰 기본 앱 공유하기 탑재"
+      ]
+    },
     {
       version: "v1.3",
       title: "9대 미스샷 백과, 과거일자 소급 달력 & 인터랙티브 분석 모달",
@@ -389,7 +412,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!missReasonContainer) return;
     missReasonContainer.innerHTML = "";
 
-    // 1. 상단 2열 그리드 컨테이너 (6개)
+    // 1. 상단 2열 그리드 (6개)
     const pairGrid = document.createElement("div");
     pairGrid.className = "miss-grid-pair";
     MISS_REASONS_PAIR.forEach((item) => {
@@ -397,7 +420,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     missReasonContainer.appendChild(pairGrid);
 
-    // 2. 하단 4열 한 줄 그리드 컨테이너 (4개: 상체 덤빔, 치킨 윙, 행잉 백, 플라잉 엘보)
+    // 2. 하단 4열 한 줄 그리드 (4개)
     const quadGrid = document.createElement("div");
     quadGrid.className = "miss-grid-quad";
     MISS_REASONS_ROW.forEach((item) => {
@@ -407,6 +430,157 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   renderMissReasonChips();
+
+  // ==========================================
+  // 5-1. 모듈형 AI 스윙 분석 질문 생성기 (알고리즘)
+  // ==========================================
+  function assembleAiPrompt(selectedNames) {
+    const namesArray = Array.from(selectedNames);
+    const count = namesArray.length;
+
+    let prompt = `골프 스윙 영상을 첨부합니다. 오늘 연습 세션에서 [${namesArray.join(", ")}] 문제가 집중 발생했습니다.\n`;
+    prompt += `첨부된 영상의 프레임별(어드레스, 백스윙 탑, 다운스윙 전환, 임팩트, 팔로우스루) 움직임을 바탕으로 아래 항목들을 전문 교습가 관점에서 정밀 진단해 주세요.\n\n`;
+
+    prompt += `1. 주요 결함 집중 체크포인트:\n`;
+    namesArray.forEach((name, idx) => {
+      const item = ALL_MISS_MAP[name];
+      const checkpoint = item ? item.aiCheckpoint : name;
+      prompt += `   (${String.fromCharCode(97 + idx)}) [${name}]: ${checkpoint}\n`;
+    });
+
+    if (count > 1) {
+      prompt += `\n2. 결함 간 인과관계(보상 동작) 분석:\n`;
+      prompt += `   - 위 결함들이 개별적인 실수인지, 아니면 선행 결함(예: 테이크백/탑 단계)으로 인해 다운스윙 시 불가피하게 나타난 연쇄 보상 동작(Compensatory Movement)인지 명확히 짚어주세요.\n`;
+      prompt += `\n3. 최우선 교정 처방 (1순위 One-Thing):\n`;
+      prompt += `   - 현재 여러 문제가 복합된 상태입니다. 가장 먼저 고쳐야 다른 문제들이 자연스럽게 해결될 '단 1가지 핵심 신체 느낌(Feel)'과 즉각 적용 가능한 추천 드릴 1개를 제시해 주세요.`;
+    } else {
+      prompt += `\n2. 근본 발생 원인 및 타점 분석:\n`;
+      prompt += `   - 해당 결함이 발생할 때 클럽 헤드의 스윙 궤도와 최저점 타점(뒤땅/탑볼/페이스 열림 등)에 미치는 결정적 원인을 분석해 주세요.\n`;
+      prompt += `\n3. 즉각적인 해결책 (One-Thing 큐):\n`;
+      prompt += `   - 타석에서 바로 다음 샷에 적용할 수 있는 직관적인 신체 감각 큐(Feel Cue)와 핵심 교정 드릴 1개를 알려주세요.`;
+    }
+
+    return prompt;
+  }
+
+  // ==========================================
+  // 5-2. 범용 AI 질문 생성 모달 (Gemini/ChatGPT/공유하기 지원)
+  // ==========================================
+  const generateAiPromptBtn = document.getElementById("generate-ai-prompt-btn");
+  if (generateAiPromptBtn) {
+    generateAiPromptBtn.addEventListener("click", () => {
+      if (selectedMissReasons.size === 0) {
+        alert("⚠️ 위 목록에서 오늘 발생한 미스샷 원인을 1개 이상 먼저 선택해 주세요!");
+        const missCard = document.getElementById("miss-reason-card");
+        if (missCard) missCard.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      const promptText = assembleAiPrompt(selectedMissReasons);
+
+      openModal(
+        "🎬 AI 스윙 정밀 분석 질문 생성",
+        `
+        <div class="ai-prompt-modal-wrap">
+          <div class="field-label" style="color:#81c784; font-weight:600; margin-bottom:4px;">
+            ✓ 감지된 미스샷 (${selectedMissReasons.size}개): ${Array.from(selectedMissReasons).join(", ")}
+          </div>
+          <div class="ai-guide-tip">
+            💡 <strong>사용 팁:</strong> 생성된 질문을 복사한 뒤, <strong>자주 쓰시는 AI(ChatGPT, Gemini, Claude 등)</strong>에 스윙 영상과 함께 붙여넣기(Ctrl+V) 하세요!
+          </div>
+
+          <textarea id="ai-prompt-textarea" class="ai-prompt-textarea" rows="8">${promptText}</textarea>
+          
+          <!-- 메인 액션 1: 클립보드 복사 (모든 사용자 공통) -->
+          <button type="button" id="copy-main-btn" class="submit-btn" style="margin: 10px 0 6px; background: #2e7d32;">
+            📄 질문 복사 (클립보드 저장)
+          </button>
+
+          <!-- 서브 액션 2: 빠른 AI 바로가기 분기 -->
+          <div class="ai-fast-actions-grid">
+            <button type="button" id="open-chatgpt-btn" class="ai-service-btn btn-chatgpt">
+              🟢 ChatGPT 열기
+            </button>
+            <button type="button" id="open-gemini-btn" class="ai-service-btn btn-gemini">
+              ✨ Gemini 열기
+            </button>
+          </div>
+
+          <!-- 서브 액션 3: 스마트폰 시스템 공유하기 (카톡, 메모장, 설치된 AI 앱) -->
+          <button type="button" id="share-prompt-btn" class="backup-btn" style="background:#263238; color:#90caf9; border:1px solid #37474f; width:100%; margin-top:6px; font-weight:600; padding:10px;">
+            📤 다른 앱으로 공유하기 (카톡 / 메모장 등)
+          </button>
+        </div>
+      `
+      );
+
+      const textarea = document.getElementById("ai-prompt-textarea");
+      const copyMainBtn = document.getElementById("copy-main-btn");
+      const openChatgptBtn = document.getElementById("open-chatgpt-btn");
+      const openGeminiBtn = document.getElementById("open-gemini-btn");
+      const sharePromptBtn = document.getElementById("share-prompt-btn");
+
+      // 클립보드 복사 함수
+      const copyToClipboard = () => {
+        if (!textarea) return;
+        textarea.select();
+        textarea.setSelectionRange(0, 99999);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(textarea.value);
+        } else {
+          document.execCommand("copy");
+        }
+      };
+
+      // 1) 메인 복사
+      if (copyMainBtn) {
+        copyMainBtn.addEventListener("click", () => {
+          copyToClipboard();
+          alert("✅ 질문이 클립보드에 복사되었습니다!\n사용하시는 AI 앱이나 메신저에 붙여넣기(Ctrl+V) 하세요.");
+        });
+      }
+
+      // 2) ChatGPT 바로가기
+      if (openChatgptBtn) {
+        openChatgptBtn.addEventListener("click", () => {
+          copyToClipboard();
+          alert("✅ 질문이 복사되었습니다!\nChatGPT 화면에서 스윙 영상과 함께 붙여넣기 하세요.");
+          window.open("https://chatgpt.com", "_blank");
+          closeModal();
+        });
+      }
+
+      // 3) Gemini 바로가기
+      if (openGeminiBtn) {
+        openGeminiBtn.addEventListener("click", () => {
+          copyToClipboard();
+          alert("✅ 질문이 복사되었습니다!\nGemini 화면에서 스윙 영상과 함께 붙여넣기 하세요.");
+          window.open("https://gemini.google.com", "_blank");
+          closeModal();
+        });
+      }
+
+      // 4) 시스템 공유하기
+      if (sharePromptBtn) {
+        sharePromptBtn.addEventListener("click", async () => {
+          const text = textarea ? textarea.value : "";
+          if (navigator.share) {
+            try {
+              await navigator.share({
+                title: "MyGolfNotes 스윙 분석 질문",
+                text: text
+              });
+            } catch (err) {
+              // 공유 취소 시 무시
+            }
+          } else {
+            copyToClipboard();
+            alert("공유하기를 지원하지 않는 브라우저입니다. 대신 질문이 클립보드에 복사되었습니다!");
+          }
+        });
+      }
+    });
+  }
 
   // 힘빼기 슬라이더 텍스트
   const tensionRange = document.getElementById("tension-level");
@@ -1205,7 +1379,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // 11. 드릴 & 레슨 관리 모듈 (검색 + 카테고리 필터)
+  // 11. 드릴 & 레슨 관리 모듈
   // ==========================================
   const toggleDrillFormBtn = document.getElementById("toggle-drill-form-btn");
   const drillForm = document.getElementById("drill-form");
@@ -1409,7 +1583,7 @@ document.addEventListener("DOMContentLoaded", () => {
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js")
-      .then(() => console.log("PWA ServiceWorker Ready (v1.3)"))
+      .then(() => console.log("PWA ServiceWorker Ready (v1.4)"))
       .catch((err) => console.log("PWA ServiceWorker Failed:", err));
   });
 }
