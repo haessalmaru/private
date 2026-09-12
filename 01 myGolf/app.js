@@ -1,44 +1,50 @@
 document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
-  // 0. 미스샷 10대 원인 백과 데이터 정의 (그룹별 레이아웃 분리)
+  // 0. 미스샷 10대 원인 백과 데이터 정의 (원인 / 미스샷 / 교정드릴 3단계)
   // ==========================================
   // 상단 2열 배치 그룹 (6개)
   const MISS_REASONS_PAIR = [
     {
       id: "sway",
       name: "스웨이 & 슬라이드",
-      action: "회전해야 할 골반과 상체가 좌우로 밀리는 현상 (백스윙 시 우측으로 밀리면 스웨이, 다운스윙 시 좌측으로 과하게 밀리면 슬라이드).",
-      result: "스윙 축이 흔들려 최저점이 일정하지 않아 뒤땅, 탑볼, 심한 푸시 유발."
+      cause: "골반과 흉추의 회전(Turn) 가동성이 부족하거나, 체중 이동을 '몸을 옆으로 밀어내는 것'으로 오해하여 백스윙 시 오른쪽 골반이 우측으로 밀리거나(스웨이), 다운스윙 시 왼쪽 골반이 타깃 쪽으로 과하게 밀려남(슬라이드).",
+      result: "스윙 회전축 중심이 흔들려 최저점이 불일치해지며 뒤땅, 탑볼, 심한 푸시 블록 유발.",
+      drill: "• 오른발 안쪽 에지 밟기: 백스윙 시 오른발 안쪽에 체중과 압력을 가두고, 오른쪽 고관절을 접어 '우측 엉덩이를 뒤쪽 대각선으로 집어넣는다'는 느낌으로 회전합니다.\n• 얼라인먼트 스틱 드릴: 오른쪽 골반 바깥쪽 지면에 스틱을 수직으로 꽂아두고, 백스윙 회전 시 골반이 스틱에 닿지 않도록 제자리 턴을 연습합니다."
     },
     {
       id: "over_the_top",
       name: "오버 더 탑 (엎어치기)",
-      action: "다운스윙 시작 시 하체 리드 대신 상체(오른쪽 어깨와 팔)가 앞으로 덤비며 클럽이 스윙 플레인 바깥쪽에서 안쪽으로 가파르게 내려오는 동작.",
-      result: "극단적인 아웃-인(Out-In) 궤도를 형성해 풀 훅(당겨 치는 훅) 또는 심한 슬라이스 유발."
+      cause: "다운스윙 전환(Transition) 시 하체 지면 반력 및 골반 언로딩이 선행되지 않고, 상체(오른쪽 어깨와 팔)에 힘이 과하게 들어가 클럽을 손으로 끌어내리면서 클럽 샤프트가 스윙 플레인 앞쪽으로 쏟아져 나옴.",
+      result: "바깥에서 안으로 깎아 치는 아웃-인(Out-to-In) 궤도가 만들어져 극단적인 슬라이스(페이스 열림 시) 또는 당겨 치는 풀 훅(페이스 닫힘 시) 유발.",
+      drill: "• 스플릿 핸드 & 수직 낙하 드릴: 다운스윙 전환 시 상체 회전을 멈춘 상태에서 양팔과 그립 끝이 오른쪽 주머니 쪽으로 먼저 툭 떨어지는(Drop) 감각을 익힙니다.\n• 볼 2개 배치 드릴: 타격할 볼의 우측 상단(대각선 앞)에 볼 한 개를 두고, 바깥쪽 볼을 건드리지 않고 안쪽 볼만 치는 훈련을 통해 샬로잉(Shallowing) 인-아웃 궤도를 유도합니다."
     },
     {
       id: "early_extension",
       name: "얼리 익스텐션 (배치기)",
-      action: "다운스윙 임팩트 구간에서 척추 각도를 유지하지 못하고 골반이 공 쪽으로 전진하며 상체가 일어서는 동작.",
-      result: "손이 지나갈 공간이 좁아져 손목이 일찍 풀리며 생크, 블록성 푸시, 악성 훅, 탑볼 유발."
+      cause: "다운스윙 시 골반의 후방 경사(Pelvic Tilt) 및 힌지 유지가 무너지고 하체가 타깃 방향 회전 대신 공 방향(전방)으로 전진하여 척추 각도가 조기에 펴짐.",
+      result: "손과 팔이 지나갈 회전 공간이 사라져 손목이 일찍 풀리며 생크(넥 타격), 탑볼, 블록성 푸시, 급격한 악성 풀 훅 유발.",
+      drill: "• 엉덩이 벽 대기(Wall Drill): 벽에서 주먹 하나 거리만큼 떨어져 어드레스한 뒤 백스윙 때는 우측 엉덩이가, 다운스윙-임팩트 구간에서는 좌측 엉덩이가 벽에 지속적으로 닿아 있도록 유지하며 스윙합니다.\n• 의식적 포인트: 다운스윙 시작 시 '배를 내미는 것'이 아니라 '왼쪽 엉덩이를 뒤로 밀어내며(Hip Hinge 유지) 공간을 확보한다'고 생각합니다."
     },
     {
       id: "casting_scooping",
       name: "캐스팅 & 스쿠핑",
-      action: "다운스윙 초기에 손목 코킹이 낚싯대를 던지듯 너무 일찍 풀리는 동작(캐스팅), 임팩트 순간 손보다 클럽 헤드가 앞서며 퍼올리듯 맞는 동작(스쿠핑).",
-      result: "로프트 각이 누워 비거리 손실이 크고 클럽이 공보다 뒤에 떨어져 뒤땅, 걷어 올리며 맞는 탑볼 유발."
+      cause: "볼을 강하게 치려 하거나 공중에 띄우려는 본능적 보상으로, 탑에서 래깅(Lagging)을 유지하지 못하고 손목 코킹을 조기에 풀어버리거나(캐스팅), 임팩트 순간 왼 손목이 손등 쪽으로 꺾이며(스쿠핑) 헤드를 걷어 올림.",
+      result: "로프트 각도가 누워 스핀량만 증가하고 비거리가 급감하며, 클럽이 공 앞이 아닌 뒤를 가격하는 뒤땅 및 들어 올리면서 맞는 탑볼 유발.",
+      drill: "• 왼 손목 보잉(Bowing) 인지: 임팩트 순간 왼 손목 장갑 로고가 타깃을 향하게 하고 손이 헤드보다 앞서 통과하는 핸드퍼스트(Hand-first) 상태를 유지합니다.\n• 수건 타격 드릴: 볼 뒤쪽 15cm 지점에 얇은 수건을 깔아두고, 수건을 건드리지 않고 공만 먼저 깨끗하게 찍어 치는(Compress) 다운블로 연습을 합니다."
     },
     {
       id: "head_up",
       name: "헤드업 & 시선 이탈",
-      action: "공의 탄착 지점을 빨리 보려 하거나 어깨 회전 타이밍과 머리가 함께 들리며 시선이 임팩트 전에 타깃 방향으로 돌아가는 동작.",
-      result: "상체 척추 각도가 무너지며 클럽이 공 상단을 치는 탑볼(Topping) 및 페이스가 열려 맞는 슬라이스 유발."
+      cause: "볼의 비행 궤적을 눈으로 확인하려는 심리적 조급함, 또는 흉추 회전 유연성이 부족해 몸통을 돌리기 위해 머리와 시선을 함께 타깃 쪽으로 들어 올리는 보상 동작.",
+      result: "척추 각도가 세워지며 스윙 최저점이 지면보다 높아져 발생하는 탑볼(Topping) 및 클럽 페이스가 스퀘어로 닫히지 못해 생기는 슬라이스 유발.",
+      drill: "• 동전/마킹 응시 드릴: 볼 뒤쪽 2~3cm 지점에 동전을 두거나 볼의 특정 로고/딤플 하나를 정해놓고, 임팩트 순간을 지나 클럽 헤드가 볼을 완전히 통과할 때까지 그 지점을 시선으로 지켜봅니다.\n• 의식적 포인트: '머리를 억지로 고정해 목을 굳히는 것'이 아니라, '턱 밑으로 왼쪽 어깨가 들어오고 오른쪽 어깨가 빠져나갈 때까지 가슴의 시선 각도를 유지한다'고 이해해야 목 부상을 방지할 수 있습니다."
     },
     {
       id: "reverse_pivot",
       name: "리버스 피벗 (역피봇)",
-      action: "백스윙 탑에서 체중이 왼발에 남고 상체가 타깃 쪽으로 꺾였다가, 다운스윙 때 반대로 체중이 오른발로 쏠리는 역방향 체중 이동.",
-      result: "스윙 최저점이 오른발 쪽에 형성되어 전형적인 뒤땅, 보상 동작으로 인한 탑볼 및 풀 샷 유발."
+      cause: "체중을 올바르게 우측으로 실어주지 못하고 머리를 고정하려고만 하다가 백스윙 탑에서 상체 척추가 타깃 쪽으로 꺾이며 체중이 왼발에 남고, 반대로 다운스윙 때 몸이 뒤로 자빠지는 역체중 이동.",
+      result: "스윙의 회전 밸런스가 완전히 역전되어 클럽이 지면에 먼저 찍히는 뒤땅, 보상으로 상체를 젖히며 발생하는 탑볼 및 심한 풀 슬라이스 유발.",
+      drill: "• 스텝 스윙 드릴: 어드레스 후 백스윙을 시작하면서 오른발을 반 걸음 오른쪽으로 딛고, 다운스윙 시 왼발을 타깃 쪽으로 딛으며 스윙하는 야구 배팅 스윙 훈련.\n• 의식적 포인트: 백스윙 탑에서 흉골(명치)이 오른발 허벅지 안쪽 위에 위치한다는 느낌으로 척추 기울기(Spine Tilt)를 타깃 반대편으로 유지합니다."
     }
   ];
 
@@ -47,31 +53,35 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       id: "lunging",
       name: "상체 덤빔",
-      action: "하체 중심 이동과 회전이 선행되지 않고 상체 전체가 공 앞쪽(타깃 방향)으로 덤비며 쏠려 나가는 동작.",
-      result: "가파른 입사각으로 인해 힐 쪽에 맞아 발생하는 생크, 심한 깎여 맞는 슬라이스 유발."
+      cause: "비거리를 내기 위해 몸 전체의 힘을 볼에 실으려 하거나, 다운스윙 시 하체 회전 리드 없이 상체(흉곽과 머리)가 타깃 방향으로 통째로 앞으로 돌진하는 동작.",
+      result: "어택 앵글이 지나치게 가팔라져 드라이버의 경우 스카이 샷(뽕샷), 아이언의 경우 과도한 찍힘과 호젤 타격으로 인한 생크 및 슬라이스 유발.",
+      drill: "• 머리 뒤에 두고 휘두르기: 임팩트 순간 머리 위치는 어드레스 시점의 공 위치보다 뒤(오른쪽)에 머물러 있어야 한다는 기준점을 잡습니다.\n• 오른발 뒤꿈치 늦게 떼기: 임팩트 직전까지 오른발 뒤꿈치를 지면에 최대한 붙여두고 스윙하여 상체가 전방으로 쏠려 나가는 현상을 제어합니다."
     },
     {
       id: "chicken_wing",
       name: "치킨 윙",
-      action: "임팩트 후 팔로우스루 구간에서 왼팔이 자연스럽게 펴지거나 로테이션되지 못하고 팔꿈치가 몸 뒤나 바깥쪽으로 구부러지는 동작.",
-      result: "클럽 페이스가 제때 닫히지 않아 슬라이스를 유발하고 헤드 스피드가 급감해 비거리 대폭 감소."
+      cause: "임팩트 이후 포워드 스윙 구간에서 전완근(Forearm)의 자연스러운 외회전/내회전 릴리스(Supination)가 막히고, 손목이나 그립에 과도한 경직이 생겨 당겨치면서 왼팔꿈치가 등 뒤로 빠짐.",
+      result: "클럽 페이스가 직각으로 닫히지 못해 슬라이스가 발생하고, 아크 반경이 줄어들어 임팩트 충격 전달이 안 되어 비거리 손실 극대화.",
+      drill: "• 양팔 사이 공 끼우고 스윙: 작은 연습용 볼이나 수건을 양 팔뚝 사이에 끼운 채로 하프스윙을 진행하여, 팔로우스루 구간에서도 팔꿈치 사이 간격이 벌어지지 않도록 강제합니다.\n• 의식적 포인트: 왼팔을 억지로 펴려고 힘을 주기보다, 임팩트 후 왼팔 팔꿈치 안쪽 접히는 면이 하늘을 향하도록 전완을 자연스럽게 롤링(회전)해 줍니다."
     },
     {
       id: "hanging_back",
       name: "행잉 백",
-      action: "임팩트 이후 피니시까지도 체중이 오른발에 과도하게 남아 뒤쪽에서 퍼올리듯 올려치는 동작.",
-      result: "스윙 최저점이 오른발 쪽에 형성되어 뒤땅을 치거나 손목 보상동작으로 인한 감겨 맞는 악성 훅 유발."
+      cause: "다운스윙 시 지면 반력 이동과 좌측 힙 턴이 일어나지 않고, 공을 높게 띄우려는 의도로 상체와 머리가 오른발 위에 머물며 뒤에 누워버리는 동작.",
+      result: "스윙의 최저점이 볼 한참 뒤에 형성되어 발생하는 심한 뒤땅(Fat shot) 및 보상 작용으로 손목을 급격히 덮어버리며 발생하는 악성 풀 훅 유발.",
+      drill: "• 스텝 스루(Walk Through) 드릴: 임팩트 후 피니시를 잡을 때 자연스럽게 오른발을 떼어 타깃 방향으로 한 걸음 걸어 나가는 연습을 통해 체중이 왼발로 100% 실리도록 만듭니다.\n• 의식적 포인트: 다운스윙 전환의 첫 트리거를 손이나 어깨가 아닌 '왼발 뒤꿈치로 지면을 밟는 것'으로 시작합니다."
     },
     {
       id: "flying_elbow",
       name: "플라잉 엘보",
-      action: "백스윙 탑에서 오른쪽 팔꿈치가 지면을 향하지 않고 몸통 바깥쪽 뒤로 과도하게 벌어지는 동작.",
-      result: "다운스윙 궤도가 가팔라져 오버 더 탑(엎어치기)으로 연결되기 쉽고 일관된 타격점 형성이 어려움."
+      cause: "백스윙 시 흉추와 어깨 회전이 부족한 상태에서 팔로만 클럽을 더 높이 올리려 하거나, 오른팔 회전근개의 외회전 유연성이 부족해 오른쪽 팔꿈치가 몸통 바깥 등 뒤로 벌어짐.",
+      result: "백스윙 탑에서 클럽 샤프트가 타깃 오른쪽을 가리키는 크로스 오버(Cross Over)가 발생하여 다운스윙 시 필연적으로 오버 더 탑(엎어치기)을 유발, 심한 풀/슬라이스 직결.",
+      drill: "• 웨이터 쟁반 들기 느낌: 백스윙 탑에서 오른손 바닥이 하늘을 향하고, 오른팔 팔꿈치가 지면을 똑바로 가리키는 형태를 인위적으로 만듭니다.\n• 겨드랑이 헤드커버 끼우기: 오른쪽 겨드랑이에 드라이버 헤드커버나 수건을 끼우고 백스윙 탑까지 떨어뜨리지 않고 유지하는 드릴을 수행합니다."
     }
   ];
 
   // ==========================================
-  // 0-1. 날짜 표준화 헬퍼 (과거 데이터 호환)
+  // 0-1. 날짜 표준화 헬퍼
   // ==========================================
   function normalizeDate(rawDate) {
     if (!rawDate) return "";
@@ -87,18 +97,18 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // 0-2. 릴리즈 노트 히스토리 데이터 정의 (최신순)
+  // 0-2. 릴리즈 노트 히스토리 데이터 정의
   // ==========================================
   const RELEASE_HISTORY = [
     {
       version: "v1.3",
       title: "9대 미스샷 백과, 과거일자 소급 달력 & 인터랙티브 분석 모달",
       features: [
-        "미스샷 원인 10개 세분화 및 맞춤형 레이아웃 (상단 2열 + 하단 4열 한 줄 정렬)",
-        "항목별 동작 메커니즘/유발 미스샷 상세 팝업(ℹ️) 및 원터치 선택 기능",
-        "연습 일자 소급 입력 달력 선택기 신설 (과거 누락 연습 기록 지원)",
-        "누적 분석 상단 요약 카드 인터랙티브 모달 연동: 월간 출석 캘린더, 5대 구질 분포 비율 그래프, 허리 부상 추이(당월/누적 분모 비교), 평균 텐션 추이",
-        "하단 버전 푸터 탭 시 릴리즈 히스토리 팝업 보기 기능 탑재"
+        "미스샷 10대 원인별 발생원인/유발미스샷/교정드릴 3단계 정밀 가이드 팝업 탑재",
+        "미스샷 원인 영역 상단 2열 + 하단 4열 한 줄 양 끝단 정렬 레이아웃 적용",
+        "연습 일자 소급 입력 달력 선택기 신설 (과거 누락 연습 기록 완벽 지원)",
+        "누적 분석 상단 요약 카드 인터랙티브 모달: 월간 출석 캘린더, 5대 구질 분포 비율, 허리 부상 추이, 평균 텐션 추이",
+        "하단 버전 푸터 탭 시 릴리즈 히스토리 모달 보기 기능 탑재"
       ]
     },
     {
@@ -304,10 +314,18 @@ document.addEventListener("DOMContentLoaded", () => {
   setupMultiChipGroup("pain-part-group");
 
   // ==========================================
-  // 5. 미스샷 10대 원인 렌더링 (상단 2열 + 하단 4열 한 줄)
+  // 5. 미스샷 10대 원인 렌더링 (원인/결과/드릴 3단 팝업)
   // ==========================================
   const missReasonContainer = document.getElementById("miss-reason-container");
   const selectedMissReasons = new Set();
+
+  function formatDrillText(rawText) {
+    if (!rawText) return "";
+    return rawText
+      .split("\n")
+      .map(line => `<p class="info-desc" style="margin-bottom:4px;">${line}</p>`)
+      .join("");
+  }
 
   function createMissTagElement(item, isCompact = false) {
     const chipWrap = document.createElement("div");
@@ -330,7 +348,7 @@ document.addEventListener("DOMContentLoaded", () => {
     infoBtn.type = "button";
     infoBtn.className = "miss-info-icon-btn";
     infoBtn.innerHTML = "ℹ️";
-    infoBtn.title = "원인 및 결과 설명 보기";
+    infoBtn.title = "원인, 결과 및 교정드릴 보기";
     infoBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       openModal(
@@ -338,12 +356,16 @@ document.addEventListener("DOMContentLoaded", () => {
         `
         <div class="modal-info-box">
           <div class="info-block">
-            <span class="info-sub-label">⚠️ 동작 메커니즘:</span>
-            <p class="info-desc">${item.action}</p>
+            <span class="info-sub-label">⚠️ 발생 원인</span>
+            <p class="info-desc">${item.cause}</p>
           </div>
           <div class="info-block" style="margin-top:10px;">
-            <span class="info-sub-label" style="color:#ff8a80;">🚨 유발 미스샷:</span>
+            <span class="info-sub-label" style="color:#ff8a80;">🚨 유발 미스샷</span>
             <p class="info-desc" style="color:#ffd1d1;">${item.result}</p>
+          </div>
+          <div class="info-block" style="margin-top:10px;">
+            <span class="info-sub-label" style="color:#81c784;">🎯 교정 드릴 및 핵심 포인트</span>
+            <div style="margin-top:2px;">${formatDrillText(item.drill)}</div>
           </div>
         </div>
         <button type="button" class="submit-btn" id="modal-select-this-btn" style="margin-top:14px;">
@@ -403,7 +425,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // 6. 통계 요약 및 직전 연습 복기 로직 (과거 날짜 호환)
+  // 6. 통계 요약 및 직전 연습 복기 로직
   // ==========================================
   function updateSummaryAndPrevAction() {
     const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
@@ -448,12 +470,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // 나의 구질
     const drawCount = logs.filter((l) => l.ballFlight && l.ballFlight.includes("드로우")).length;
     const drawRate = Math.round((drawCount / totalCount) * 100);
     document.getElementById("sum-draw-rate").textContent = `${drawRate}%`;
 
-    // 허리 통증 빈도
     const backPainCountTotal = logs.filter(
       (l) => Array.isArray(l.painParts) && (l.painParts.includes("허리") || l.painParts.includes("허리/요추"))
     ).length;
@@ -469,7 +489,6 @@ document.addEventListener("DOMContentLoaded", () => {
       backMonthSubEl.textContent = `당월 ${backPainCountMonth}/${monthCount}회 (${backPainRateMonth}%)`;
     }
 
-    // 평균 텐션
     const totalTension = logs.reduce((acc, cur) => acc + Number(cur.tensionLevel || 3), 0);
     const avgTension = (totalTension / totalCount).toFixed(1);
     document.getElementById("sum-avg-tension").textContent = `${avgTension} / 5.0`;
@@ -481,7 +500,6 @@ document.addEventListener("DOMContentLoaded", () => {
       tensionMonthSubEl.textContent = `당월 평균 ${avgMonthTension}`;
     }
 
-    // 최빈 미스샷 집계
     const missMap = {};
     logs.forEach((l) => {
       if (Array.isArray(l.missReasons)) {

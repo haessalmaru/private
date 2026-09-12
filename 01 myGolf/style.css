@@ -285,7 +285,6 @@ body {
   width: 100%;
 }
 
-/* 상단 1~3행: 2열 양 끝단 정렬 */
 .miss-grid-pair {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -293,7 +292,6 @@ body {
   width: 100%;
 }
 
-/* 하단 4행: 4열 한 줄 양 끝단 정렬 */
 .miss-grid-quad {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -350,7 +348,6 @@ body {
   background-color: #444444;
 }
 
-/* 4열 컴팩트 칩 스타일 */
 .miss-tag-wrap.miss-compact {
   min-height: 38px;
 }
@@ -608,7 +605,6 @@ body {
   color: #ffffff;
 }
 
-/* 스펙 그리드 (요약 비교뷰) */
 .spec-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -621,7 +617,6 @@ body {
   margin-top: 4px;
 }
 
-/* 확장 서랍 (아코디언) */
 .club-detail-drawer {
   display: none;
 }
@@ -734,7 +729,9 @@ body {
   transform: scale(0.98);
 }
 
-/* 모달 팝업 스타일 */
+/* ========================================== */
+/* 모달 팝업 스타일 (3단계 구조화 대응) */
+/* ========================================== */
 .modal-overlay {
   display: none;
   position: fixed;
@@ -802,7 +799,7 @@ body {
   background-color: #171717;
   border: 1px solid #2b2b2b;
   border-radius: 8px;
-  padding: 12px;
+  padding: 14px;
 }
 
 .info-block {
@@ -818,9 +815,10 @@ body {
 }
 
 .info-desc {
-  font-size: 0.85rem;
-  line-height: 1.45;
+  font-size: 0.84rem;
+  line-height: 1.48;
   color: #d1d1d1;
+  word-break: keep-all;
 }
 
 /* 통계 프로그레스 바 */
@@ -926,7 +924,7 @@ body {
   border-radius: 6px;
 }
 
-/* 릴리즈 히스토리 팝업 스타일 */
+/* 릴리즈 히스토리 팝업 */
 .release-history-wrap {
   display: flex;
   flex-direction: column;

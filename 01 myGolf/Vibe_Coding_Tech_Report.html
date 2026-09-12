@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyGolfNotes 바이브 코딩 및 아키텍처 기술 리포트</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 20mm 15mm;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", Roboto, sans-serif;
+      background-color: #f4f6f8;
+      color: #2c3e50;
+      line-height: 1.6;
+      padding: 24px;
+    }
+    .report-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      padding: 40px 48px;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+    .action-bar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 24px;
+    }
+    .pdf-download-btn {
+      background-color: #2e7d32;
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pdf-download-btn:hover {
+      background-color: #1b5e20;
+    }
+    .report-header {
+      border-bottom: 2px solid #2e7d32;
+      padding-bottom: 16px;
+      margin-bottom: 28px;
+    }
+    .report-badge {
+      display: inline-block;
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+    .report-title {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: #1a252f;
+      letter-spacing: -0.5px;
+    }
+    .report-meta {
+      font-size: 0.85rem;
+      color: #7f8c8d;
+      margin-top: 6px;
+    }
+    .section {
+      margin-bottom: 28px;
+    }
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #1b5e20;
+      border-left: 4px solid #2e7d32;
+      padding-left: 10px;
+      margin-bottom: 14px;
+    }
+    .quote-box {
+      background-color: #f1f8e9;
+      border: 1px solid #c8e6c9;
+      border-radius: 6px;
+      padding: 14px 18px;
+      font-size: 0.95rem;
+      color: #1b5e20;
+      margin-bottom: 16px;
+    }
+    .tech-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 0.9rem;
+    }
+    .tech-table th, .tech-table td {
+      border: 1px solid #e0e0e0;
+      padding: 10px 12px;
+      text-align: left;
+    }
+    .tech-table th {
+      background-color: #f5f5f5;
+      font-weight: 700;
+      color: #333333;
+    }
+    .file-name {
+      font-family: Consolas, Monaco, monospace;
+      font-weight: 700;
+      color: #2e7d32;
+    }
+    .pill {
+      display: inline-block;
+      background-color: #eceff1;
+      color: #37474f;
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+    .list-item {
+      margin-bottom: 8px;
+      padding-left: 18px;
+      position: relative;
+    }
+    .list-item::before {
+      content: "•";
+      position: absolute;
+      left: 4px;
+      color: #2e7d32;
+      font-weight: bold;
+    }
+    .summary-card {
+      background-color: #fafafa;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 16px;
+      margin-top: 10px;
+    }
+    .report-footer {
+      border-top: 1px solid #e0e0e0;
+      padding-top: 14px;
+      margin-top: 36px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #95a5a6;
+    }
+
+    @media print {
+      body {
+        background-color: #ffffff;
+        padding: 0;
+      }
+      .report-container {
+        box-shadow: none;
+        padding: 0;
+      }
+      .action-bar {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="report-container">
+    <div class="action-bar">
+      <button type="button" class="pdf-download-btn" onclick="window.print()">
+        🖨️ PDF 다운로드 / 인쇄하기
+      </button>
+    </div>
+
+    <header class="report-header">
+      <span class="report-badge">Project Tech Report</span>
+      <h1 class="report-title">MyGolfNotes 시스템 아키텍처 및 바이브 코딩 기술 리포트</h1>
+      <div class="report-meta">작성자: Monk Studio · 프로젝트: MyGolfNotes (v1.3) · 호스팅: GitHub Pages</div>
+    </header>
+
+    <!-- 1. 바이브 코딩의 개념 -->
+    <section class="section">
+      <h2 class="section-title">1. '바이브 코딩(Vibe Coding)'의 정의와 개발 패러다임</h2>
+      <p style="margin-bottom: 10px;">
+        바이브 코딩은 특정 프로그래밍 언어(C, Python, Java 등)를 지칭하는 명칭이 아니며, <strong>사람이 자연어로 문제 정의와 기능의 '느낌(Vibe)'을 지시하고, AI(Gemini)가 실제 코딩과 버그 픽스를 수행하는 최신 AI 페어 프로그래밍(Pair Programming) 개발 방식</strong>을 의미합니다.
+      </p>
+      <div class="quote-box">
+        <strong>💡 핵심 커뮤니케이션 요약 (누군가 질문했을 때의 답변 가이드):</strong><br>
+        "바이브 코딩 방식으로 AI(Gemini)와 대화하며 기획·구현했고, 기술 스택은 웹 표준 언어인 <strong>HTML, CSS, JavaScript</strong> 기반의 독립형 <strong>PWA(프로그레시브 웹 앱)</strong>입니다."
+      </div>
+    </section>
+
+    <!-- 2. 파일별 구조와 역할 -->
+    <section class="section">
+      <h2 class="section-title">2. 프로젝트 파일 구성 및 시스템 아키텍처</h2>
+      <table class="tech-table">
+        <thead>
+          <tr>
+            <th style="width: 22%;">파일명</th>
+            <th style="width: 18%;">기반 언어</th>
+            <th>핵심 기능 및 시스템 내 역할</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="file-name">index.html</td>
+            <td><span class="pill">HTML5</span></td>
+            <td><strong>앱의 골격(UI 뼈대):</strong> 일지 탭, 클럽 22필드 피팅 폼, 드릴 검색 바, 모달 팝업의 위치와 레이아웃 구조 정의</td>
+          </tr>
+          <tr>
+            <td class="file-name">style.css</td>
+            <td><span class="pill">CSS3</span></td>
+            <td><strong>외관 및 반응형 디자인:</strong> 다크 모드(#121212), 미스샷 2열/4열 그리드 배치, 모달 슬라이드업 애니메이션, 모바일 안전영역 대응</td>
+          </tr>
+          <tr>
+            <td class="file-name">app.js</td>
+            <td><span class="pill">JavaScript (ES6+)</span></td>
+            <td><strong>앱의 두뇌(비즈니스 로직):</strong> 9대 미스샷 팝업 제어, LocalStorage 데이터 CRUD, 월간 달력 파싱 및 5대 구질/통증 통계 계산, CSV 추출</td>
+          </tr>
+          <tr>
+            <td class="file-name">manifest.json</td>
+            <td><span class="pill">JSON</span></td>
+            <td><strong>앱 설치 명세서:</strong> 모바일 브라우저에서 '홈 화면에 추가' 시 독립형 네이티브 앱(PWA)처럼 전체 화면으로 구동되도록 아이콘과 테마 지정</td>
+          </tr>
+          <tr>
+            <td class="file-name">sw.js</td>
+            <td><span class="pill">Service Worker</span></td>
+            <td><strong>오프라인 캐시 엔진:</strong> 네트워크 연결이 취약한 지하 타석에서도 구동되도록 리소스를 캐싱하고 버전 업데이트(v1.3 등) 시 자동 동기화</td>
+          </tr>
+          <tr>
+            <td class="file-name">GOLF_APP_PRD.md</td>
+            <td><span class="pill">Markdown</span></td>
+            <td><strong>제품 기획서(PRD):</strong> 타깃 사용자, 부상 방지 및 힘빼기 핵심 요구사항, 릴리즈 로드맵을 기록한 마스터 설계 문서</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 3. 기술적 특장점 요약 -->
+    <section class="section">
+      <h2 class="section-title">3. MyGolfNotes의 기술적 특장점</h2>
+      <div class="summary-card">
+        <div class="list-item"><strong>Zero Backend Architecture:</strong> 서버 유지 비용 없이 GitHub Pages 무료 정적 호스팅과 브라우저 LocalStorage만으로 완벽한 데이터 영속성 유지</div>
+        <div class="list-item"><strong>데이터 주권 및 안전성:</strong> 개인 연습 일지 및 클럽 피팅 제원을 언제든 Excel 호환 UTF-8 BOM CSV 파일로 즉시 내보내기 가능</div>
+        <div class="list-item"><strong>Mobile First PWA:</strong> 별도 앱스토어 심사나 결제 없이 URL 하나로 모든 기기(스마트폰, 태블릿, PC)에서 네이티브 앱과 동일하게 사용</div>
+      </div>
+    </section>
+
+    <footer class="report-footer">
+      골프연습 & 기록앱 by Monk Studio · Generated on 2026. 09. 12
+    </footer>
+  </div>
+</body>
+</html>
