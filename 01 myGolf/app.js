@@ -1,6 +1,92 @@
 document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
-  // 1. 하단 탭 전환 네비게이션
+  // 0. 미스샷 9대 원인 백과 데이터 정의
+  // ==========================================
+  const MISS_REASONS_DATA = [
+    {
+      id: "sway",
+      name: "스웨이 & 슬라이드",
+      action: "회전해야 할 골반과 상체가 좌우로 밀리는 현상 (백스윙 시 우측으로 밀리면 스웨이, 다운스윙 시 좌측으로 과하게 밀리면 슬라이드).",
+      result: "스윙 축이 흔들려 최저점이 일정하지 않아 뒤땅, 탑볼, 심한 푸시 유발."
+    },
+    {
+      id: "early_extension",
+      name: "얼리 익스텐션 (배치기)",
+      action: "다운스윙 임팩트 구간에서 척추 각도를 유지하지 못하고 골반이 공 쪽으로 전진하며 상체가 일어서는 동작.",
+      result: "손이 지나갈 공간이 좁아져 손목이 일찍 풀리며 생크, 블록성 푸시, 악성 훅, 탑볼 유발."
+    },
+    {
+      id: "head_up",
+      name: "헤드업 & 시선 이탈",
+      action: "공의 탄착 지점을 빨리 보려 하거나 어깨 회전 타이밍과 머리가 함께 들리며 시선이 임팩트 전에 타깃 방향으로 돌아가는 동작.",
+      result: "상체 척추 각도가 무너지며 클럽이 공 상단을 치는 탑볼(Topping) 및 페이스가 열려 맞는 슬라이스 유발."
+    },
+    {
+      id: "over_the_top",
+      name: "오버 더 탑 (엎어치기)",
+      action: "다운스윙 시작 시 하체 리드 대신 상체(오른쪽 어깨와 팔)가 앞으로 덤비며 클럽이 스윙 플레인 바깥쪽에서 안쪽으로 가파르게 내려오는 동작.",
+      result: "극단적인 아웃-인(Out-In) 궤도를 형성해 풀 훅(당겨 치는 훅) 또는 심한 슬라이스 유발."
+    },
+    {
+      id: "casting_scooping",
+      name: "캐스팅 & 스쿠핑",
+      action: "다운스윙 초기에 손목 코킹이 낚싯대를 던지듯 너무 일찍 풀리는 동작(캐스팅), 임팩트 순간 손보다 클럽 헤드가 앞서며 퍼올리듯 맞는 동작(스쿠핑).",
+      result: "로프트 각이 누워 비거리 손실이 크고 클럽이 공보다 뒤에 떨어져 뒤땅, 걷어 올리며 맞는 탑볼 유발."
+    },
+    {
+      id: "reverse_pivot",
+      name: "리버스 피벗 (역피봇)",
+      action: "백스윙 탑에서 체중이 왼발에 남고 상체가 타깃 쪽으로 꺾였다가, 다운스윙 때 반대로 체중이 오른발로 쏠리는 역방향 체중 이동.",
+      result: "스윙 최저점이 오른발 쪽에 형성되어 전형적인 뒤땅, 보상 동작으로 인한 탑볼 및 풀 샷 유발."
+    },
+    {
+      id: "chicken_wing",
+      name: "치킨 윙",
+      action: "임팩트 후 팔로우스루 구간에서 왼팔이 자연스럽게 펴지거나 로테이션되지 못하고 팔꿈치가 몸 뒤나 바깥쪽으로 구부러지는 동작.",
+      result: "클럽 페이스가 제때 닫히지 않아 슬라이스를 유발하고 헤드 스피드가 급감해 비거리 대폭 감소."
+    },
+    {
+      id: "flying_elbow",
+      name: "플라잉 엘보",
+      action: "백스윙 탑에서 오른쪽 팔꿈치가 지면을 향하지 않고 몸통 바깥쪽 뒤로 과도하게 벌어지는 동작.",
+      result: "다운스윙 궤도가 가팔라져 오버 더 탑(엎어치기)으로 연결되기 쉽고 일관된 타격점 형성이 어려움."
+    },
+    {
+      id: "hanging_lunging",
+      name: "행잉 백 vs 상체 덤빔",
+      action: "행잉 백: 임팩트 이후에도 체중이 오른발에 과도하게 남아 뒤에서 퍼올림. 런징(덤빔): 하체 이동 대신 상체 전체가 공 앞쪽으로 쏠려 나감.",
+      result: "행잉 백은 뒤땅·훅 유발, 런징은 가파른 입사각으로 인한 생크·심한 슬라이스 유발."
+    }
+  ];
+
+  // ==========================================
+  // 1. 공통 모달 오버레이 제어 로직
+  // ==========================================
+  const modalOverlay = document.getElementById("app-modal-overlay");
+  const modalTitle = document.getElementById("modal-title");
+  const modalBody = document.getElementById("modal-body");
+  const modalCloseBtn = document.getElementById("modal-close-btn");
+
+  function openModal(title, htmlContent) {
+    modalTitle.textContent = title;
+    modalBody.innerHTML = htmlContent;
+    modalOverlay.classList.add("show");
+  }
+
+  function closeModal() {
+    modalOverlay.classList.remove("show");
+    modalBody.innerHTML = "";
+  }
+
+  if (modalCloseBtn) modalCloseBtn.addEventListener("click", closeModal);
+  if (modalOverlay) {
+    modalOverlay.addEventListener("click", (e) => {
+      if (e.target === modalOverlay) closeModal();
+    });
+  }
+
+  // ==========================================
+  // 2. 하단 탭 전환 네비게이션
   // ==========================================
   const navButtons = document.querySelectorAll(".nav-btn");
   const tabPanels = document.querySelectorAll(".tab-panel");
@@ -18,7 +104,22 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ==========================================
-  // 2. 칩 그룹 바인딩 및 연습 시간 Stepper (+,-)
+  // 3. 날짜 선택 기본값 (오늘 날짜 YYYY-MM-DD 세팅)
+  // ==========================================
+  const practiceDateInput = document.getElementById("practice-date-input");
+  function getTodayString() {
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = String(today.getMonth() + 1).padStart(2, "0");
+    const d = String(today.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+  if (practiceDateInput) {
+    practiceDateInput.value = getTodayString();
+  }
+
+  // ==========================================
+  // 4. 칩 그룹 바인딩 및 연습 시간 Stepper (+,-)
   // ==========================================
   let currentDuration = 30;
   const customDurationDisplay = document.getElementById("custom-duration-display");
@@ -52,16 +153,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  if (minusBtn) {
-    minusBtn.addEventListener("click", () => {
-      setDuration(currentDuration - 10);
-    });
-  }
-  if (plusBtn) {
-    plusBtn.addEventListener("click", () => {
-      setDuration(currentDuration + 10);
-    });
-  }
+  if (minusBtn) minusBtn.addEventListener("click", () => setDuration(currentDuration - 10));
+  if (plusBtn) plusBtn.addEventListener("click", () => setDuration(currentDuration + 10));
 
   function setupSingleChipGroup(containerId) {
     const container = document.getElementById(containerId);
@@ -96,11 +189,75 @@ document.addEventListener("DOMContentLoaded", () => {
 
   setupSingleChipGroup("ball-flight-group");
   setupMultiChipGroup("pain-part-group");
-  setupMultiChipGroup("miss-reason-group");
 
   // ==========================================
-  // 3. 힘빼기 슬라이더 텍스트 라벨
+  // 5. 미스샷 9대 원인 칩 렌더링 & 정보 팝업 바인딩
   // ==========================================
+  const missReasonContainer = document.getElementById("miss-reason-container");
+  const selectedMissReasons = new Set();
+
+  function renderMissReasonChips() {
+    if (!missReasonContainer) return;
+    missReasonContainer.innerHTML = "";
+
+    MISS_REASONS_DATA.forEach((item) => {
+      const chipWrap = document.createElement("div");
+      chipWrap.className = "miss-tag-wrap";
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = `miss-chip-btn ${selectedMissReasons.has(item.name) ? "active" : ""}`;
+      btn.textContent = item.name;
+      btn.addEventListener("click", () => {
+        if (selectedMissReasons.has(item.name)) {
+          selectedMissReasons.delete(item.name);
+        } else {
+          selectedMissReasons.add(item.name);
+        }
+        renderMissReasonChips();
+      });
+
+      const infoBtn = document.createElement("button");
+      infoBtn.type = "button";
+      infoBtn.className = "miss-info-icon-btn";
+      infoBtn.innerHTML = "ℹ️";
+      infoBtn.title = "원인 및 결과 설명 보기";
+      infoBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openModal(
+          `🔍 ${item.name}`,
+          `
+          <div class="modal-info-box">
+            <div class="info-block">
+              <span class="info-sub-label">⚠️ 동작 메커니즘:</span>
+              <p class="info-desc">${item.action}</p>
+            </div>
+            <div class="info-block" style="margin-top:10px;">
+              <span class="info-sub-label" style="color:#ff8a80;">🚨 유발 미스샷:</span>
+              <p class="info-desc" style="color:#ffd1d1;">${item.result}</p>
+            </div>
+          </div>
+          <button type="button" class="submit-btn" id="modal-select-this-btn" style="margin-top:14px;">
+            ${selectedMissReasons.has(item.name) ? "✓ 이미 선택됨 (닫기)" : "+ 이 원인 선택하고 닫기"}
+          </button>
+        `
+        );
+        document.getElementById("modal-select-this-btn").addEventListener("click", () => {
+          selectedMissReasons.add(item.name);
+          renderMissReasonChips();
+          closeModal();
+        });
+      });
+
+      chipWrap.appendChild(btn);
+      chipWrap.appendChild(infoBtn);
+      missReasonContainer.appendChild(chipWrap);
+    });
+  }
+
+  renderMissReasonChips();
+
+  // 힘빼기 슬라이더 텍스트
   const tensionRange = document.getElementById("tension-level");
   const tensionDisplay = document.getElementById("tension-val");
   const tensionLabels = {
@@ -117,19 +274,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // 4. 통계 요약 및 직전 연습 복기 로직 (최근 3개 최신순)
+  // 6. 통계 요약 및 직전 연습 복기 로직 (월간/누적 정밀 분석)
   // ==========================================
   function updateSummaryAndPrevAction() {
     const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
-    
+
     // 최근 3개 One-Thing 복기 과제 최신순 렌더링
     const prevActionDisplay = document.getElementById("prev-action-display");
     if (prevActionDisplay) {
-      const validLogs = logs.filter(l => l.nextAction && l.nextAction.trim() !== "");
+      const validLogs = logs.filter((l) => l.nextAction && l.nextAction.trim() !== "");
       if (validLogs.length > 0) {
-        // 최근 3개를 가져와서 최신순으로 뒤집기
         const recent3 = validLogs.slice(-3).reverse();
-        prevActionDisplay.innerHTML = recent3.map((l, idx) => `
+        prevActionDisplay.innerHTML = recent3
+          .map(
+            (l, idx) => `
           <div class="action-item">
             <span class="action-item-num">${idx + 1}</span>
             <div class="action-item-body">
@@ -137,48 +295,70 @@ document.addEventListener("DOMContentLoaded", () => {
               <div class="action-item-text">🎯 ${l.nextAction}</div>
             </div>
           </div>
-        `).join("");
+        `
+          )
+          .join("");
       } else {
-        prevActionDisplay.innerHTML = '<div class="highlight-text">아직 이전 기록이 없습니다. 힘빼고 가볍게 스윙을 시작하세요!</div>';
+        prevActionDisplay.innerHTML =
+          '<div class="highlight-text">아직 이전 기록이 없습니다. 힘빼고 가볍게 스윙을 시작하세요!</div>';
       }
     }
 
-    // 누적 통계 계산
     const totalCount = logs.length;
     const totalSessionsEl = document.getElementById("sum-total-sessions");
     if (totalSessionsEl) totalSessionsEl.textContent = `${totalCount}회`;
 
+    // 당월 기준 필터링
+    const currentYearMonth = getTodayString().slice(0, 7); // 예: "2026-09"
+    const monthLogs = logs.filter((l) => (l.date || "").startsWith(currentYearMonth));
+    const monthCount = monthLogs.length;
+
     if (totalCount === 0) {
-      const drawEl = document.getElementById("sum-draw-rate");
-      const backEl = document.getElementById("sum-back-pain-rate");
-      const tenEl = document.getElementById("sum-avg-tension");
-      const missEl = document.getElementById("sum-top-miss");
-      if (drawEl) drawEl.textContent = "0%";
-      if (backEl) backEl.textContent = "0%";
-      if (tenEl) tenEl.textContent = "-";
-      if (missEl) missEl.textContent = "주요 미스샷 트리거: 데이터 수집 중";
+      document.getElementById("sum-draw-rate").textContent = "0%";
+      document.getElementById("sum-back-pain-rate").textContent = "0%";
+      document.getElementById("sum-avg-tension").textContent = "-";
+      document.getElementById("sum-top-miss").textContent = "주요 미스샷 트리거: 데이터 수집 중";
       return;
     }
 
-    const drawCount = logs.filter(l => l.ballFlight && l.ballFlight.includes("드로우")).length;
+    // 나의 구질 (드로우 성공률)
+    const drawCount = logs.filter((l) => l.ballFlight && l.ballFlight.includes("드로우")).length;
     const drawRate = Math.round((drawCount / totalCount) * 100);
-    const drawEl = document.getElementById("sum-draw-rate");
-    if (drawEl) drawEl.textContent = `${drawRate}%`;
+    document.getElementById("sum-draw-rate").textContent = `${drawRate}%`;
 
-    const backPainCount = logs.filter(l => Array.isArray(l.painParts) && (l.painParts.includes("허리") || l.painParts.includes("허리/요추"))).length;
-    const backPainRate = Math.round((backPainCount / totalCount) * 100);
-    const backEl = document.getElementById("sum-back-pain-rate");
-    if (backEl) backEl.textContent = `${backPainRate}%`;
+    // 허리 통증 빈도: 누적 & 당월 분모 표기
+    const backPainCountTotal = logs.filter(
+      (l) => Array.isArray(l.painParts) && (l.painParts.includes("허리") || l.painParts.includes("허리/요추"))
+    ).length;
+    const backPainRateTotal = Math.round((backPainCountTotal / totalCount) * 100);
+    document.getElementById("sum-back-pain-rate").textContent = `${backPainRateTotal}%`;
 
+    const backPainCountMonth = monthLogs.filter(
+      (l) => Array.isArray(l.painParts) && (l.painParts.includes("허리") || l.painParts.includes("허리/요추"))
+    ).length;
+    const backPainRateMonth = monthCount > 0 ? Math.round((backPainCountMonth / monthCount) * 100) : 0;
+    const backMonthSubEl = document.getElementById("sum-back-month-sub");
+    if (backMonthSubEl) {
+      backMonthSubEl.textContent = `당월 ${backPainCountMonth}/${monthCount}회 (${backPainRateMonth}%)`;
+    }
+
+    // 평균 텐션: 누적 & 당월 평균
     const totalTension = logs.reduce((acc, cur) => acc + Number(cur.tensionLevel || 3), 0);
     const avgTension = (totalTension / totalCount).toFixed(1);
-    const tenEl = document.getElementById("sum-avg-tension");
-    if (tenEl) tenEl.textContent = `${avgTension} / 5.0`;
+    document.getElementById("sum-avg-tension").textContent = `${avgTension} / 5.0`;
 
+    const monthTension = monthLogs.reduce((acc, cur) => acc + Number(cur.tensionLevel || 3), 0);
+    const avgMonthTension = monthCount > 0 ? (monthTension / monthCount).toFixed(1) : "-";
+    const tensionMonthSubEl = document.getElementById("sum-tension-month-sub");
+    if (tensionMonthSubEl) {
+      tensionMonthSubEl.textContent = `당월 평균 ${avgMonthTension}`;
+    }
+
+    // 최빈 미스샷 원인 집계
     const missMap = {};
-    logs.forEach(l => {
+    logs.forEach((l) => {
       if (Array.isArray(l.missReasons)) {
-        l.missReasons.forEach(r => {
+        l.missReasons.forEach((r) => {
           missMap[r] = (missMap[r] || 0) + 1;
         });
       }
@@ -192,14 +372,239 @@ document.addEventListener("DOMContentLoaded", () => {
         topMiss = key;
       }
     }
-    const missEl = document.getElementById("sum-top-miss");
-    if (missEl) missEl.textContent = `주요 미스샷 트리거: ${topMiss} (${maxFreq}회 감지)`;
+    document.getElementById("sum-top-miss").textContent = `주요 미스샷 트리거: ${topMiss} (${maxFreq}회 감지)`;
   }
 
   updateSummaryAndPrevAction();
 
   // ==========================================
-  // 5. 연습 일지 저장
+  // 7. 상단 요약 카드 클릭 시 세부 통계 모달 (수정사항 3 구현)
+  // ==========================================
+  // 7-1. 월간 캘린더 모달 (출석부 & 날짜 선택 소급 작성)
+  const triggerCalendarModal = document.getElementById("trigger-calendar-modal");
+  if (triggerCalendarModal) {
+    triggerCalendarModal.addEventListener("click", () => {
+      const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = today.getMonth(); // 0-based
+
+      const firstDayIndex = new Date(year, month, 1).getDay();
+      const lastDate = new Date(year, month + 1, 0).getDate();
+
+      // 날짜별 연습 여부 매핑
+      const practicedMap = {};
+      logs.forEach((l) => {
+        if (l.date) {
+          practicedMap[l.date] = (practicedMap[l.date] || 0) + Number(l.duration || 30);
+        }
+      });
+
+      let daysHtml = "";
+      for (let i = 0; i < firstDayIndex; i++) {
+        daysHtml += `<div class="cal-day empty"></div>`;
+      }
+      for (let d = 1; d <= lastDate; d++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+        const practicedMinutes = practicedMap[dateStr];
+        const isToday = dateStr === getTodayString();
+        daysHtml += `
+          <div class="cal-day ${practicedMinutes ? 'practiced' : ''} ${isToday ? 'today' : ''}" data-date="${dateStr}">
+            <span class="day-num">${d}</span>
+            ${practicedMinutes ? `<span class="day-dot">● ${practicedMinutes}분</span>` : ''}
+          </div>
+        `;
+      }
+
+      openModal(
+        `📅 ${year}년 ${month + 1}월 연습 출석부`,
+        `
+        <div class="calendar-wrap">
+          <div class="cal-header-row">
+            <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+          </div>
+          <div class="cal-grid">${daysHtml}</div>
+          <div class="cal-guide">
+            <span style="color:#81c784;">● 초록 표시: 연습 완료일</span><br>
+            <span>💡 날짜를 터치하면 해당 일자로 즉시 연습 일지를 입력할 수 있습니다.</span>
+          </div>
+        </div>
+      `
+      );
+
+      // 달력 날짜 클릭 시 해당 날짜로 입력창 자동 세팅
+      document.querySelectorAll(".cal-day[data-date]").forEach((el) => {
+        el.addEventListener("click", () => {
+          const selectedDate = el.getAttribute("data-date");
+          practiceDateInput.value = selectedDate;
+          closeModal();
+          practiceDateInput.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+      });
+    });
+  }
+
+  // 7-2. 나의 구질 5대 분포 모달
+  const triggerFlightModal = document.getElementById("trigger-flight-modal");
+  if (triggerFlightModal) {
+    triggerFlightModal.addEventListener("click", () => {
+      const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
+      const total = logs.length;
+      const counts = {
+        "드로우(성공)": 0,
+        "스트레이트": 0,
+        "푸시 발생": 0,
+        "훅 발생": 0,
+        "슬라이스": 0
+      };
+
+      logs.forEach((l) => {
+        if (counts[l.ballFlight] !== undefined) {
+          counts[l.ballFlight]++;
+        }
+      });
+
+      const rowsHtml = Object.entries(counts)
+        .map(([name, count]) => {
+          const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+          return `
+          <div class="stat-bar-row">
+            <div class="stat-bar-label">
+              <span>${name}</span>
+              <strong>${count}회 (${pct}%)</strong>
+            </div>
+            <div class="stat-progress-track">
+              <div class="stat-progress-fill" style="width: ${pct}%;"></div>
+            </div>
+          </div>
+        `;
+        })
+        .join("");
+
+      openModal(
+        "🎯 나의 5대 구질 누적 분포",
+        `
+        <div class="stat-detail-box">
+          <p class="field-label">총 ${total}회 연습 세션 동안의 구질 분포 현황입니다.</p>
+          ${rowsHtml}
+        </div>
+      `
+      );
+    });
+  }
+
+  // 7-3. 허리 통증 & 부상 빈도 상세 모달
+  const triggerPainModal = document.getElementById("trigger-pain-modal");
+  if (triggerPainModal) {
+    triggerPainModal.addEventListener("click", () => {
+      const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
+      const total = logs.length;
+      const currentYearMonth = getTodayString().slice(0, 7);
+      const monthLogs = logs.filter((l) => (l.date || "").startsWith(currentYearMonth));
+
+      // 부위별 누적 집계
+      const partsCount = {};
+      logs.forEach((l) => {
+        if (Array.isArray(l.painParts)) {
+          l.painParts.forEach((p) => {
+            partsCount[p] = (partsCount[p] || 0) + 1;
+          });
+        }
+      });
+
+      const partsHtml = Object.entries(partsCount)
+        .sort((a, b) => b[1] - a[1])
+        .map(
+          ([part, c]) => `
+          <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #282828;">
+            <span>🩹 ${part}</span>
+            <strong style="color:#ff8a80;">${c}회 (${total > 0 ? Math.round((c / total) * 100) : 0}%)</strong>
+          </div>
+        `
+        )
+        .join("");
+
+      openModal(
+        "🩹 통증 빈도 & 부상 예방 추이",
+        `
+        <div class="stat-detail-box">
+          <div class="summary-item" style="margin-bottom:12px;">
+            <span class="summary-label">허리 집중 통증 비교</span>
+            <span class="summary-val" style="color:#ff8a80; font-size:1.05rem;">
+              전체 누적: ${partsCount["허리"] || 0}/${total}회 | 당월: ${monthLogs.filter((l) => Array.isArray(l.painParts) && l.painParts.includes("허리")).length}/${monthLogs.length}회
+            </span>
+          </div>
+          <div class="field-label" style="margin-top:10px;">전체 부위별 통증 발생 순위</div>
+          ${partsHtml || "<p>기록된 통증 데이터가 없습니다.</p>"}
+        </div>
+      `
+      );
+    });
+  }
+
+  // 7-4. 평균 텐션(힘빼기) 상세 모달
+  const triggerTensionModal = document.getElementById("trigger-tension-modal");
+  if (triggerTensionModal) {
+    triggerTensionModal.addEventListener("click", () => {
+      const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
+      const total = logs.length;
+      const currentYearMonth = getTodayString().slice(0, 7);
+      const monthLogs = logs.filter((l) => (l.date || "").startsWith(currentYearMonth));
+
+      const tensionCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+      logs.forEach((l) => {
+        const val = Number(l.tensionLevel || 3);
+        if (tensionCounts[val] !== undefined) tensionCounts[val]++;
+      });
+
+      const totalT = logs.reduce((acc, c) => acc + Number(c.tensionLevel || 3), 0);
+      const avgT = total > 0 ? (totalT / total).toFixed(2) : "-";
+
+      const monthT = monthLogs.reduce((acc, c) => acc + Number(c.tensionLevel || 3), 0);
+      const avgMonthT = monthLogs.length > 0 ? (monthT / monthLogs.length).toFixed(2) : "-";
+
+      const barsHtml = [1, 2, 3, 4, 5]
+        .map((lvl) => {
+          const c = tensionCounts[lvl];
+          const pct = total > 0 ? Math.round((c / total) * 100) : 0;
+          return `
+          <div class="stat-bar-row">
+            <div class="stat-bar-label">
+              <span>레벨 ${lvl}: ${tensionLabels[lvl]}</span>
+              <strong>${c}회 (${pct}%)</strong>
+            </div>
+            <div class="stat-progress-track">
+              <div class="stat-progress-fill" style="width: ${pct}%; background-color:#81c784;"></div>
+            </div>
+          </div>
+        `;
+        })
+        .join("");
+
+      openModal(
+        "⚖️ 힘빼기 & 상체 텐션 변화 추이",
+        `
+        <div class="stat-detail-box">
+          <div class="summary-grid" style="margin-bottom:12px;">
+            <div class="summary-item">
+              <span class="summary-label">전체 평균 텐션</span>
+              <span class="summary-val" style="color:#81c784;">${avgT} / 5.0</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">당월(${currentYearMonth}) 평균</span>
+              <span class="summary-val" style="color:#64b5f6;">${avgMonthT} / 5.0</span>
+            </div>
+          </div>
+          <div class="field-label">텐션 레벨별 분포 현황</div>
+          ${barsHtml}
+        </div>
+      `
+      );
+    });
+  }
+
+  // ==========================================
+  // 8. 연습 일지 저장 (날짜 소급 및 9대 미스샷 원인 저장)
   // ==========================================
   const practiceForm = document.getElementById("practice-form");
   if (practiceForm) {
@@ -215,31 +620,37 @@ document.addEventListener("DOMContentLoaded", () => {
         return Array.from(actives).map((btn) => btn.getAttribute("data-val"));
       };
 
+      const selectedDate = practiceDateInput ? practiceDateInput.value : getTodayString();
+
       const newLog = {
         id: Date.now(),
-        date: new Date().toLocaleDateString("ko-KR"),
+        date: selectedDate, // 사용자가 지정한 날짜
         duration: currentDuration,
         painParts: getActiveMulti("pain-part-group"),
         painLevel: document.getElementById("pain-level").value,
         ballFlight: getActiveSingle("ball-flight-group"),
         tensionLevel: tensionRange ? tensionRange.value : "3",
         weightTransfer: document.getElementById("weight-transfer").value,
-        missReasons: getActiveMulti("miss-reason-group"),
+        missReasons: Array.from(selectedMissReasons), // 9대 미스샷 원인 세트 저장
         nextAction: document.getElementById("next-action-input").value.trim()
       };
 
       const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
       logs.push(newLog);
+      // 날짜순 정렬 보장
+      logs.sort((a, b) => new Date(a.date) - new Date(b.date));
       localStorage.setItem("golf_practice_logs", JSON.stringify(logs));
 
-      alert(`✅ 오늘의 연습 일지(${currentDuration}분)가 안전하게 저장되었습니다!`);
+      alert(`✅ [${selectedDate}] 연습 일지(${currentDuration}분)가 안전하게 저장되었습니다!`);
       document.getElementById("next-action-input").value = "";
+      selectedMissReasons.clear();
+      renderMissReasonChips();
       updateSummaryAndPrevAction();
     });
   }
 
   // ==========================================
-  // 6. 연습 일지 엑셀 CSV 내보내기 & 전체 백업/복원
+  // 9. 연습 일지 엑셀 CSV 내보내기 & 전체 백업/복원
   // ==========================================
   const exportCsvBtn = document.getElementById("export-csv-btn");
   if (exportCsvBtn) {
@@ -330,7 +741,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // 7. 클럽 정밀 스펙 관리 모듈 (수정 & 요약/상세 아코디언)
+  // 10. 클럽 정밀 스펙 관리 모듈
   // ==========================================
   const toggleClubFormBtn = document.getElementById("toggle-club-form-btn");
   const clubForm = document.getElementById("club-form");
@@ -347,7 +758,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateConditionalFields() {
     if (!clubTypeSelect) return;
     const selected = clubTypeSelect.value;
-    
     if (headSpecGroup) {
       headSpecGroup.style.display = ["드라이버", "우드", "유틸"].includes(selected) ? "block" : "none";
     }
@@ -386,9 +796,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  if (cancelClubEditBtn) {
-    cancelClubEditBtn.addEventListener("click", resetClubForm);
-  }
+  if (cancelClubEditBtn) cancelClubEditBtn.addEventListener("click", resetClubForm);
 
   const getVal = (id) => {
     const el = document.getElementById(id);
@@ -598,7 +1006,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   renderClubs();
 
-  // 클럽 데이터 CSV 내보내기
+  // 클럽 CSV 내보내기
   const exportClubCsvBtn = document.getElementById("export-club-csv-btn");
   if (exportClubCsvBtn) {
     exportClubCsvBtn.addEventListener("click", () => {
@@ -661,7 +1069,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // 8. 드릴 & 레슨 관리 모듈 (방안 A: 검색 + 카테고리 필터 + 빠른 입력)
+  // 11. 드릴 & 레슨 관리 모듈 (검색 + 카테고리 필터)
   // ==========================================
   const toggleDrillFormBtn = document.getElementById("toggle-drill-form-btn");
   const drillForm = document.getElementById("drill-form");
@@ -675,11 +1083,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const drillCategoryInput = document.getElementById("drill-category");
   const drillQuickChips = document.getElementById("drill-quick-chips");
 
-  // 검색 & 필터 상태 변수
   let selectedCategoryFilter = "전체";
   let searchKeyword = "";
 
-  // 폼 내 추천 태그 클릭 시 자동 채우기
   if (drillQuickChips && drillCategoryInput) {
     drillQuickChips.querySelectorAll(".quick-chip").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -688,7 +1094,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 검색창 실시간 검색 바인딩
   if (drillSearchInput) {
     drillSearchInput.addEventListener("input", (e) => {
       searchKeyword = e.target.value.trim().toLowerCase();
@@ -719,9 +1124,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  if (cancelDrillEditBtn) {
-    cancelDrillEditBtn.addEventListener("click", resetDrillForm);
-  }
+  if (cancelDrillEditBtn) cancelDrillEditBtn.addEventListener("click", resetDrillForm);
 
   function editDrill(id) {
     const drills = JSON.parse(localStorage.getItem("golf_drills") || "[]");
@@ -743,13 +1146,10 @@ document.addEventListener("DOMContentLoaded", () => {
     drillForm.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  // 상단 카테고리 필터 칩 동적 생성 및 렌더링
   function renderCategoryFilterChips(drills) {
     if (!drillFilterChipsContainer) return;
-
     const baseCategories = ["전체", "드라이버", "아이언/웨지", "힘빼기/부상방지", "궤도/드로우", "퍼팅"];
     const savedCategories = drills.map(d => d.category).filter(Boolean);
-    // 중복 제거 결합
     const allCategories = Array.from(new Set([...baseCategories, ...savedCategories]));
 
     drillFilterChipsContainer.innerHTML = "";
@@ -767,13 +1167,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 드릴 목록 렌더링 (검색어 + 카테고리 필터링)
   function renderDrills() {
     if (!drillList) return;
     const drills = JSON.parse(localStorage.getItem("golf_drills") || "[]");
     renderCategoryFilterChips(drills);
 
-    // 필터링 적용
     const filtered = drills.filter((drill) => {
       const matchCat = (selectedCategoryFilter === "전체") || (drill.category === selectedCategoryFilter);
       const matchSearch = !searchKeyword || 
@@ -870,12 +1268,12 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ==========================================
-// 9. PWA 서비스 워커 등록
+// 12. PWA 서비스 워커 등록
 // ==========================================
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js")
-      .then(() => console.log("PWA ServiceWorker Ready (v1.2)"))
+      .then(() => console.log("PWA ServiceWorker Ready (v1.3)"))
       .catch((err) => console.log("PWA ServiceWorker Failed:", err));
   });
 }

@@ -143,6 +143,17 @@ body {
   gap: 4px;
 }
 
+.clickable-summary {
+  cursor: pointer;
+  border: 1px solid #1f354d;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.clickable-summary:hover {
+  background-color: #192635;
+  border-color: #64b5f6;
+}
+
 .summary-label {
   font-size: 0.72rem;
   color: #8ca3ba;
@@ -152,6 +163,12 @@ body {
   font-size: 1.05rem;
   font-weight: 700;
   color: #64b5f6;
+}
+
+.summary-badge-sub {
+  font-size: 0.68rem;
+  color: #81c784;
+  margin-top: 2px;
 }
 
 .summary-sub {
@@ -176,7 +193,7 @@ body {
   line-height: 1.4;
 }
 
-/* 직전 복기 최근 3개 리스트 스타일 */
+/* 직전 복기 최근 3개 리스트 */
 .action-list-wrap {
   display: flex;
   flex-direction: column;
@@ -256,6 +273,51 @@ body {
   color: #ffffff;
   border-color: #4caf50;
   font-weight: 600;
+}
+
+/* 미스샷 원인 칩 & ℹ️ 버튼 */
+.miss-tag-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.miss-tag-wrap {
+  display: inline-flex;
+  align-items: center;
+  background-color: #252525;
+  border: 1px solid #3a3a3a;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.miss-chip-btn {
+  background: none;
+  border: none;
+  color: #cccccc;
+  padding: 8px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.miss-chip-btn.active {
+  background-color: #4caf50;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.miss-info-icon-btn {
+  background-color: #303030;
+  border: none;
+  border-left: 1px solid #404040;
+  color: #ffffff;
+  padding: 8px 10px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.miss-info-icon-btn:hover {
+  background-color: #444444;
 }
 
 /* Stepper 버튼 (+, -) */
@@ -358,7 +420,7 @@ body {
   padding: 10px;
 }
 
-/* 드릴 탭: 실시간 검색 & 카테고리 필터 칩 (방안 A) */
+/* 드릴 탭: 검색 & 카테고리 필터 */
 .drill-search-box {
   margin-bottom: 8px;
 }
@@ -395,7 +457,6 @@ body {
   font-weight: 700;
 }
 
-/* 빠른 카테고리 태그 칩 (폼 내부) */
 .quick-chip-group {
   display: flex;
   flex-wrap: wrap;
@@ -562,7 +623,7 @@ body {
   padding: 24px 0;
 }
 
-/* 하단 내비게이션 바 (모바일 하단 홈바 safe-area 대응) */
+/* 하단 내비게이션 바 (모바일 홈바 대응) */
 .bottom-nav {
   display: flex;
   justify-content: space-around;
@@ -609,4 +670,198 @@ body {
   color: #666666;
   padding: 24px 0 16px;
   letter-spacing: 0.5px;
+}
+
+/* ========================================== */
+/* 모달 팝업 스타일 (미스샷 설명 & 통계 모달) */
+/* ========================================== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index: 1000;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+.modal-container {
+  background-color: #1e1e1e;
+  width: 100%;
+  max-width: 540px;
+  max-height: 85vh;
+  border-radius: 16px 16px 0 0;
+  border-top: 1px solid #3d3d3d;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.25s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid #2d2d2d;
+  background-color: #222222;
+}
+
+.modal-header h3 {
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+.modal-close-icon {
+  background: none;
+  border: none;
+  color: #aaaaaa;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.modal-content {
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.modal-info-box {
+  background-color: #171717;
+  border: 1px solid #2b2b2b;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.info-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-sub-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffb74d;
+}
+
+.info-desc {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: #d1d1d1;
+}
+
+/* 통계 프로그레스 바 */
+.stat-detail-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stat-bar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #cccccc;
+}
+
+.stat-progress-track {
+  width: 100%;
+  height: 8px;
+  background-color: #2b2b2b;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.stat-progress-fill {
+  height: 100%;
+  background-color: #4caf50;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* 월간 출석 달력 그리드 */
+.calendar-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cal-header-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 0.75rem;
+  color: #8ca3ba;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #2d2d2d;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.cal-day {
+  min-height: 52px;
+  background-color: #171717;
+  border: 1px solid #282828;
+  border-radius: 6px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  font-size: 0.78rem;
+}
+
+.cal-day.empty {
+  background: none;
+  border: none;
+  cursor: default;
+}
+
+.cal-day.today {
+  border-color: #64b5f6;
+}
+
+.cal-day.practiced {
+  background-color: #172b1a;
+  border-color: #2e7d32;
+}
+
+.cal-day .day-dot {
+  font-size: 0.65rem;
+  color: #81c784;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.cal-guide {
+  font-size: 0.75rem;
+  color: #888888;
+  margin-top: 10px;
+  line-height: 1.4;
+  background-color: #181818;
+  padding: 8px;
+  border-radius: 6px;
 }

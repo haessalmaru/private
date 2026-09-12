@@ -26,25 +26,32 @@
     <!-- 탭 1: 연습 일지 -->
     <!-- ========================================== -->
     <section id="tab-log" class="tab-panel active">
-      <!-- 0. 스윙 & 신체 분석 요약 카드 -->
+      <!-- 0. 스윙 & 신체 분석 인터랙티브 요약 카드 (클릭 시 세부 모달 노출) -->
       <div class="card card-summary">
-        <div class="card-title">📊 누적 연습 & 스윙 분석 요약</div>
+        <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+          <span>📊 누적 연습 & 스윙 분석 요약</span>
+          <span style="font-size:0.72rem; color:#64b5f6; font-weight:normal;">항목 터치 시 상세 분석 ▾</span>
+        </div>
         <div class="summary-grid">
-          <div class="summary-item">
-            <span class="summary-label">총 연습 세션</span>
+          <div class="summary-item clickable-summary" id="trigger-calendar-modal">
+            <span class="summary-label">총 연습 세션 📅</span>
             <span class="summary-val" id="sum-total-sessions">0회</span>
+            <span class="summary-badge-sub">월간 출석부 보기</span>
           </div>
-          <div class="summary-item">
-            <span class="summary-label">드로우 달성률</span>
+          <div class="summary-item clickable-summary" id="trigger-flight-modal">
+            <span class="summary-label">나의 구질 🎯</span>
             <span class="summary-val" id="sum-draw-rate">0%</span>
+            <span class="summary-badge-sub">5대 구질 분포</span>
           </div>
-          <div class="summary-item">
-            <span class="summary-label">허리 통증 빈도</span>
+          <div class="summary-item clickable-summary" id="trigger-pain-modal">
+            <span class="summary-label">허리 통증 빈도 🩹</span>
             <span class="summary-val" id="sum-back-pain-rate">0%</span>
+            <span class="summary-badge-sub" id="sum-back-month-sub">당월 추이 비교</span>
           </div>
-          <div class="summary-item">
-            <span class="summary-label">평균 텐션(힘빼기)</span>
+          <div class="summary-item clickable-summary" id="trigger-tension-modal">
+            <span class="summary-label">평균 텐션(힘빼기) ⚖️</span>
             <span class="summary-val" id="sum-avg-tension">-</span>
+            <span class="summary-badge-sub" id="sum-tension-month-sub">당월 평균 비교</span>
           </div>
         </div>
         <div class="summary-sub" id="sum-top-miss">주요 미스샷 트리거: 데이터 수집 중</div>
@@ -58,8 +65,14 @@
         </div>
       </div>
 
-      <!-- 2. 연습 일지 입력 폼 -->
+      <!-- 2. 연습 일지 입력 폼 (날짜 소급 선택 지원) -->
       <form id="practice-form">
+        <!-- 연습 일자 선택 (소급 입력 가능) -->
+        <div class="card">
+          <div class="card-title">📅 연습 일자 (과거 기록 소급 가능)</div>
+          <input type="date" id="practice-date-input" class="form-select" required>
+        </div>
+
         <!-- 연습 시간: 칩 + Stepper (+,-) -->
         <div class="card">
           <div class="card-title">⏱️ 연습 시간</div>
@@ -102,6 +115,7 @@
           </select>
         </div>
 
+        <!-- 주요 구질 분포 -->
         <div class="card">
           <div class="card-title">🎯 주요 구질 분포 (목표: 드로우)</div>
           <div class="chip-group" id="ball-flight-group">
@@ -113,6 +127,7 @@
           </div>
         </div>
 
+        <!-- 스윙 체크포인트 & 9대 미스샷 원인 선택/팝업 -->
         <div class="card">
           <div class="card-title">⚙️ 스윙 핵심 체크포인트</div>
           <div class="field-label">상체 힘빼기 (그립 & 어깨 텐션)</div>
@@ -128,13 +143,13 @@
             <option value="과도한 힙 슬라이드">과도한 힙 슬라이드 (밀림)</option>
           </select>
 
-          <div class="field-label" style="margin-top:12px;">주요 미스샷 원인 자가 진단</div>
-          <div class="chip-group multiple" id="miss-reason-group">
-            <button type="button" class="chip-btn" data-val="급한 템포">급한 템포/전환 서두름</button>
-            <button type="button" class="chip-btn" data-val="배치기">배치기(얼리익스텐션)</button>
-            <button type="button" class="chip-btn" data-val="헤드업">헤드업/시선 분산</button>
-            <button type="button" class="chip-btn" data-val="그립 과악력">그립 힘 과다</button>
-            <button type="button" class="chip-btn" data-val="스웨이">스웨이(몸 밀림)</button>
+          <!-- 9대 미스샷 자가 진단 칩 (설명 팝업 아이콘 포함) -->
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; margin-bottom:6px;">
+            <div class="field-label" style="margin:0;">주요 미스샷 원인 자가 진단 (중복 가능)</div>
+            <span style="font-size:0.72rem; color:#81c784;">ℹ️ 버튼 터치 시 상세동작/결과 팝업</span>
+          </div>
+          <div class="miss-tag-container" id="miss-reason-container">
+            <!-- JS 동적 생성 -->
           </div>
         </div>
 
@@ -160,11 +175,11 @@
         </div>
       </div>
 
-      <footer class="release-footer">골프연습 & 기록앱 by Monk v1.2</footer>
+      <footer class="release-footer">골프연습 & 기록앱 by Monk v1.3</footer>
     </section>
 
     <!-- ========================================== -->
-    <!-- 탭 2: 클럽 스펙 (차수 글자 제거 & 수정/비교 뷰) -->
+    <!-- 탭 2: 클럽 스펙 -->
     <!-- ========================================== -->
     <section id="tab-gear" class="tab-panel">
       <div class="section-header">
@@ -180,7 +195,6 @@
         <div class="card-title" id="club-form-title">신규 클럽 상세 스펙 등록</div>
         <input type="hidden" id="club-edit-id" value="">
 
-        <!-- 기본 식별 -->
         <div style="margin-bottom: 8px;">
           <label class="field-label" style="color:#81c784; font-weight:600;">목표 비거리 (m)</label>
           <input type="text" id="club-distance" class="form-input" placeholder="예: 180m, 캐리 165m">
@@ -223,7 +237,6 @@
           <input type="text" id="club-model" class="form-input" placeholder="예: Stealth 2, G430 Max" required>
         </div>
 
-        <!-- 헤드 상세 스펙 (드라이버/우드/유틸만 표시) -->
         <div id="head-spec-group" style="margin-top: 8px;">
           <div class="form-row">
             <div style="flex: 1;">
@@ -252,7 +265,6 @@
           </div>
         </div>
 
-        <!-- 웨지 전용 스펙 -->
         <div id="wedge-spec-group" class="form-row" style="margin-top: 8px; display: none;">
           <div style="flex: 1;">
             <label class="field-label">웨지 바운스각</label>
@@ -264,7 +276,6 @@
           </div>
         </div>
 
-        <!-- 샤프트 상세 스펙 -->
         <div class="form-row" style="margin-top: 8px;">
           <div style="flex: 0.9;">
             <label class="field-label">샤프트 소재</label>
@@ -311,7 +322,6 @@
           </div>
         </div>
 
-        <!-- 그립 스펙 -->
         <div class="form-row" style="margin-top: 8px;">
           <div style="flex: 1.1;">
             <label class="field-label">그립 모델</label>
@@ -327,7 +337,6 @@
           </div>
         </div>
 
-        <!-- 완제품 결합 스펙 -->
         <div class="form-row" style="margin-top: 8px; background-color: #172418; padding: 8px; border-radius: 6px; border: 1px solid #234226;">
           <div style="flex: 1.1;">
             <label class="field-label" style="color:#81c784; font-weight:700;">토털 웨이트 (총중량 g)</label>
@@ -343,7 +352,6 @@
           </div>
         </div>
 
-        <!-- 구입 정보 -->
         <div class="form-row" style="margin-top: 8px;">
           <div style="flex: 1;">
             <label class="field-label">구입가격 (원)</label>
@@ -361,14 +369,13 @@
         </div>
       </form>
 
-      <!-- 클럽 비교 리스트 -->
       <div id="club-list" class="item-list" style="margin-top: 12px;"></div>
 
-      <footer class="release-footer">골프연습 & 기록앱 by Monk v1.2</footer>
+      <footer class="release-footer">골프연습 & 기록앱 by Monk v1.3</footer>
     </section>
 
     <!-- ========================================== -->
-    <!-- 탭 3: 드릴 & 레슨 (검색 & 카테고리 필터 탑재) -->
+    <!-- 탭 3: 드릴 & 레슨 -->
     <!-- ========================================== -->
     <section id="tab-drills" class="tab-panel">
       <div class="section-header">
@@ -376,15 +383,11 @@
         <button type="button" id="toggle-drill-form-btn" class="sub-action-btn">+ 레슨 추가</button>
       </div>
 
-      <!-- 실시간 검색창 & 카테고리 필터 칩 바 (방안 A) -->
       <div class="drill-search-box">
         <input type="text" id="drill-search-input" class="form-input" placeholder="🔍 레슨 검색 (제목, 키워드, 카테고리)">
       </div>
-      <div class="category-chip-scroll" id="drill-filter-chips">
-        <!-- JS에서 필터 칩 동적 렌더링 -->
-      </div>
+      <div class="category-chip-scroll" id="drill-filter-chips"></div>
 
-      <!-- 신규/수정 드릴 입력 폼 -->
       <form id="drill-form" class="card hidden-form">
         <div class="card-title" id="drill-form-title">신규 레슨/드릴 저장</div>
         <input type="hidden" id="drill-edit-id" value="">
@@ -392,7 +395,6 @@
         <div>
           <label class="field-label">카테고리 분류</label>
           <input type="text" id="drill-category" class="form-input" placeholder="예: 드라이버, 허리편한 스윙, 드로우 드릴" required>
-          <!-- 빠른 카테고리 선택 태그 칩 -->
           <div class="quick-chip-group" id="drill-quick-chips">
             <button type="button" class="quick-chip" data-cat="드라이버">드라이버</button>
             <button type="button" class="quick-chip" data-cat="아이언/웨지">아이언/웨지</button>
@@ -423,10 +425,9 @@
         </div>
       </form>
 
-      <!-- 필터링된 드릴 리스트 -->
       <div id="drill-list" class="item-list"></div>
 
-      <footer class="release-footer">골프연습 & 기록앱 by Monk v1.2</footer>
+      <footer class="release-footer">골프연습 & 기록앱 by Monk v1.3</footer>
     </section>
   </main>
 
@@ -445,6 +446,21 @@
       <span class="label">드릴</span>
     </button>
   </nav>
+
+  <!-- ========================================== -->
+  <!-- 팝업 모달 영역 (미스샷 설명 & 통계 상세) -->
+  <!-- ========================================== -->
+  <div id="app-modal-overlay" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 id="modal-title">상세 정보</h3>
+        <button type="button" id="modal-close-btn" class="modal-close-icon">&times;</button>
+      </div>
+      <div id="modal-body" class="modal-content">
+        <!-- JS 동적 주입 -->
+      </div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>
