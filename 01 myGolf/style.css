@@ -730,7 +730,7 @@ body {
 }
 
 /* ========================================== */
-/* 모달 팝업 스타일 (3단계 구조화 대응) */
+/* 모달 팝업 스타일 */
 /* ========================================== */
 .modal-overlay {
   display: none;
@@ -884,12 +884,14 @@ body {
   background-color: #171717;
   border: 1px solid #282828;
   border-radius: 6px;
-  padding: 4px;
+  padding: 4px 2px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: center;
   cursor: pointer;
   font-size: 0.78rem;
+  overflow: hidden;
 }
 
 .cal-day.empty {
@@ -907,11 +909,18 @@ body {
   border-color: #2e7d32;
 }
 
+/* 100분대 3자리 이상 숫자도 한 줄로 컴팩트하게 노출 */
 .cal-day .day-dot {
-  font-size: 0.65rem;
+  font-size: 0.58rem;
   color: #81c784;
   font-weight: 700;
   line-height: 1.1;
+  white-space: nowrap;
+  letter-spacing: -0.4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  width: 100%;
 }
 
 .cal-guide {
