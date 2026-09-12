@@ -275,29 +275,55 @@ body {
   font-weight: 600;
 }
 
-/* 미스샷 원인 칩 & ℹ️ 버튼 */
-.miss-tag-container {
+/* ========================================== */
+/* 미스샷 10개 원인 레이아웃 (상단 2열 + 하단 4열 한 줄) */
+/* ========================================== */
+.miss-grid-container {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 8px;
+  width: 100%;
+}
+
+/* 상단 1~3행: 2열 양 끝단 정렬 */
+.miss-grid-pair {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+/* 하단 4행: 4열 한 줄 양 끝단 정렬 */
+.miss-grid-quad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  width: 100%;
 }
 
 .miss-tag-wrap {
-  display: inline-flex;
-  align-items: center;
+  display: flex;
+  align-items: stretch;
   background-color: #252525;
   border: 1px solid #3a3a3a;
-  border-radius: 20px;
+  border-radius: 8px;
   overflow: hidden;
+  min-height: 40px;
 }
 
 .miss-chip-btn {
+  flex: 1;
   background: none;
   border: none;
   color: #cccccc;
-  padding: 8px 10px;
-  font-size: 0.8rem;
+  padding: 6px 8px;
+  font-size: 0.76rem;
+  text-align: left;
+  line-height: 1.3;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  word-break: keep-all;
 }
 
 .miss-chip-btn.active {
@@ -311,13 +337,34 @@ body {
   border: none;
   border-left: 1px solid #404040;
   color: #ffffff;
-  padding: 8px 10px;
-  font-size: 0.75rem;
+  padding: 0 8px;
+  font-size: 0.72rem;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .miss-info-icon-btn:hover {
   background-color: #444444;
+}
+
+/* 4열 컴팩트 칩 스타일 */
+.miss-tag-wrap.miss-compact {
+  min-height: 38px;
+}
+
+.miss-tag-wrap.miss-compact .miss-chip-btn {
+  padding: 4px 4px;
+  font-size: 0.7rem;
+  justify-content: center;
+  text-align: center;
+}
+
+.miss-tag-wrap.miss-compact .miss-info-icon-btn {
+  padding: 0 5px;
+  font-size: 0.65rem;
 }
 
 /* Stepper 버튼 (+, -) */
@@ -623,7 +670,7 @@ body {
   padding: 24px 0;
 }
 
-/* 하단 내비게이션 바 (모바일 홈바 대응) */
+/* 하단 내비게이션 바 */
 .bottom-nav {
   display: flex;
   justify-content: space-around;
@@ -666,15 +713,28 @@ body {
 /* 푸터 릴리즈 노트 */
 .release-footer {
   text-align: center;
-  font-size: 0.75rem;
-  color: #666666;
-  padding: 24px 0 16px;
+  font-size: 0.78rem;
+  color: #9e9e9e;
+  padding: 24px 0 20px;
   letter-spacing: 0.5px;
+  user-select: none;
 }
 
-/* ========================================== */
-/* 모달 팝업 스타일 (미스샷 설명 & 통계 모달) */
-/* ========================================== */
+.clickable-footer {
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  color: #81c784;
+  font-weight: 600;
+  display: block;
+}
+
+.clickable-footer:active {
+  color: #a5d6a7;
+  transform: scale(0.98);
+}
+
+/* 모달 팝업 스타일 */
 .modal-overlay {
   display: none;
   position: fixed;
@@ -682,7 +742,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.75);
+  background-color: rgba(0, 0, 0, 0.78);
   z-index: 1000;
   align-items: flex-end;
   justify-content: center;
@@ -864,4 +924,49 @@ body {
   background-color: #181818;
   padding: 8px;
   border-radius: 6px;
+}
+
+/* 릴리즈 히스토리 팝업 스타일 */
+.release-history-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.release-card {
+  background-color: #181818;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.release-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.release-ver-badge {
+  background-color: #2e7d32;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.release-card-title {
+  font-size: 0.88rem;
+  color: #ffffff;
+}
+
+.release-feature-list {
+  padding-left: 18px;
+  font-size: 0.78rem;
+  color: #bbbbbb;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  line-height: 1.4;
 }

@@ -26,7 +26,7 @@
     <!-- 탭 1: 연습 일지 -->
     <!-- ========================================== -->
     <section id="tab-log" class="tab-panel active">
-      <!-- 0. 스윙 & 신체 분석 인터랙티브 요약 카드 (클릭 시 세부 모달 노출) -->
+      <!-- 0. 스윙 & 신체 분석 인터랙티브 요약 카드 -->
       <div class="card card-summary">
         <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
           <span>📊 누적 연습 & 스윙 분석 요약</span>
@@ -65,9 +65,9 @@
         </div>
       </div>
 
-      <!-- 2. 연습 일지 입력 폼 (날짜 소급 선택 지원) -->
+      <!-- 2. 연습 일지 입력 폼 -->
       <form id="practice-form">
-        <!-- 연습 일자 선택 (소급 입력 가능) -->
+        <!-- 연습 일자 선택 -->
         <div class="card">
           <div class="card-title">📅 연습 일자 (과거 기록 소급 가능)</div>
           <input type="date" id="practice-date-input" class="form-select" required>
@@ -91,7 +91,7 @@
           </div>
         </div>
 
-        <!-- 신체 통증 & 피로도 (위에서 아래 순서) -->
+        <!-- 신체 통증 & 피로도 -->
         <div class="card">
           <div class="card-title">🩹 신체 통증 & 피로도</div>
           <div class="field-label">통증 부위 (중복 선택)</div>
@@ -127,7 +127,7 @@
           </div>
         </div>
 
-        <!-- 스윙 체크포인트 & 9대 미스샷 원인 선택/팝업 -->
+        <!-- 스윙 체크포인트 & 미스샷 10대 원인 2열 그리드 정렬 -->
         <div class="card">
           <div class="card-title">⚙️ 스윙 핵심 체크포인트</div>
           <div class="field-label">상체 힘빼기 (그립 & 어깨 텐션)</div>
@@ -143,13 +143,15 @@
             <option value="과도한 힙 슬라이드">과도한 힙 슬라이드 (밀림)</option>
           </select>
 
-          <!-- 9대 미스샷 자가 진단 칩 (설명 팝업 아이콘 포함) -->
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; margin-bottom:6px;">
-            <div class="field-label" style="margin:0;">주요 미스샷 원인 자가 진단 (중복 가능)</div>
-            <span style="font-size:0.72rem; color:#81c784;">ℹ️ 버튼 터치 시 상세동작/결과 팝업</span>
+          <!-- 제목 한줄 + 하단 초록색 가이드 분리 -->
+          <div style="margin-top:14px; margin-bottom:8px;">
+            <div class="field-label" style="margin-bottom:3px; font-weight:600; color:#ffffff;">주요 미스샷 원인 자가 진단 (중복 가능)</div>
+            <div style="font-size:0.75rem; color:#81c784;">ℹ️ 버튼 터치 시 상세동작/결과 팝업</div>
           </div>
-          <div class="miss-tag-container" id="miss-reason-container">
-            <!-- JS 동적 생성 -->
+
+          <!-- 2열 양 끝단 정렬 그리드 컨테이너 -->
+          <div class="miss-grid-container" id="miss-reason-container">
+            <!-- JS 동적 주입 -->
           </div>
         </div>
 
@@ -175,7 +177,10 @@
         </div>
       </div>
 
-      <footer class="release-footer">골프연습 & 기록앱 by Monk v1.3</footer>
+      <!-- 하단 푸터 (인라인 onclick 포함으로 100% 터치 팝업 보장) -->
+      <footer class="release-footer clickable-footer" id="footer-release-log" onclick="window.showReleaseHistoryModal()">
+        골프연습 & 기록앱 by Monk v1.3 ℹ️
+      </footer>
     </section>
 
     <!-- ========================================== -->
@@ -371,7 +376,9 @@
 
       <div id="club-list" class="item-list" style="margin-top: 12px;"></div>
 
-      <footer class="release-footer">골프연습 & 기록앱 by Monk v1.3</footer>
+      <footer class="release-footer clickable-footer" onclick="window.showReleaseHistoryModal()">
+        골프연습 & 기록앱 by Monk v1.3 ℹ️
+      </footer>
     </section>
 
     <!-- ========================================== -->
@@ -427,7 +434,9 @@
 
       <div id="drill-list" class="item-list"></div>
 
-      <footer class="release-footer">골프연습 & 기록앱 by Monk v1.3</footer>
+      <footer class="release-footer clickable-footer" onclick="window.showReleaseHistoryModal()">
+        골프연습 & 기록앱 by Monk v1.3 ℹ️
+      </footer>
     </section>
   </main>
 
@@ -448,7 +457,7 @@
   </nav>
 
   <!-- ========================================== -->
-  <!-- 팝업 모달 영역 (미스샷 설명 & 통계 상세) -->
+  <!-- 팝업 모달 영역 -->
   <!-- ========================================== -->
   <div id="app-modal-overlay" class="modal-overlay">
     <div class="modal-container">
@@ -456,9 +465,7 @@
         <h3 id="modal-title">상세 정보</h3>
         <button type="button" id="modal-close-btn" class="modal-close-icon">&times;</button>
       </div>
-      <div id="modal-body" class="modal-content">
-        <!-- JS 동적 주입 -->
-      </div>
+      <div id="modal-body" class="modal-content"></div>
     </div>
   </div>
 

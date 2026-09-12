@@ -1,4 +1,4 @@
-const CACHE_NAME = "mygolf-v7";
+const CACHE_NAME = "mygolf-v10";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
@@ -12,7 +12,7 @@ const ASSETS_TO_CACHE = [
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log("Caching assets for v1.3");
+      console.log("Caching assets for v1.3 layout update");
       return cache.addAll(ASSETS_TO_CACHE);
     })
   );
