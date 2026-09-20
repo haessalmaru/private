@@ -276,7 +276,7 @@ body {
 }
 
 /* ========================================== */
-/* 미스샷 13대 원인 2열 반응형 그리드 */
+/* 미스샷 13대 원인 반응형 그리드 */
 /* ========================================== */
 .miss-grid-container {
   width: 100%;
@@ -340,6 +340,91 @@ body {
 
 .miss-info-icon-btn:hover {
   background-color: #444444;
+}
+
+/* ========================================== */
+/* 역추적 나침반 (Compass) 디자인 */
+/* ========================================== */
+.compass-callout-wrap {
+  margin-bottom: 8px;
+}
+
+.compass-trigger-btn {
+  width: 100%;
+  background: linear-gradient(90deg, #1b3a2a 0%, #173224 100%);
+  color: #81c784;
+  border: 1px dashed #2e7d32;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+}
+
+.compass-trigger-btn:active {
+  background-color: #234d36;
+}
+
+.compass-modal-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.compass-step-title {
+  font-size: 0.82rem;
+  color: #ffb74d;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.compass-group .chip-btn {
+  font-size: 0.75rem;
+  padding: 6px 10px;
+  min-height: 32px;
+}
+
+.compass-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.compass-match-card {
+  background-color: #17241a;
+  border: 1px solid #2e7d32;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.compass-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.match-rank-badge {
+  background-color: #2e7d32;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.match-reason-tag {
+  font-size: 0.68rem;
+  color: #81c784;
+  margin-left: auto;
+}
+
+.compass-card-desc {
+  font-size: 0.78rem;
+  color: #cccccc;
+  line-height: 1.38;
 }
 
 /* ========================================== */
@@ -825,7 +910,7 @@ body {
 }
 
 /* ========================================== */
-/* 모달 팝업 스타일 (자가점검 체크리스트 대응) */
+/* 모달 팝업 스타일 */
 /* ========================================== */
 .modal-overlay {
   display: none;
@@ -946,160 +1031,4 @@ body {
   color: #cfd8dc;
   line-height: 1.35;
   word-break: keep-all;
-}
-
-/* 통계 프로그레스 바 */
-.stat-detail-box {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.stat-bar-row {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stat-bar-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  color: #cccccc;
-}
-
-.stat-progress-track {
-  width: 100%;
-  height: 8px;
-  background-color: #2b2b2b;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.stat-progress-fill {
-  height: 100%;
-  background-color: #4caf50;
-  border-radius: 4px;
-  transition: width 0.3s ease;
-}
-
-/* 월간 출석 달력 그리드 */
-.calendar-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.cal-header-row {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  text-align: center;
-  font-size: 0.75rem;
-  color: #8ca3ba;
-  padding-bottom: 4px;
-  border-bottom: 1px solid #2d2d2d;
-}
-
-.cal-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-}
-
-.cal-day {
-  min-height: 52px;
-  background-color: #171717;
-  border: 1px solid #282828;
-  border-radius: 6px;
-  padding: 4px 2px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  font-size: 0.78rem;
-  overflow: hidden;
-}
-
-.cal-day.empty {
-  background: none;
-  border: none;
-  cursor: default;
-}
-
-.cal-day.today {
-  border-color: #64b5f6;
-}
-
-.cal-day.practiced {
-  background-color: #172b1a;
-  border-color: #2e7d32;
-}
-
-.cal-day .day-dot {
-  font-size: 0.58rem;
-  color: #81c784;
-  font-weight: 700;
-  line-height: 1.1;
-  white-space: nowrap;
-  letter-spacing: -0.4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: center;
-  width: 100%;
-}
-
-.cal-guide {
-  font-size: 0.75rem;
-  color: #888888;
-  margin-top: 10px;
-  line-height: 1.4;
-  background-color: #181818;
-  padding: 8px;
-  border-radius: 6px;
-}
-
-/* 릴리즈 히스토리 팝업 */
-.release-history-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.release-card {
-  background-color: #181818;
-  border: 1px solid #2a2a2a;
-  border-radius: 8px;
-  padding: 12px;
-}
-
-.release-card-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.release-ver-badge {
-  background-color: #2e7d32;
-  color: #ffffff;
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 12px;
-}
-
-.release-card-title {
-  font-size: 0.88rem;
-  color: #ffffff;
-}
-
-.release-feature-list {
-  padding-left: 18px;
-  font-size: 0.78rem;
-  color: #bbbbbb;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  line-height: 1.4;
 }
