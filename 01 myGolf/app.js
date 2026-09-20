@@ -82,26 +82,84 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 전역 릴리즈 모달 함수
+  // ==========================================
+  // [역대 릴리즈 히스토리 데이터 및 모달 (완벽 복구)]
+  // ==========================================
+  const RELEASE_HISTORY = [
+    {
+      version: "v1.5",
+      title: "초보자용 역추적 나침반 & 13대 미스샷 4단계 자가 점검 탑재",
+      features: [
+        "🧭 '구질 & 타점 역추적 나침반' 신설: 볼 비행/타점/센서 수치로 유력 원인 자동 추출 및 원클릭 일지 반영",
+        "미스샷 원인 13종 확충 (과도한 스트롱 그립, 과도한 손목 롤링, 힙턴 블록 신설)",
+        "미스샷 팝업 4단계 구조화: 발생원인 / 유발미스샷 / 📋자가점검 리스트(체크박스형) / 교정드릴",
+        "범용 AI 지원 (클립보드 메인 복사 + ChatGPT/Gemini 바로가기 + 스마트폰 공유하기)"
+      ]
+    },
+    {
+      version: "v1.4",
+      title: "AI 스윙 정밀 분석 질문 자동 생성기 & 범용 AI(ChatGPT/Gemini/공유) 연동",
+      features: [
+        "미스샷 자가 진단 기반 모듈형 프롬프트 조립(Modular Prompt) 엔진 신설",
+        "미스샷 0개 선택 시 직관적 유도 안내 / 1개 이상 선택 시 전문 질문지 즉시 생성",
+        "단일 결함 분석 및 복수 결함 시 '보상 동작 인과관계 추적 & 1순위 교정 처방' 자동 결합",
+        "범용 AI 친화적 구성: 메인 질문 복사 + ChatGPT/Gemini 원터치 열기 + 스마트폰 기본 앱 공유하기 탑재"
+      ]
+    },
+    {
+      version: "v1.3",
+      title: "9대 미스샷 백과, 과거일자 소급 달력 & 인터랙티브 분석 모달",
+      features: [
+        "미스샷 원인별 상세 가이드 팝업 탑재 및 2열 정렬 레이아웃 적용",
+        "연습 일자 소급 입력 달력 선택기 신설 (과거 누락 연습 기록 지원)",
+        "누적 분석 상단 요약 카드 인터랙티브 모달 연동"
+      ]
+    },
+    {
+      version: "v1.2",
+      title: "최근 3개 복기 과제 리스트 & 드릴 실시간 검색/필터 칩",
+      features: [
+        "일지 탭 직전 복기 과제를 최근 3개 최신순 역순 나열 리스트로 확장",
+        "드릴 보관함 상단 실시간 검색창 및 원클릭 카테고리 필터 칩 바 탑재"
+      ]
+    },
+    {
+      version: "v1.1",
+      title: "연습시간 Stepper, 7대 신체부위 정렬 & 드릴 URL 범용화",
+      features: [
+        "연습 시간 +/- 10분 단위 Stepper 조절 버튼 추가",
+        "신체 통증 부위를 위에서 아래 순(7개 부위)으로 골퍼 맞춤 재정비"
+      ]
+    },
+    {
+      version: "v1.0.0",
+      title: "MyGolfNotes 최초 런칭",
+      features: [
+        "부상 방지 & 상체 힘빼기 중심의 골프 연습 일지 시스템 구축",
+        "클럽 장비 스펙 관리 및 유튜브 레슨 아카이빙 기능 탑재"
+      ]
+    }
+  ];
+
   window.showReleaseHistoryModal = function () {
-    openModal(
-      "🚀 MyGolfNotes 릴리즈 이력",
-      `
-      <div class="release-history-wrap">
-        <div class="release-card">
-          <div class="release-card-header">
-            <span class="release-ver-badge">v1.5 (Final)</span>
-            <strong class="release-card-title">역추적 나침반 & 상단 요약 팝업 완전 복구</strong>
-          </div>
-          <ul class="release-feature-list">
-            <li>상단 분석 요약 카드(출석부, 구질분포, 통증추이, 텐션비교) 터치 팝업 정상화</li>
-            <li>초보자용 역추적 나침반 기능 통합</li>
-            <li>13대 미스샷 4단계 자가점검 리스트 탑재</li>
-          </ul>
+    const historyHtml = RELEASE_HISTORY.map((rel) => `
+      <div class="release-card">
+        <div class="release-card-header">
+          <span class="release-ver-badge">${rel.version}</span>
+          <strong class="release-card-title">${rel.title}</strong>
         </div>
+        <ul class="release-feature-list">
+          ${rel.features.map(f => `<li>${f}</li>`).join("")}
+        </ul>
       </div>
-    `
-    );
+    `).join("");
+
+    openModal("🚀 MyGolfNotes 릴리즈 이력 (최신순)", `
+      <div class="release-history-wrap">
+        <p class="field-label" style="margin-bottom:10px;">Monk Studio 골프 앱의 버전별 업데이트 기록입니다.</p>
+        ${historyHtml}
+      </div>
+    `);
   };
 
   document.querySelectorAll(".release-footer").forEach((footer) => {
@@ -650,7 +708,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (count > 1) {
       prompt += `\n2. 결함 간 인과관계(보상 동작) 분석:\n`;
-      prompt += `   - 선행 결함으로 인해 다운스윙 시 나타난 연쇄 보상 동작(Compensatory Movement)인지 분석해 주세요.\n`;
+      prompt += `   - 선행 결함으로 인해 다운ส윙 시 나타난 연쇄 보상 동작(Compensatory Movement)인지 분석해 주세요.\n`;
       prompt += `\n3. 최우선 교정 처방 (1순위 One-Thing):\n`;
       prompt += `   - 가장 먼저 고쳐야 할 '단 1가지 핵심 신체 느낌(Feel)'과 추천 드릴 1개를 제시해 주세요.`;
     } else {
@@ -844,7 +902,7 @@ document.addEventListener("DOMContentLoaded", () => {
   updateSummaryAndPrevAction();
 
   // ==========================================
-  // [7-1. 상단 요약 카드 클릭 모달 연동 (복구 완료)]
+  // [7-1. 상단 요약 카드 클릭 모달 연동 (v1.4 달력/그래프 원본 완전 복구)]
   // ==========================================
   const triggerCalendarModal = document.getElementById("trigger-calendar-modal");
   if (triggerCalendarModal) {
@@ -921,7 +979,7 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
       }).join("");
 
-      openModal("🎯 나의 5대 구질 누적 분포", `<div class="stat-detail-box"><p class="field-label">총 ${total}회 연습 세션 구질 분포입니다.</p>${rowsHtml}</div>`);
+      openModal("🎯 나의 5대 구질 누적 분포", `<div class="stat-detail-box"><p class="field-label">총 ${total}회 연습 세션 동안의 구질 분포 현황입니다.</p>${rowsHtml}</div>`);
     });
   }
 
@@ -930,17 +988,31 @@ document.addEventListener("DOMContentLoaded", () => {
     triggerPainModal.addEventListener("click", () => {
       const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
       const total = logs.length;
+      const currentYearMonth = getTodayString().slice(0, 7);
+      const monthLogs = logs.filter((l) => normalizeDate(l.date).startsWith(currentYearMonth));
+
       const partsCount = {};
       logs.forEach((l) => {
         if (Array.isArray(l.painParts)) l.painParts.forEach(p => { partsCount[p] = (partsCount[p] || 0) + 1; });
       });
       const partsHtml = Object.entries(partsCount).sort((a, b) => b[1] - a[1]).map(([part, c]) => `
         <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #282828;">
-          <span>🩹 ${part}</span><strong style="color:#ff8a80;">${c}회 (${Math.round((c / total) * 100)}%)</strong>
+          <span>🩹 ${part}</span><strong style="color:#ff8a80;">${c}회 (${total > 0 ? Math.round((c / total) * 100) : 0}%)</strong>
         </div>
       `).join("");
 
-      openModal("🩹 통증 빈도 & 부상 예방 추이", `<div class="stat-detail-box"><div class="field-label">부위별 통증 발생 순위</div>${partsHtml || "<p>기록된 통증 데이터가 없습니다.</p>"}</div>`);
+      openModal("🩹 통증 빈도 & 부상 예방 추이", `
+        <div class="stat-detail-box">
+          <div class="summary-item" style="margin-bottom:12px;">
+            <span class="summary-label">허리 집중 통증 비교</span>
+            <span class="summary-val" style="color:#ff8a80; font-size:1.05rem;">
+              전체 누적: ${partsCount["허리"] || 0}/${total}회 | 당월: ${monthLogs.filter((l) => Array.isArray(l.painParts) && l.painParts.includes("허리")).length}/${monthLogs.length}회
+            </span>
+          </div>
+          <div class="field-label" style="margin-top:10px;">전체 부위별 통증 발생 순위</div>
+          ${partsHtml || "<p>기록된 통증 데이터가 없습니다.</p>"}
+        </div>
+      `);
     });
   }
 
@@ -949,6 +1021,9 @@ document.addEventListener("DOMContentLoaded", () => {
     triggerTensionModal.addEventListener("click", () => {
       const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
       const total = logs.length;
+      const currentYearMonth = getTodayString().slice(0, 7);
+      const monthLogs = logs.filter((l) => normalizeDate(l.date).startsWith(currentYearMonth));
+
       const tensionCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
       logs.forEach((l) => {
         const val = Number(l.tensionLevel || 3);
@@ -956,6 +1031,8 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       const totalT = logs.reduce((acc, c) => acc + Number(c.tensionLevel || 3), 0);
       const avgT = total > 0 ? (totalT / total).toFixed(2) : "-";
+      const monthT = monthLogs.reduce((acc, c) => acc + Number(c.tensionLevel || 3), 0);
+      const avgMonthT = monthLogs.length > 0 ? (monthT / monthLogs.length).toFixed(2) : "-";
 
       const barsHtml = [1, 2, 3, 4, 5].map((lvl) => {
         const c = tensionCounts[lvl];
@@ -968,7 +1045,16 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
       }).join("");
 
-      openModal("⚖️ 힘빼기 & 상체 텐션 변화 추이", `<div class="stat-detail-box"><div class="summary-item" style="margin-bottom:12px;"><span class="summary-label">전체 평균 텐션</span><span class="summary-val" style="color:#81c784;">${avgT} / 5.0</span></div><div class="field-label">텐션 레벨별 분포</div>${barsHtml}</div>`);
+      openModal("⚖️ 힘빼기 & 상체 텐션 변화 추이", `
+        <div class="stat-detail-box">
+          <div class="summary-grid" style="margin-bottom:12px;">
+            <div class="summary-item"><span class="summary-label">전체 평균 텐션</span><span class="summary-val" style="color:#81c784;">${avgT} / 5.0</span></div>
+            <div class="summary-item"><span class="summary-label">당월(${currentYearMonth}) 평균</span><span class="summary-val" style="color:#64b5f6;">${avgMonthT} / 5.0</span></div>
+          </div>
+          <div class="field-label">텐션 레벨별 분포 현황</div>
+          ${barsHtml}
+        </div>
+      `);
     });
   }
 
@@ -997,12 +1083,13 @@ document.addEventListener("DOMContentLoaded", () => {
         duration: currentDuration,
         painParts: getActiveMulti("pain-part-group"),
         painLevel: document.getElementById("pain-level").value,
-        ballFlight: getActiveSingle("ball-flight-group"),
+        ballFlight: getActionActiveSingle = getActiveSingle("ball-flight-group"),
         tensionLevel: tensionRange ? tensionRange.value : "3",
         weightTransfer: document.getElementById("weight-transfer").value,
         missReasons: Array.from(selectedMissReasons),
         nextAction: document.getElementById("next-action-input").value.trim()
       };
+      newLog.ballFlight = getActiveSingle("ball-flight-group");
 
       const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
       logs.push(newLog);
@@ -1018,7 +1105,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // [9. 클럽 스펙 & 드릴 관리 모듈]
+  // [9. 클럽 스펙 & 드릴 관리 모듈 (완전 복구)]
   // ==========================================
   const toggleClubFormBtn = document.getElementById("toggle-club-form-btn");
   const clubForm = document.getElementById("club-form");
