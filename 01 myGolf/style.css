@@ -343,7 +343,7 @@ body {
 }
 
 /* ========================================== */
-/* 역추적 나침반 (Compass) 디자인 */
+/* 역추적 나침반 디자인 */
 /* ========================================== */
 .compass-callout-wrap {
   margin-bottom: 8px;
@@ -910,7 +910,7 @@ body {
 }
 
 /* ========================================== */
-/* 모달 팝업 스타일 */
+/* 모달 팝업 및 통계 달력/그래프 스타일 (v1.4 완벽 복구) */
 /* ========================================== */
 .modal-overlay {
   display: none;
@@ -1031,4 +1031,115 @@ body {
   color: #cfd8dc;
   line-height: 1.35;
   word-break: keep-all;
+}
+
+/* 통계 프로그레스 바 그래프 */
+.stat-detail-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stat-bar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #cccccc;
+}
+
+.stat-progress-track {
+  width: 100%;
+  height: 8px;
+  background-color: #2b2b2b;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.stat-progress-fill {
+  height: 100%;
+  background-color: #4caf50;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* 월간 출석 캘린더 그리드 (v1.4 원본 스타일) */
+.calendar-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cal-header-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 0.75rem;
+  color: #8ca3ba;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #2d2d2d;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.cal-day {
+  min-height: 52px;
+  background-color: #171717;
+  border: 1px solid #282828;
+  border-radius: 6px;
+  padding: 4px 2px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-size: 0.78rem;
+  overflow: hidden;
+}
+
+.cal-day.empty {
+  background: none;
+  border: none;
+  cursor: default;
+}
+
+.cal-day.today {
+  border-color: #64b5f6;
+}
+
+.cal-day.practiced {
+  background-color: #172b1a;
+  border-color: #2e7d32;
+}
+
+.cal-day .day-dot {
+  font-size: 0.58rem;
+  color: #81c784;
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+  letter-spacing: -0.4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  width: 100%;
+}
+
+.cal-guide {
+  font-size: 0.75rem;
+  color: #888888;
+  margin-top: 10px;
+  line-height: 1.4;
+  background-color: #181818;
+  padding: 8px;
+  border-radius: 6px;
 }
