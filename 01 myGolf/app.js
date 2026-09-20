@@ -90,13 +90,13 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="release-history-wrap">
         <div class="release-card">
           <div class="release-card-header">
-            <span class="release-ver-badge">v1.5 (Step 2)</span>
-            <strong class="release-card-title">초보자용 역추적 나침반 & 13대 미스샷 백과</strong>
+            <span class="release-ver-badge">v1.5 (Final)</span>
+            <strong class="release-card-title">역추적 나침반 & 상단 요약 팝업 완전 복구</strong>
           </div>
           <ul class="release-feature-list">
-            <li>🧭 '구질 & 타점 역추적 나침반' 신설: 공의 비행과 타점으로 유력 원인 자동 추적 및 일지 자동 선택</li>
-            <li>13종 미스샷 4단계 자가점검 리스트(체크박스형) 완비</li>
-            <li>범용 AI 질문 생성기 (ChatGPT, Gemini, 시스템 공유) 연동</li>
+            <li>상단 분석 요약 카드(출석부, 구질분포, 통증추이, 텐션비교) 터치 팝업 정상화</li>
+            <li>초보자용 역추적 나침반 기능 통합</li>
+            <li>13대 미스샷 4단계 자가점검 리스트 탑재</li>
           </ul>
         </div>
       </div>
@@ -479,7 +479,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderMissReasonChips();
 
   // ==========================================
-  // [5-1. 🧭 역추적 나침반 (2단계 신규 기능 통합)]
+  // [5-1. 🧭 역추적 나침반 (통합)]
   // ==========================================
   const missReasonCard = document.getElementById("miss-reason-card");
   if (missReasonCard) {
@@ -844,6 +844,135 @@ document.addEventListener("DOMContentLoaded", () => {
   updateSummaryAndPrevAction();
 
   // ==========================================
+  // [7-1. 상단 요약 카드 클릭 모달 연동 (복구 완료)]
+  // ==========================================
+  const triggerCalendarModal = document.getElementById("trigger-calendar-modal");
+  if (triggerCalendarModal) {
+    triggerCalendarModal.addEventListener("click", () => {
+      const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = today.getMonth();
+      const firstDayIndex = new Date(year, month, 1).getDay();
+      const lastDate = new Date(year, month + 1, 0).getDate();
+
+      const practicedMap = {};
+      logs.forEach((l) => {
+        const normDate = normalizeDate(l.date);
+        if (normDate) practicedMap[normDate] = (practicedMap[normDate] || 0) + Number(l.duration || 30);
+      });
+
+      let daysHtml = "";
+      for (let i = 0; i < firstDayIndex; i++) daysHtml += `<div class="cal-day empty"></div>`;
+      for (let d = 1; d <= lastDate; d++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+        const practicedMinutes = practicedMap[dateStr];
+        const isToday = dateStr === getTodayString();
+        daysHtml += `
+          <div class="cal-day ${practicedMinutes ? 'practiced' : ''} ${isToday ? 'today' : ''}" data-date="${dateStr}">
+            <span class="day-num">${d}</span>
+            ${practicedMinutes ? `<span class="day-dot">● ${practicedMinutes}분</span>` : ''}
+          </div>
+        `;
+      }
+
+      openModal(
+        `📅 ${year}년 ${month + 1}월 연습 출석부`,
+        `
+        <div class="calendar-wrap">
+          <div class="cal-header-row">
+            <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+          </div>
+          <div class="cal-grid">${daysHtml}</div>
+          <div class="cal-guide">
+            <span style="color:#81c784; font-weight:bold;">● 초록 표시: 연습 완료일</span><br>
+            <span>💡 날짜를 터치하면 해당 일자로 즉시 연습 일지를 입력할 수 있습니다.</span>
+          </div>
+        </div>
+      `
+      );
+
+      document.querySelectorAll(".cal-day[data-date]").forEach((el) => {
+        el.addEventListener("click", () => {
+          const selectedDate = el.getAttribute("data-date");
+          if (practiceDateInput) practiceDateInput.value = selectedDate;
+          closeModal();
+          practiceDateInput.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+      });
+    });
+  }
+
+  const triggerFlightModal = document.getElementById("trigger-flight-modal");
+  if (triggerFlightModal) {
+    triggerFlightModal.addEventListener("click", () => {
+      const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
+      const total = logs.length;
+      const counts = { "드로우(성공)": 0, "스트레이트": 0, "푸시 발생": 0, "훅 발생": 0, "슬라이스": 0 };
+      logs.forEach((l) => { if (counts[l.ballFlight] !== undefined) counts[l.ballFlight]++; });
+
+      const rowsHtml = Object.entries(counts).map(([name, count]) => {
+        const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+        return `
+          <div class="stat-bar-row">
+            <div class="stat-bar-label"><span>${name}</span><strong>${count}회 (${pct}%)</strong></div>
+            <div class="stat-progress-track"><div class="stat-progress-fill" style="width: ${pct}%;"></div></div>
+          </div>
+        `;
+      }).join("");
+
+      openModal("🎯 나의 5대 구질 누적 분포", `<div class="stat-detail-box"><p class="field-label">총 ${total}회 연습 세션 구질 분포입니다.</p>${rowsHtml}</div>`);
+    });
+  }
+
+  const triggerPainModal = document.getElementById("trigger-pain-modal");
+  if (triggerPainModal) {
+    triggerPainModal.addEventListener("click", () => {
+      const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
+      const total = logs.length;
+      const partsCount = {};
+      logs.forEach((l) => {
+        if (Array.isArray(l.painParts)) l.painParts.forEach(p => { partsCount[p] = (partsCount[p] || 0) + 1; });
+      });
+      const partsHtml = Object.entries(partsCount).sort((a, b) => b[1] - a[1]).map(([part, c]) => `
+        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #282828;">
+          <span>🩹 ${part}</span><strong style="color:#ff8a80;">${c}회 (${Math.round((c / total) * 100)}%)</strong>
+        </div>
+      `).join("");
+
+      openModal("🩹 통증 빈도 & 부상 예방 추이", `<div class="stat-detail-box"><div class="field-label">부위별 통증 발생 순위</div>${partsHtml || "<p>기록된 통증 데이터가 없습니다.</p>"}</div>`);
+    });
+  }
+
+  const triggerTensionModal = document.getElementById("trigger-tension-modal");
+  if (triggerTensionModal) {
+    triggerTensionModal.addEventListener("click", () => {
+      const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
+      const total = logs.length;
+      const tensionCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+      logs.forEach((l) => {
+        const val = Number(l.tensionLevel || 3);
+        if (tensionCounts[val] !== undefined) tensionCounts[val]++;
+      });
+      const totalT = logs.reduce((acc, c) => acc + Number(c.tensionLevel || 3), 0);
+      const avgT = total > 0 ? (totalT / total).toFixed(2) : "-";
+
+      const barsHtml = [1, 2, 3, 4, 5].map((lvl) => {
+        const c = tensionCounts[lvl];
+        const pct = total > 0 ? Math.round((c / total) * 100) : 0;
+        return `
+          <div class="stat-bar-row">
+            <div class="stat-bar-label"><span>레벨 ${lvl}: ${tensionLabels[lvl]}</span><strong>${c}회 (${pct}%)</strong></div>
+            <div class="stat-progress-track"><div class="stat-progress-fill" style="width: ${pct}%; background-color:#81c784;"></div></div>
+          </div>
+        `;
+      }).join("");
+
+      openModal("⚖️ 힘빼기 & 상체 텐션 변화 추이", `<div class="stat-detail-box"><div class="summary-item" style="margin-bottom:12px;"><span class="summary-label">전체 평균 텐션</span><span class="summary-val" style="color:#81c784;">${avgT} / 5.0</span></div><div class="field-label">텐션 레벨별 분포</div>${barsHtml}</div>`);
+    });
+  }
+
+  // ==========================================
   // [8. 연습 일지 저장]
   // ==========================================
   const practiceForm = document.getElementById("practice-form");
@@ -889,7 +1018,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // [9. 클럽 스펙 & 드릴 관리 모듈 (완전 복구)]
+  // [9. 클럽 스펙 & 드릴 관리 모듈]
   // ==========================================
   const toggleClubFormBtn = document.getElementById("toggle-club-form-btn");
   const clubForm = document.getElementById("club-form");
