@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // [역대 릴리즈 히스토리 데이터 및 모달 (완벽 복구)]
+  // [역대 릴리즈 히스토리 데이터 및 모달]
   // ==========================================
   const RELEASE_HISTORY = [
     {
@@ -537,23 +537,8 @@ document.addEventListener("DOMContentLoaded", () => {
   renderMissReasonChips();
 
   // ==========================================
-  // [5-1. 🧭 역추적 나침반 (통합)]
+  // [5-1. 🧭 역추적 나침반 (정상 연동)]
   // ==========================================
-  const missReasonCard = document.getElementById("miss-reason-card");
-  if (missReasonCard) {
-    const titleEl = missReasonCard.querySelector(".card-title");
-    if (titleEl && !document.getElementById("open-compass-btn")) {
-      const compassWrap = document.createElement("div");
-      compassWrap.className = "compass-callout-wrap";
-      compassWrap.innerHTML = `
-        <button type="button" id="open-compass-btn" class="compass-trigger-btn">
-          🧭 잘 모르겠다면? 볼 구질/타점으로 원인 역추적 나침반
-        </button>
-      `;
-      titleEl.after(compassWrap);
-    }
-  }
-
   function runReverseCompass(flight, contact, sensor) {
     const scores = ALL_MISS_REASONS_DATA.map(item => {
       let score = 0;
@@ -708,7 +693,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (count > 1) {
       prompt += `\n2. 결함 간 인과관계(보상 동작) 분석:\n`;
-      prompt += `   - 선행 결함으로 인해 다운ส윙 시 나타난 연쇄 보상 동작(Compensatory Movement)인지 분석해 주세요.\n`;
+      prompt += `   - 선행 결함으로 인해 다운스윙 시 나타난 연쇄 보상 동작(Compensatory Movement)인지 분석해 주세요.\n`;
       prompt += `\n3. 최우선 교정 처방 (1순위 One-Thing):\n`;
       prompt += `   - 가장 먼저 고쳐야 할 '단 1가지 핵심 신체 느낌(Feel)'과 추천 드릴 1개를 제시해 주세요.`;
     } else {
@@ -902,7 +887,7 @@ document.addEventListener("DOMContentLoaded", () => {
   updateSummaryAndPrevAction();
 
   // ==========================================
-  // [7-1. 상단 요약 카드 클릭 모달 연동 (v1.4 달력/그래프 원본 완전 복구)]
+  // [7-1. 상단 요약 카드 클릭 모달 연동]
   // ==========================================
   const triggerCalendarModal = document.getElementById("trigger-calendar-modal");
   if (triggerCalendarModal) {
@@ -1083,13 +1068,12 @@ document.addEventListener("DOMContentLoaded", () => {
         duration: currentDuration,
         painParts: getActiveMulti("pain-part-group"),
         painLevel: document.getElementById("pain-level").value,
-        ballFlight: getActionActiveSingle = getActiveSingle("ball-flight-group"),
+        ballFlight: getActiveSingle("ball-flight-group"),
         tensionLevel: tensionRange ? tensionRange.value : "3",
         weightTransfer: document.getElementById("weight-transfer").value,
         missReasons: Array.from(selectedMissReasons),
         nextAction: document.getElementById("next-action-input").value.trim()
       };
-      newLog.ballFlight = getActiveSingle("ball-flight-group");
 
       const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
       logs.push(newLog);
@@ -1105,7 +1089,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // [9. 클럽 스펙 & 드릴 관리 모듈 (완전 복구)]
+  // [9. 클럽 스펙 & 드릴 관리 모듈]
   // ==========================================
   const toggleClubFormBtn = document.getElementById("toggle-club-form-btn");
   const clubForm = document.getElementById("club-form");

@@ -143,14 +143,18 @@
             <option value="과도한 힙 슬라이드">과도한 힙 슬라이드 (밀림)</option>
           </select>
 
-          <!-- 제목 및 안내 가이드 (우선 배치) -->
-          <div style="margin-top:14px; margin-bottom:8px;">
+          <!-- 1. 주요 미스샷 원인 자가 진단 타이틀 먼저 노출 -->
+          <div style="margin-top:16px; margin-bottom:4px;">
             <div class="field-label" style="margin-bottom:3px; font-weight:600; color:#ffffff;">주요 미스샷 원인 자가 진단 (중복 가능)</div>
             <div style="font-size:0.75rem; color:#81c784;">ℹ️ 버튼 터치 시 원인/결과/자가점검리스트/드릴 팝업</div>
           </div>
 
-          <!-- 🧭 역추적 나침반 버튼 배치 위치 (자가진단 타이틀 및 칩 아래로 이동) -->
-          <div class="compass-callout-wrap" id="compass-target-wrap" style="margin-bottom:8px;"></div>
+          <!-- 2. 자가 진단 타이틀 바로 아래에 '역추적 나침반' 버튼 배치 -->
+          <div class="compass-callout-wrap" style="margin-bottom:10px;">
+            <button type="button" id="open-compass-btn" class="compass-trigger-btn">
+              🧭 잘 모르겠다면? 볼 구질/타점으로 원인 역추적 나침반
+            </button>
+          </div>
 
           <!-- 13대 미스샷 그리드 컨테이너 -->
           <div class="miss-grid-container" id="miss-reason-container"></div>
@@ -416,7 +420,7 @@
           <div class="quick-chip-group" id="drill-quick-chips">
             <button type="button" class="quick-chip" data-cat="드라이버">드라이버</button>
             <button type="button" class="quick-chip" data-cat="아이언/웨지">아이언/웨지</button>
-            <button type="button" class="quick-chip" data-cat="힘빼기/부상방지">힘빼q기/부상방지</button>
+            <button type="button" class="quick-chip" data-cat="힘빼기/부상방지">힘빼기/부상방지</button>
             <button type="button" class="quick-chip" data-cat="궤도/드로우">궤도/드로우</button>
             <button type="button" class="quick-chip" data-cat="퍼팅">퍼팅</button>
           </div>
