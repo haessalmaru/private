@@ -428,7 +428,7 @@ body {
 }
 
 /* ========================================== */
-/* AI 프롬프트 생성 배너 & 범용 연동 버튼 */
+/* AI 프롬프트 생성 배너 & 연동 버튼 */
 /* ========================================== */
 .ai-prompt-banner {
   margin-top: 14px;
@@ -910,7 +910,7 @@ body {
 }
 
 /* ========================================== */
-/* 모달 팝업 및 통계 달력/그래프 스타일 (v1.4 완벽 복구) */
+/* 모달 팝업 공통 스타일 */
 /* ========================================== */
 .modal-overlay {
   display: none;
@@ -1068,11 +1068,47 @@ body {
   transition: width 0.3s ease;
 }
 
-/* 월간 출석 캘린더 그리드 (v1.4 원본 스타일) */
+/* ========================================== */
+/* 월간 출석 캘린더 (연월 이동 네비게이션 포함) */
+/* ========================================== */
 .calendar-wrap {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+/* ◀ 이전달 / 2026년 9월 / 다음달 ▶ 네비게이션 */
+.cal-nav-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #192635;
+  border: 1px solid #243b54;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+}
+
+.cal-nav-btn {
+  background-color: #20354b;
+  color: #90caf9;
+  border: 1px solid #2f4f73;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cal-nav-btn:active {
+  background-color: #1976d2;
+  color: #ffffff;
+}
+
+.cal-nav-title {
+  font-size: 0.95rem;
+  color: #ffffff;
+  font-weight: 700;
 }
 
 .cal-header-row {
@@ -1145,7 +1181,7 @@ body {
 }
 
 /* ========================================== */
-/* 릴리즈 히스토리 카드 디자인 (v1.4 카드 UI 복구) */
+/* 릴리즈 히스토리 카드 스타일 (v1.5 완벽 적용) */
 /* ========================================== */
 .release-history-wrap {
   display: flex;

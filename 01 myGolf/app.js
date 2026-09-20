@@ -83,14 +83,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // [역대 릴리즈 히스토리 데이터 및 카드 UI 복구]
+  // [역대 릴리즈 히스토리 데이터 및 카드 UI (v1.5 캘린더 네비 추가)]
   // ==========================================
   const RELEASE_HISTORY = [
     {
       version: "v1.5",
-      title: "초보자용 역추적 나침반 & 13대 미스샷 4단계 자가 점검 탑재",
+      title: "초보자용 역추적 나침반 & 13대 미스샷 점검 & 월간 출석부 네비게이션 탑재",
       features: [
         "🧭 '구질 & 타점 역추적 나침반' 신설: 볼 비행/타점/센서 수치로 유력 원인 자동 추출 및 원클릭 일지 반영",
+        "📅 '월간 출석부 캘린더 네비게이션' 탑재: 이전달/다음달(◀, ▶) 자유로운 이동 및 과거 연습 기록 소급 조회 완비",
         "미스샷 원인 13종 확충 (과도한 스트롱 그립, 과도한 손목 롤링, 힙턴 블록 신설)",
         "미스샷 팝업 4단계 구조화: 발생원인 / 유발미스샷 / 📋자가점검 리스트(체크박스형) / 교정드릴",
         "범용 AI 지원 (클립보드 메인 복사 + ChatGPT/Gemini 바로가기 + 스마트폰 공유하기)"
@@ -887,62 +888,108 @@ document.addEventListener("DOMContentLoaded", () => {
   updateSummaryAndPrevAction();
 
   // ==========================================
-  // [7-1. 상단 요약 카드 클릭 모달 연동]
+  // [7-1. 월간 출석부 캘린더 네비게이션 (◀, ▶ 월 이동 탑재)]
   // ==========================================
+  let currentCalYear = new Date().getFullYear();
+  let currentCalMonth = new Date().getMonth(); // 0-indexed
+
+  function renderCalendarContent(year, month) {
+    const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    const lastDate = new Date(year, month + 1, 0).getDate();
+
+    const practicedMap = {};
+    logs.forEach((l) => {
+      const normDate = normalizeDate(l.date);
+      if (normDate) practicedMap[normDate] = (practicedMap[normDate] || 0) + Number(l.duration || 30);
+    });
+
+    let daysHtml = "";
+    for (let i = 0; i < firstDayIndex; i++) daysHtml += `<div class="cal-day empty"></div>`;
+    for (let d = 1; d <= lastDate; d++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      const practicedMinutes = practicedMap[dateStr];
+      const isToday = dateStr === getTodayString();
+      daysHtml += `
+        <div class="cal-day ${practicedMinutes ? 'practiced' : ''} ${isToday ? 'today' : ''}" data-date="${dateStr}">
+          <span class="day-num">${d}</span>
+          ${practicedMinutes ? `<span class="day-dot">● ${practicedMinutes}분</span>` : ''}
+        </div>
+      `;
+    }
+
+    return `
+      <div class="calendar-wrap">
+        <!-- 상단 연월 이동 네비게이션 바 -->
+        <div class="cal-nav-row">
+          <button type="button" class="cal-nav-btn" id="cal-prev-month-btn">◀ 이전달</button>
+          <strong class="cal-nav-title" id="cal-current-month-title">${year}년 ${month + 1}월</strong>
+          <button type="button" class="cal-nav-btn" id="cal-next-month-btn">다음달 ▶</button>
+        </div>
+
+        <div class="cal-header-row">
+          <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+        </div>
+        <div class="cal-grid" id="cal-grid-body">${daysHtml}</div>
+        <div class="cal-guide">
+          <span style="color:#81c784; font-weight:bold;">● 초록 표시: 연습 완료일 (시간 표기)</span><br>
+          <span>💡 날짜를 터치하면 해당 일자로 즉시 연습 일지를 입력할 수 있습니다.</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function attachCalendarNavEvents() {
+    const prevBtn = document.getElementById("cal-prev-month-btn");
+    const nextBtn = document.getElementById("cal-next-month-btn");
+
+    if (prevBtn) {
+      prevBtn.addEventListener("click", () => {
+        currentCalMonth--;
+        if (currentCalMonth < 0) {
+          currentCalMonth = 11;
+          currentCalYear--;
+        }
+        updateCalendarModalView();
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener("click", () => {
+        currentCalMonth++;
+        if (currentCalMonth > 11) {
+          currentCalMonth = 0;
+          currentCalYear++;
+        }
+        updateCalendarModalView();
+      });
+    }
+
+    document.querySelectorAll(".cal-day[data-date]").forEach((el) => {
+      el.addEventListener("click", () => {
+        const selectedDate = el.getAttribute("data-date");
+        if (practiceDateInput) practiceDateInput.value = selectedDate;
+        closeModal();
+        practiceDateInput.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    });
+  }
+
+  function updateCalendarModalView() {
+    if (!modalBody) return;
+    modalTitle.textContent = `📅 ${currentCalYear}년 ${currentCalMonth + 1}월 연습 출석부`;
+    modalBody.innerHTML = renderCalendarContent(currentCalYear, currentCalMonth);
+    attachCalendarNavEvents();
+  }
+
   const triggerCalendarModal = document.getElementById("trigger-calendar-modal");
   if (triggerCalendarModal) {
     triggerCalendarModal.addEventListener("click", () => {
-      const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
       const today = new Date();
-      const year = today.getFullYear();
-      const month = today.getMonth();
-      const firstDayIndex = new Date(year, month, 1).getDay();
-      const lastDate = new Date(year, month + 1, 0).getDate();
-
-      const practicedMap = {};
-      logs.forEach((l) => {
-        const normDate = normalizeDate(l.date);
-        if (normDate) practicedMap[normDate] = (practicedMap[normDate] || 0) + Number(l.duration || 30);
-      });
-
-      let daysHtml = "";
-      for (let i = 0; i < firstDayIndex; i++) daysHtml += `<div class="cal-day empty"></div>`;
-      for (let d = 1; d <= lastDate; d++) {
-        const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-        const practicedMinutes = practicedMap[dateStr];
-        const isToday = dateStr === getTodayString();
-        daysHtml += `
-          <div class="cal-day ${practicedMinutes ? 'practiced' : ''} ${isToday ? 'today' : ''}" data-date="${dateStr}">
-            <span class="day-num">${d}</span>
-            ${practicedMinutes ? `<span class="day-dot">● ${practicedMinutes}분</span>` : ''}
-          </div>
-        `;
-      }
-
-      openModal(
-        `📅 ${year}년 ${month + 1}월 연습 출석부`,
-        `
-        <div class="calendar-wrap">
-          <div class="cal-header-row">
-            <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
-          </div>
-          <div class="cal-grid">${daysHtml}</div>
-          <div class="cal-guide">
-            <span style="color:#81c784; font-weight:bold;">● 초록 표시: 연습 완료일</span><br>
-            <span>💡 날짜를 터치하면 해당 일자로 즉시 연습 일지를 입력할 수 있습니다.</span>
-          </div>
-        </div>
-      `
-      );
-
-      document.querySelectorAll(".cal-day[data-date]").forEach((el) => {
-        el.addEventListener("click", () => {
-          const selectedDate = el.getAttribute("data-date");
-          if (practiceDateInput) practiceDateInput.value = selectedDate;
-          closeModal();
-          practiceDateInput.scrollIntoView({ behavior: "smooth", block: "center" });
-        });
-      });
+      currentCalYear = today.getFullYear();
+      currentCalMonth = today.getMonth();
+      openModal(`📅 ${currentCalYear}년 ${currentCalMonth + 1}월 연습 출석부`, renderCalendarContent(currentCalYear, currentCalMonth));
+      attachCalendarNavEvents();
     });
   }
 
