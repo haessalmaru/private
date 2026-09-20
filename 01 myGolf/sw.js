@@ -1,4 +1,4 @@
-const CACHE_NAME = "mygolf-v22-stable";
+const CACHE_NAME = "mygolf-v23-mobile-fix";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
