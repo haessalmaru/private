@@ -1,4 +1,4 @@
-const CACHE_NAME = "mygolf-v26-perfect-v15";
+const CACHE_NAME = "mygolf-v27-release-fix";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
