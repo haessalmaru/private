@@ -1,4 +1,4 @@
-const CACHE_NAME = "mygolf-v14";
+const CACHE_NAME = "mygolf-v18-step1";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
@@ -12,7 +12,7 @@ const ASSETS_TO_CACHE = [
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log("Caching assets for v1.4 Universal AI prompt");
+      console.log("Caching assets for v1.5 Step1");
       return cache.addAll(ASSETS_TO_CACHE);
     })
   );

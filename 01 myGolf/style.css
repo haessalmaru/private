@@ -276,26 +276,16 @@ body {
 }
 
 /* ========================================== */
-/* 미스샷 10개 원인 레이아웃 (상단 2열 + 하단 4열 한 줄) */
+/* 미스샷 13대 원인 2열 반응형 그리드 */
 /* ========================================== */
 .miss-grid-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
   width: 100%;
 }
 
-.miss-grid-pair {
+.miss-grid-responsive {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 8px;
-  width: 100%;
-}
-
-.miss-grid-quad {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
   width: 100%;
 }
 
@@ -307,6 +297,10 @@ body {
   border-radius: 8px;
   overflow: hidden;
   min-height: 40px;
+}
+
+.miss-tag-wrap.miss-full-width {
+  grid-column: span 2;
 }
 
 .miss-chip-btn {
@@ -348,24 +342,8 @@ body {
   background-color: #444444;
 }
 
-.miss-tag-wrap.miss-compact {
-  min-height: 38px;
-}
-
-.miss-tag-wrap.miss-compact .miss-chip-btn {
-  padding: 4px 4px;
-  font-size: 0.7rem;
-  justify-content: center;
-  text-align: center;
-}
-
-.miss-tag-wrap.miss-compact .miss-info-icon-btn {
-  padding: 0 5px;
-  font-size: 0.65rem;
-}
-
 /* ========================================== */
-/* AI 프롬프트 생성 배너 및 범용 연동 버튼 */
+/* AI 프롬프트 생성 배너 & 범용 연동 버튼 */
 /* ========================================== */
 .ai-prompt-banner {
   margin-top: 14px;
@@ -409,7 +387,6 @@ body {
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  transition: opacity 0.2s, transform 0.1s;
 }
 
 .ai-prompt-btn:active {
@@ -447,7 +424,6 @@ body {
   border-color: #1976d2;
 }
 
-/* 빠른 AI 바로가기 그리드 (ChatGPT / Gemini) */
 .ai-fast-actions-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -848,7 +824,9 @@ body {
   transform: scale(0.98);
 }
 
-/* 모달 팝업 스타일 */
+/* ========================================== */
+/* 모달 팝업 스타일 (자가점검 체크리스트 대응) */
+/* ========================================== */
 .modal-overlay {
   display: none;
   position: fixed;
@@ -935,6 +913,38 @@ body {
   font-size: 0.84rem;
   line-height: 1.48;
   color: #d1d1d1;
+  word-break: keep-all;
+}
+
+/* 자가 점검 체크리스트 박스 */
+.checklist-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background-color: #141d24;
+  border: 1px solid #203342;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-top: 4px;
+}
+
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.check-box-icon {
+  color: #64b5f6;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  flex-shrink: 0;
+}
+
+.check-text {
+  font-size: 0.8rem;
+  color: #cfd8dc;
+  line-height: 1.35;
   word-break: keep-all;
 }
 
