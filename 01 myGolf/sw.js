@@ -1,18 +1,18 @@
-const CACHE_NAME = "mygolf-v20-fixed";
+const CACHE_NAME = "mygolf-v21-stable";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
   "./style.css",
   "./app.js",
-  "./manifest.json",
-  "./icon-192.png",
-  "./icon-512.png"
+  "./manifest.json"
 ];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS_TO_CACHE);
+    }).catch(err => {
+      console.log("Cache install skipped non-critical assets:", err);
     })
   );
   self.skipWaiting();
