@@ -83,15 +83,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // [역대 릴리즈 히스토리 데이터 및 카드 UI (v1.5 캘린더 네비 추가)]
+  // [릴리즈 히스토리 (v1.5 통합)]
   // ==========================================
   const RELEASE_HISTORY = [
     {
       version: "v1.5",
-      title: "초보자용 역추적 나침반 & 13대 미스샷 점검 & 월간 출석부 네비게이션 탑재",
+      title: "초보자용 역추적 나침반, 13대 미스샷 점검 & 월간 출석부 네비게이션 완비",
       features: [
         "🧭 '구질 & 타점 역추적 나침반' 신설: 볼 비행/타점/센서 수치로 유력 원인 자동 추출 및 원클릭 일지 반영",
         "📅 '월간 출석부 캘린더 네비게이션' 탑재: 이전달/다음달(◀, ▶) 자유로운 이동 및 과거 연습 기록 소급 조회 완비",
+        "클럽 22종 정밀 스펙 아코디언 드로어 및 드릴 실시간 검색/필터 칩 복원 안정화",
         "미스샷 원인 13종 확충 (과도한 스트롱 그립, 과도한 손목 롤링, 힙턴 블록 신설)",
         "미스샷 팝업 4단계 구조화: 발생원인 / 유발미스샷 / 📋자가점검 리스트(체크박스형) / 교정드릴",
         "범용 AI 지원 (클립보드 메인 복사 + ChatGPT/Gemini 바로가기 + 스마트폰 공유하기)"
@@ -538,7 +539,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderMissReasonChips();
 
   // ==========================================
-  // [5-1. 🧭 역추적 나침반 (정상 연동)]
+  // [5-1. 🧭 역추적 나침반]
   // ==========================================
   function runReverseCompass(flight, contact, sensor) {
     const scores = ALL_MISS_REASONS_DATA.map(item => {
@@ -888,10 +889,10 @@ document.addEventListener("DOMContentLoaded", () => {
   updateSummaryAndPrevAction();
 
   // ==========================================
-  // [7-1. 월간 출석부 캘린더 네비게이션 (◀, ▶ 월 이동 탑재)]
+  // [7-1. 월간 출석부 캘린더 네비게이션 (◀, ▶ 월 이동)]
   // ==========================================
   let currentCalYear = new Date().getFullYear();
-  let currentCalMonth = new Date().getMonth(); // 0-indexed
+  let currentCalMonth = new Date().getMonth();
 
   function renderCalendarContent(year, month) {
     const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
@@ -920,7 +921,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     return `
       <div class="calendar-wrap">
-        <!-- 상단 연월 이동 네비게이션 바 -->
         <div class="cal-nav-row">
           <button type="button" class="cal-nav-btn" id="cal-prev-month-btn">◀ 이전달</button>
           <strong class="cal-nav-title" id="cal-current-month-title">${year}년 ${month + 1}월</strong>
@@ -1136,64 +1136,540 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // [9. 클럽 스펙 & 드릴 관리 모듈]
+  // [9. 클럽 스펙 모듈 (v1.4 전체 22종 스펙 및 아코디언 완전 복원)]
   // ==========================================
-  const toggleClubFormBtn = document.getElementById("toggle-club-form-btn");
   const clubForm = document.getElementById("club-form");
+  const toggleClubFormBtn = document.getElementById("toggle-club-form-btn");
   const clubList = document.getElementById("club-list");
+  const cancelClubEditBtn = document.getElementById("cancel-club-edit-btn");
+  const clubEditIdInput = document.getElementById("club-edit-id");
+  const clubFormTitle = document.getElementById("club-form-title");
+  const submitClubBtn = document.getElementById("submit-club-btn");
 
-  function renderClubs() {
-    if (!clubList) return;
-    const clubs = JSON.parse(localStorage.getItem("golf_my_clubs") || "[]");
-    clubList.innerHTML = clubs.length === 0 ? '<div class="empty-notice">등록된 클럽이 없습니다.</div>' : "";
-    clubs.forEach((club) => {
-      const item = document.createElement("div");
-      item.className = "item-card";
-      item.innerHTML = `
-        <div class="item-header">
-          <div>
-            <span class="item-badge">${club.type || ""} · ${club.subname || ""}</span>
-            <div class="item-main-title">${club.maker ? club.maker + " " : ""}<strong>${club.model || ""}</strong></div>
-          </div>
-        </div>
-      `;
-      clubList.appendChild(item);
+  const clubTypeSelect = document.getElementById("club-type");
+  const wedgeSpecGroup = document.getElementById("wedge-spec-group");
+
+  if (clubTypeSelect && wedgeSpecGroup) {
+    clubTypeSelect.addEventListener("change", (e) => {
+      wedgeSpecGroup.style.display = e.target.value === "웨지" ? "flex" : "none";
     });
   }
-  renderClubs();
 
   if (toggleClubFormBtn && clubForm) {
     toggleClubFormBtn.addEventListener("click", () => {
       clubForm.classList.toggle("show");
+      if (!clubForm.classList.contains("show")) resetClubForm();
     });
   }
 
-  const toggleDrillFormBtn = document.getElementById("toggle-drill-form-btn");
-  const drillForm = document.getElementById("drill-form");
-  const drillList = document.getElementById("drill-list");
+  function resetClubForm() {
+    if (!clubForm) return;
+    clubForm.reset();
+    if (clubEditIdInput) clubEditIdInput.value = "";
+    if (clubFormTitle) clubFormTitle.textContent = "신규 클럽 상세 스펙 등록";
+    if (submitClubBtn) submitClubBtn.textContent = "클럽 정밀 스펙 저장";
+    if (cancelClubEditBtn) cancelClubEditBtn.style.display = "none";
+    if (wedgeSpecGroup) wedgeSpecGroup.style.display = "none";
+  }
 
-  function renderDrills() {
-    if (!drillList) return;
-    const drills = JSON.parse(localStorage.getItem("golf_drills") || "[]");
-    drillList.innerHTML = drills.length === 0 ? '<div class="empty-notice">보관된 드릴이 없습니다.</div>' : "";
-    drills.forEach((drill) => {
-      const item = document.createElement("div");
-      item.className = "item-card";
-      item.innerHTML = `
+  if (cancelClubEditBtn) {
+    cancelClubEditBtn.addEventListener("click", () => {
+      resetClubForm();
+      if (clubForm) clubForm.classList.remove("show");
+    });
+  }
+
+  function getClubsData() {
+    return JSON.parse(localStorage.getItem("golf_my_clubs") || "[]");
+  }
+
+  function saveClubsData(data) {
+    localStorage.setItem("golf_my_clubs", JSON.stringify(data));
+  }
+
+  function renderClubs() {
+    if (!clubList) return;
+    const clubs = getClubsData();
+    clubList.innerHTML = "";
+
+    if (clubs.length === 0) {
+      clubList.innerHTML = '<div class="empty-notice">등록된 클럽이 없습니다. [+ 클럽 추가]를 눌러 22가지 정밀 스펙을 기록해 보세요!</div>';
+      return;
+    }
+
+    clubs.forEach((club) => {
+      const card = document.createElement("div");
+      card.className = "item-card club-expandable-card";
+
+      const badgeColor = club.status === "사용" ? "#2b3a2b" : (club.status === "방출" ? "#382323" : "#2a2d36");
+      const badgeTextColor = club.status === "사용" ? "#81c784" : (club.status === "방출" ? "#ef9a9a" : "#90caf9");
+
+      card.innerHTML = `
         <div class="item-header">
-          <span class="item-badge">${drill.category || "일반"}</span>
-          <div class="item-main-title">${drill.title || ""}</div>
+          <div>
+            <span class="item-badge" style="background-color: ${badgeColor}; color: ${badgeTextColor};">${club.status || "사용"} · ${club.type} · ${club.subname}</span>
+            <div class="item-main-title">${club.maker ? club.maker + " " : ""}<strong>${club.model}</strong></div>
+          </div>
+          <div class="card-action-group" onclick="event.stopPropagation();">
+            <button type="button" class="action-text-btn edit-club-btn" data-id="${club.id}">수정</button>
+            <button type="button" class="action-text-btn delete-club-btn" data-id="${club.id}">삭제</button>
+          </div>
         </div>
-        <a href="${drill.url || "#"}" target="_blank" class="link-action-btn">▶ Youtube / 레슨 바로가기</a>
+
+        <div class="spec-grid">
+          <div>🎯 비거리: <strong style="color:#81c784;">${club.distance || "-"}</strong></div>
+          <div>⚖️ 총중량: <strong>${club.totalWeight ? club.totalWeight + 'g' : "-"}</strong></div>
+          <div>⚡ 강도/CPM: <strong>${club.flex || "-"}/${club.cpm ? club.cpm + 'cpm' : "-"}</strong></div>
+          <div>⚖️ 스윙웨이트: <strong>${club.swingweight || "-"}</strong></div>
+        </div>
+
+        <div class="club-detail-drawer" id="drawer-${club.id}">
+          <div class="detail-divider"></div>
+          <div class="spec-grid spec-detail-grid">
+            <div>📐 로프트각: <strong>${club.loft || "-"}</strong></div>
+            <div>📐 라이각: <strong>${club.lie || "-"}</strong></div>
+            <div>🏌️ 클럽길이: <strong>${club.length || "-"}</strong></div>
+            <div>📦 체적(cc): <strong>${club.headVolume || "-"}</strong></div>
+            <div>🔩 헤드무게: <strong>${club.headWeight || "-"}</strong></div>
+            <div>🔩 무게추: <strong>${club.headWeightScrew || "-"}</strong></div>
+            <div>🪵 샤프트: <strong>${club.shaftMaterial || ""} ${club.shaftName || "-"}</strong></div>
+            <div>🪵 샤프트무게: <strong>${club.shaftWeight || "-"}</strong></div>
+            <div>🔄 토크: <strong>${club.torque || "-"}</strong></div>
+            <div>🎯 킥포인트: <strong>${club.kickpoint || "-"}</strong></div>
+            <div>🖐️ 그립: <strong>${club.gripType || "-"}</strong></div>
+            <div>🖐️ 그립규격: <strong>${club.gripSize || "-"}</strong></div>
+            <div>🖐️ 그립무게: <strong>${club.gripWeight || "-"}</strong></div>
+            ${club.type === "웨지" ? `<div>⛳ 바운스: <strong>${club.wedgeBounce \vert{}\vert{} "-"}</strong></div><div>⛳ 그라인드: <strong>${club.wedgeGrind || "-"}</strong></div>` : ""}
+            <div>💰 구입가: <strong>${club.price ? Number(club.price).toLocaleString() + '원' : "-"}</strong></div>
+            <div>📅 구입일: <strong>${club.buyDate || "-"}</strong></div>
+          </div>
+        </div>
+        <div class="expand-hint">▼ 터치하여 상세 스펙 펼치기 / 접기</div>
       `;
-      drillList.appendChild(item);
+
+      card.addEventListener("click", () => {
+        const drawer = card.querySelector(".club-detail-drawer");
+        const hint = card.querySelector(".expand-hint");
+        if (drawer) {
+          drawer.classList.toggle("open");
+          if (hint) hint.textContent = drawer.classList.contains("open") ? "▲ 터치하여 상세 스펙 접기" : "▼ 터치하여 상세 스펙 펼치기 / 접기";
+        }
+      });
+
+      const editBtn = card.querySelector(".edit-club-btn");
+      if (editBtn) {
+        editBtn.addEventListener("click", () => {
+          const targetClub = clubs.find((c) => c.id === Number(club.id));
+          if (!targetClub) return;
+
+          document.getElementById("club-distance").value = targetClub.distance || "";
+          document.getElementById("club-status").value = targetClub.status || "사용";
+          document.getElementById("club-type").value = targetClub.type || "드라이버";
+          document.getElementById("club-subname").value = targetClub.subname || "";
+          document.getElementById("club-maker").value = targetClub.maker || "";
+          document.getElementById("club-model").value = targetClub.model || "";
+          document.getElementById("club-head-volume").value = targetClub.headVolume || "";
+          document.getElementById("club-head-weight").value = targetClub.headWeight || "";
+          document.getElementById("club-head-weight-screw").value = targetClub.headWeightScrew || "";
+          document.getElementById("club-loft").value = targetClub.loft || "";
+          document.getElementById("club-lie").value = targetClub.lie || "";
+          document.getElementById("club-wedge-bounce").value = targetClub.wedgeBounce || "";
+          document.getElementById("club-wedge-grind").value = targetClub.wedgeGrind || "";
+          document.getElementById("club-shaft-material").value = targetClub.shaftMaterial || "그라파이트";
+          document.getElementById("club-shaft-name").value = targetClub.shaftName || "";
+          document.getElementById("club-shaft-weight").value = targetClub.shaftWeight || "";
+          document.getElementById("club-flex").value = targetClub.flex || "S";
+          document.getElementById("club-cpm").value = targetClub.cpm || "";
+          document.getElementById("club-torque").value = targetClub.torque || "";
+          document.getElementById("club-kickpoint").value = targetClub.kickpoint || "";
+          document.getElementById("club-grip-type").value = targetClub.gripType || "";
+          document.getElementById("club-grip-size").value = targetClub.gripSize || "";
+          document.getElementById("club-grip-weight").value = targetClub.gripWeight || "";
+          document.getElementById("club-total-weight").value = targetClub.totalWeight || "";
+          document.getElementById("club-swingweight").value = targetClub.swingweight || "";
+          document.getElementById("club-length").value = targetClub.length || "";
+          document.getElementById("club-price").value = targetClub.price || "";
+          document.getElementById("club-buy-date").value = targetClub.buyDate || "";
+
+          if (wedgeSpecGroup) wedgeSpecGroup.style.display = targetClub.type === "웨지" ? "flex" : "none";
+
+          clubEditIdInput.value = targetClub.id;
+          clubFormTitle.textContent = `클럽 스펙 수정: [${targetClub.subname}] ${targetClub.model}`;
+          submitClubBtn.textContent = "수정 내용 갱신";
+          cancelClubEditBtn.style.display = "block";
+          clubForm.classList.add("show");
+          clubForm.scrollIntoView({ behavior: "smooth" });
+        });
+      }
+
+      const delBtn = card.querySelector(".delete-club-btn");
+      if (delBtn) {
+        delBtn.addEventListener("click", () => {
+          if (confirm(`[${club.subname} - ${club.model}] 클럽 스펙을 정말 삭제하시겠습니까?`)) {
+            const updated = clubs.filter((c) => c.id !== Number(club.id));
+            saveClubsData(updated);
+            renderClubs();
+          }
+        });
+      }
+
+      clubList.appendChild(card);
     });
   }
-  renderDrills();
+
+  if (clubForm) {
+    clubForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const editId = clubEditIdInput.value;
+      const clubs = getClubsData();
+
+      const newClub = {
+        id: editId ? Number(editId) : Date.now(),
+        distance: document.getElementById("club-distance").value.trim(),
+        status: document.getElementById("club-status").value,
+        type: document.getElementById("club-type").value,
+        subname: document.getElementById("club-subname").value.trim(),
+        maker: document.getElementById("club-maker").value.trim(),
+        model: document.getElementById("club-model").value.trim(),
+        headVolume: document.getElementById("club-head-volume").value.trim(),
+        headWeight: document.getElementById("club-head-weight").value.trim(),
+        headWeightScrew: document.getElementById("club-head-weight-screw").value.trim(),
+        loft: document.getElementById("club-loft").value.trim(),
+        lie: document.getElementById("club-lie").value.trim(),
+        wedgeBounce: document.getElementById("club-wedge-bounce").value.trim(),
+        wedgeGrind: document.getElementById("club-wedge-grind").value.trim(),
+        shaftMaterial: document.getElementById("club-shaft-material").value,
+        shaftName: document.getElementById("club-shaft-name").value.trim(),
+        shaftWeight: document.getElementById("club-shaft-weight").value.trim(),
+        flex: document.getElementById("club-flex").value,
+        cpm: document.getElementById("club-cpm").value.trim(),
+        torque: document.getElementById("club-torque").value.trim(),
+        kickpoint: document.getElementById("club-kickpoint").value.trim(),
+        gripType: document.getElementById("club-grip-type").value.trim(),
+        gripSize: document.getElementById("club-grip-size").value.trim(),
+        gripWeight: document.getElementById("club-grip-weight").value.trim(),
+        totalWeight: document.getElementById("club-total-weight").value.trim(),
+        swingweight: document.getElementById("club-swingweight").value.trim(),
+        length: document.getElementById("club-length").value.trim(),
+        price: document.getElementById("club-price").value.replace(/,/g, "").trim(),
+        buyDate: document.getElementById("club-buy-date").value
+      };
+
+      if (editId) {
+        const idx = clubs.findIndex((c) => c.id === Number(editId));
+        if (idx !== -1) clubs[idx] = newClub;
+      } else {
+        clubs.push(newClub);
+      }
+
+      saveClubsData(clubs);
+      renderClubs();
+      resetClubForm();
+      clubForm.classList.remove("show");
+      alert(editId ? "✅ 클럽 스펙이 성공적으로 수정되었습니다!" : "✅ 신규 클럽 스펙이 안전하게 저장되었습니다!");
+    });
+  }
+
+  // 클럽 CSV 다운로드
+  const exportClubCsvBtn = document.getElementById("export-club-csv-btn");
+  if (exportClubCsvBtn) {
+    exportClubCsvBtn.addEventListener("click", () => {
+      const clubs = getClubsData();
+      if (clubs.length === 0) {
+        alert("내보낼 클럽 데이터가 없습니다.");
+        return;
+      }
+
+      const headers = ["구분", "클럽종류", "넘버/각도", "메이커", "모델명", "목표비거리", "로프트", "라이각", "헤드체적", "헤드본체무게", "무게추", "샤프트소재", "샤프트모델", "샤프트무게", "강도", "CPM", "토크", "킥포인트", "그립모델", "그립사이즈", "그립무게", "총중량", "스윙웨이트", "길이", "웨지바운스", "웨지그라인드", "구입가격", "구입일자"];
+      const rows = clubs.map((c) => [
+        `"${c.status || '사용'}"`, `"${c.type || ''}"`, `"${c.subname || ''}"`, `"${c.maker || ''}"`, `"${c.model || ''}"`,
+        `"${c.distance || ''}"`, `"${c.loft || ''}"`, `"${c.lie || ''}"`, `"${c.headVolume || ''}"`, `"${c.headWeight || ''}"`, `"${c.headWeightScrew || ''}"`,
+        `"${c.shaftMaterial || ''}"`, `"${c.shaftName || ''}"`, `"${c.shaftWeight || ''}"`, `"${c.flex || ''}"`, `"${c.cpm || ''}"`, `"${c.torque || ''}"`, `"${c.kickpoint || ''}"`,
+        `"${c.gripType || ''}"`, `"${c.gripSize || ''}"`, `"${c.gripWeight || ''}"`, `"${c.totalWeight || ''}"`, `"${c.swingweight || ''}"`, `"${c.length || ''}"`,
+        `"${c.wedgeBounce || ''}"`, `"${c.wedgeGrind || ''}"`, `"${c.price || ''}"`, `"${c.buyDate || ''}"`
+      ]);
+
+      const csvContent = "\uFEFF" + [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `MyClubs_Spec_${getTodayString()}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  renderClubs();
+
+  // ==========================================
+  // [10. 드릴 & 레슨 모듈 (v1.4 실시간 검색/필터 칩/카드 UI 완전 복원)]
+  // ==========================================
+  const drillForm = document.getElementById("drill-form");
+  const toggleDrillFormBtn = document.getElementById("toggle-drill-form-btn");
+  const drillList = document.getElementById("drill-list");
+  const cancelDrillEditBtn = document.getElementById("cancel-drill-edit-btn");
+  const drillEditIdInput = document.getElementById("drill-edit-id");
+  const drillFormTitle = document.getElementById("drill-form-title");
+  const submitDrillBtn = document.getElementById("submit-drill-btn");
+  const drillSearchInput = document.getElementById("drill-search-input");
+  const drillFilterChips = document.getElementById("drill-filter-chips");
+  const drillCategoryInput = document.getElementById("drill-category");
+
+  let currentDrillCategory = "전체";
+  let currentDrillSearchQuery = "";
 
   if (toggleDrillFormBtn && drillForm) {
     toggleDrillFormBtn.addEventListener("click", () => {
       drillForm.classList.toggle("show");
+      if (!drillForm.classList.contains("show")) resetDrillForm();
+    });
+  }
+
+  function resetDrillForm() {
+    if (!drillForm) return;
+    drillForm.reset();
+    if (drillEditIdInput) drillEditIdInput.value = "";
+    if (drillFormTitle) drillFormTitle.textContent = "신규 레슨/드릴 저장";
+    if (submitDrillBtn) submitDrillBtn.textContent = "드릴 저장";
+    if (cancelDrillEditBtn) cancelDrillEditBtn.style.display = "none";
+  }
+
+  if (cancelDrillEditBtn) {
+    cancelDrillEditBtn.addEventListener("click", () => {
+      resetDrillForm();
+      if (drillForm) drillForm.classList.remove("show");
+    });
+  }
+
+  // 퀵 카테고리 칩 선택
+  document.querySelectorAll(".quick-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      if (drillCategoryInput) drillCategoryInput.value = chip.getAttribute("data-cat");
+    });
+  });
+
+  function getDrillsData() {
+    return JSON.parse(localStorage.getItem("golf_drills") || "[]");
+  }
+
+  function saveDrillsData(data) {
+    localStorage.setItem("golf_drills", JSON.stringify(data));
+  }
+
+  function renderDrillFilterChips() {
+    if (!drillFilterChips) return;
+    const drills = getDrillsData();
+    const categories = ["전체"];
+    drills.forEach((d) => {
+      if (d.category && !categories.includes(d.category)) categories.push(d.category);
+    });
+
+    drillFilterChips.innerHTML = "";
+    categories.forEach((cat) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = `filter-chip-btn ${currentDrillCategory === cat ? "active" : ""}`;
+      btn.textContent = cat;
+      btn.addEventListener("click", () => {
+        currentDrillCategory = cat;
+        renderDrillFilterChips();
+        renderDrills();
+      });
+      drillFilterChips.appendChild(btn);
+    });
+  }
+
+  if (drillSearchInput) {
+    drillSearchInput.addEventListener("input", (e) => {
+      currentDrillSearchQuery = e.target.value.toLowerCase().trim();
+      renderDrills();
+    });
+  }
+
+  function renderDrills() {
+    if (!drillList) return;
+    const drills = getDrillsData();
+
+    const filtered = drills.filter((drill) => {
+      const matchesCategory = currentDrillCategory === "전체" || drill.category === currentDrillCategory;
+      const q = currentDrillSearchQuery;
+      const matchesQuery =
+        !q ||
+        (drill.title && drill.title.toLowerCase().includes(q)) ||
+        (drill.memo && drill.memo.toLowerCase().includes(q)) ||
+        (drill.category && drill.category.toLowerCase().includes(q));
+      return matchesCategory && matchesQuery;
+    });
+
+    drillList.innerHTML = "";
+
+    if (filtered.length === 0) {
+      drillList.innerHTML = '<div class="empty-notice">조건에 맞는 레슨/드릴이 없습니다.</div>';
+      return;
+    }
+
+    filtered.forEach((drill) => {
+      const card = document.createElement("div");
+      card.className = "item-card";
+
+      card.innerHTML = `
+        <div class="item-header">
+          <div>
+            <span class="item-badge">${drill.category || "일반"}</span>
+            <div class="item-main-title">${drill.title}</div>
+          </div>
+          <div class="card-action-group">
+            <button type="button" class="action-text-btn edit-drill-btn" data-id="${drill.id}">수정</button>
+            <button type="button" class="action-text-btn delete-drill-btn" data-id="${drill.id}">삭제</button>
+          </div>
+        </div>
+        ${drill.memo ? `<p class="field-label" style="color: #cccccc; margin: 4px 0 6px;">💡 ${drill.memo}</p>` : ""}
+        <a href="${drill.url}" target="_blank" rel="noopener noreferrer" class="link-action-btn">▶ Youtube / 레슨 바로가기</a>
+      `;
+
+      const editBtn = card.querySelector(".edit-drill-btn");
+      if (editBtn) {
+        editBtn.addEventListener("click", () => {
+          const target = drills.find((d) => d.id === Number(drill.id));
+          if (!target) return;
+
+          document.getElementById("drill-category").value = target.category || "";
+          document.getElementById("drill-title").value = target.title || "";
+          document.getElementById("drill-url").value = target.url || "";
+          document.getElementById("drill-memo").value = target.memo || "";
+
+          drillEditIdInput.value = target.id;
+          drillFormTitle.textContent = `드릴 수정: ${target.title}`;
+          submitDrillBtn.textContent = "수정 내용 저장";
+          cancelDrillEditBtn.style.display = "block";
+          drillForm.classList.add("show");
+          drillForm.scrollIntoView({ behavior: "smooth" });
+        });
+      }
+
+      const delBtn = card.querySelector(".delete-drill-btn");
+      if (delBtn) {
+        delBtn.addEventListener("click", () => {
+          if (confirm(`[${drill.title}] 레슨을 보관함에서 삭제하시겠습니까?`)) {
+            const updated = drills.filter((d) => d.id !== Number(drill.id));
+            saveDrillsData(updated);
+            renderDrillFilterChips();
+            renderDrills();
+          }
+        });
+      }
+
+      drillList.appendChild(card);
+    });
+  }
+
+  if (drillForm) {
+    drillForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const editId = drillEditIdInput.value;
+      const drills = getDrillsData();
+
+      const newDrill = {
+        id: editId ? Number(editId) : Date.now(),
+        category: document.getElementById("drill-category").value.trim(),
+        title: document.getElementById("drill-title").value.trim(),
+        url: document.getElementById("drill-url").value.trim(),
+        memo: document.getElementById("drill-memo").value.trim()
+      };
+
+      if (editId) {
+        const idx = drills.findIndex((d) => d.id === Number(editId));
+        if (idx !== -1) drills[idx] = newDrill;
+      } else {
+        drills.push(newDrill);
+      }
+
+      saveDrillsData(drills);
+      renderDrillFilterChips();
+      renderDrills();
+      resetDrillForm();
+      drillForm.classList.remove("show");
+      alert(editId ? "✅ 드릴 내용이 성공적으로 수정되었습니다!" : "✅ 새로운 드릴이 보관함에 저장되었습니다!");
+    });
+  }
+
+  renderDrillFilterChips();
+  renderDrills();
+
+  // ==========================================
+  // [11. 일지 CSV/JSON 백업 및 복원]
+  // ==========================================
+  const exportCsvBtn = document.getElementById("export-csv-btn");
+  if (exportCsvBtn) {
+    exportCsvBtn.addEventListener("click", () => {
+      const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
+      if (logs.length === 0) {
+        alert("내보낼 연습 일지 데이터가 없습니다.");
+        return;
+      }
+
+      const headers = ["일자", "연습시간(분)", "통증부위", "통증정도", "주요구질", "텐션레벨", "체중이동", "미스샷원인", "One-Thing과제"];
+      const rows = logs.map((l) => [
+        `"${normalizeDate(l.date)}"`, `"${l.duration || 30}"`, `"${(l.painParts || []).join(';')}"`,
+        `"${l.painLevel || 0}"`, `"${l.ballFlight || ''}"`, `"${l.tensionLevel || 3}"`, `"${l.weightTransfer || ''}"`,
+        `"${(l.missReasons || []).join(';')}"`, `"${(l.nextAction || '').replace(/"/g, '""')}"`
+      ]);
+
+      const csvContent = "\uFEFF" + [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `GolfPractice_Logs_${getTodayString()}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  const exportJsonBtn = document.getElementById("export-json-btn");
+  if (exportJsonBtn) {
+    exportJsonBtn.addEventListener("click", () => {
+      const backupData = {
+        exportDate: getTodayString(),
+        version: "v1.5",
+        practiceLogs: JSON.parse(localStorage.getItem("golf_practice_logs") || "[]"),
+        clubs: getClubsData(),
+        drills: getDrillsData()
+      };
+      const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `MyGolfNotes_Backup_${getTodayString()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  const importFileInput = document.getElementById("import-file");
+  if (importFileInput) {
+    importFileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const parsed = JSON.parse(event.target.result);
+          if (parsed.practiceLogs) localStorage.setItem("golf_practice_logs", JSON.stringify(parsed.practiceLogs));
+          if (parsed.clubs) localStorage.setItem("golf_my_clubs", JSON.stringify(parsed.clubs));
+          if (parsed.drills) localStorage.setItem("golf_drills", JSON.stringify(parsed.drills));
+
+          alert("✅ 전체 데이터가 성공적으로 복원되었습니다!");
+          location.reload();
+        } catch (err) {
+          alert("❌ 올바른 백업 JSON 파일이 아닙니다.");
+        }
+      };
+      reader.readAsText(file);
     });
   }
 });
