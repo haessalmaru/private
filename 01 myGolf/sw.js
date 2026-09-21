@@ -1,4 +1,4 @@
-const CACHE_NAME = "mygolf-v30-full-restore";
+const CACHE_NAME = "mygolf-v31-stable-all";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",

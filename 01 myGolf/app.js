@@ -151,7 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <strong class="release-card-title">${rel.title}</strong>
         </div>
         <ul class="release-feature-list">
-          ${rel.features.map(f => `<li>${f}</li>`).join("")}
+          ${rel.features.map((f) => `<li>${f}</li>`).join("")}
         </ul>
       </div>
     `).join("");
@@ -542,19 +542,19 @@ document.addEventListener("DOMContentLoaded", () => {
   // [5-1. 🧭 역추적 나침반]
   // ==========================================
   function runReverseCompass(flight, contact, sensor) {
-    const scores = ALL_MISS_REASONS_DATA.map(item => {
+    const scores = ALL_MISS_REASONS_DATA.map((item) => {
       let score = 0;
       let reasons = [];
 
-      if (item.tags.flights.some(f => flight.includes(f))) {
+      if (item.tags.flights.some((f) => flight.includes(f))) {
         score += 35;
         reasons.push(`구질(${flight})`);
       }
-      if (item.tags.contacts.some(c => contact.includes(c))) {
+      if (item.tags.contacts.some((c) => contact.includes(c))) {
         score += 45;
         reasons.push(`타점(${contact})`);
       }
-      if (sensor !== "모름" && item.tags.sensors.some(s => sensor.includes(s))) {
+      if (sensor !== "모름" && item.tags.sensors.some((s) => sensor.includes(s))) {
         score += 25;
         reasons.push(`센서수치(${sensor})`);
       }
@@ -567,7 +567,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     scores.sort((a, b) => b.score - a.score);
-    return scores.filter(s => s.score >= 35).slice(0, 3);
+    return scores.filter((s) => s.score >= 35).slice(0, 3);
   }
 
   const openCompassBtn = document.getElementById("open-compass-btn");
@@ -660,10 +660,10 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
 
             document.getElementById("apply-compass-to-form-btn").addEventListener("click", () => {
-              topMatches.forEach(m => selectedMissReasons.add(m.item.name));
+              topMatches.forEach((m) => selectedMissReasons.add(m.item.name));
               renderMissReasonChips();
               closeModal();
-              alert(`✅ [${topMatches.map(m => m.item.name).join(", ")}] 원인이 자가 진단에 자동 선택되었습니다!`);
+              alert(`✅ [${topMatches.map((m) => m.item.name).join(", ")}] 원인이 자가 진단에 자동 선택되었습니다!`);
               const missCard = document.getElementById("miss-reason-card");
               if (missCard) missCard.scrollIntoView({ behavior: "smooth", block: "center" });
             });
@@ -999,7 +999,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const logs = JSON.parse(localStorage.getItem("golf_practice_logs") || "[]");
       const total = logs.length;
       const counts = { "드로우(성공)": 0, "스트레이트": 0, "푸시 발생": 0, "훅 발생": 0, "슬라이스": 0 };
-      logs.forEach((l) => { if (counts[l.ballFlight] !== undefined) counts[l.ballFlight]++; });
+      logs.forEach((l) => {
+        if (counts[l.ballFlight] !== undefined) counts[l.ballFlight]++;
+      });
 
       const rowsHtml = Object.entries(counts).map(([name, count]) => {
         const pct = total > 0 ? Math.round((count / total) * 100) : 0;
@@ -1025,7 +1027,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const partsCount = {};
       logs.forEach((l) => {
-        if (Array.isArray(l.painParts)) l.painParts.forEach(p => { partsCount[p] = (partsCount[p] || 0) + 1; });
+        if (Array.isArray(l.painParts)) {
+          l.painParts.forEach((p) => {
+            partsCount[p] = (partsCount[p] || 0) + 1;
+          });
+        }
       });
       const partsHtml = Object.entries(partsCount).sort((a, b) => b[1] - a[1]).map(([part, c]) => `
         <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #282828;">
@@ -1136,7 +1142,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // [9. 클럽 스펙 모듈 (v1.4 전체 22종 스펙 및 아코디언 완전 복원)]
+  // [9. 클럽 스펙 모듈 (문법 오류 제거 및 안전 렌더링)]
   // ==========================================
   const clubForm = document.getElementById("club-form");
   const toggleClubFormBtn = document.getElementById("toggle-club-form-btn");
@@ -1204,6 +1210,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const badgeColor = club.status === "사용" ? "#2b3a2b" : (club.status === "방출" ? "#382323" : "#2a2d36");
       const badgeTextColor = club.status === "사용" ? "#81c784" : (club.status === "방출" ? "#ef9a9a" : "#90caf9");
 
+      // 백틱 내부 중첩 따옴표 문법 에러를 방지하기 위해 변수로 분리
+      const totalWeightStr = club.totalWeight ? club.totalWeight + "g" : "-";
+      const cpmStr = club.cpm ? club.cpm + "cpm" : "-";
+      const flexStr = club.flex ? club.flex : "-";
+      const priceStr = club.price ? Number(club.price).toLocaleString() + "원" : "-";
+
       card.innerHTML = `
         <div class="item-header">
           <div>
@@ -1218,8 +1230,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         <div class="spec-grid">
           <div>🎯 비거리: <strong style="color:#81c784;">${club.distance || "-"}</strong></div>
-          <div>⚖️ 총중량: <strong>${club.totalWeight ? club.totalWeight + 'g' : "-"}</strong></div>
-          <div>⚡ 강도/CPM: <strong>${club.flex || "-"}/${club.cpm ? club.cpm + 'cpm' : "-"}</strong></div>
+          <div>⚖️ 총중량: <strong>${totalWeightStr}</strong></div>
+          <div>⚡ 강도/CPM: <strong>${flexStr}/${cpmStr}</strong></div>
           <div>⚖️ 스윙웨이트: <strong>${club.swingweight || "-"}</strong></div>
         </div>
 
@@ -1240,7 +1252,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div>🖐️ 그립규격: <strong>${club.gripSize || "-"}</strong></div>
             <div>🖐️ 그립무게: <strong>${club.gripWeight || "-"}</strong></div>
             ${club.type === "웨지" ? `<div>⛳ 바운스: <strong>${club.wedgeBounce \vert{}\vert{} "-"}</strong></div><div>⛳ 그라인드: <strong>${club.wedgeGrind || "-"}</strong></div>` : ""}
-            <div>💰 구입가: <strong>${club.price ? Number(club.price).toLocaleString() + '원' : "-"}</strong></div>
+            <div>💰 구입가: <strong>${priceStr}</strong></div>
             <div>📅 구입일: <strong>${club.buyDate || "-"}</strong></div>
           </div>
         </div>
@@ -1252,7 +1264,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const hint = card.querySelector(".expand-hint");
         if (drawer) {
           drawer.classList.toggle("open");
-          if (hint) hint.textContent = drawer.classList.contains("open") ? "▲ 터치하여 상세 스펙 접기" : "▼ 터치하여 상세 스펙 펼치기 / 접기";
+          if (hint) {
+            hint.textContent = drawer.classList.contains("open") ? "▲ 터치하여 상세 스펙 접기" : "▼ 터치하여 상세 스펙 펼치기 / 접기";
+          }
         }
       });
 
@@ -1404,7 +1418,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderClubs();
 
   // ==========================================
-  // [10. 드릴 & 레슨 모듈 (v1.4 실시간 검색/필터 칩/카드 UI 완전 복원)]
+  // [10. 드릴 & 레슨 모듈 (검색/필터 칩/카드 UI 완벽 동작)]
   // ==========================================
   const drillForm = document.getElementById("drill-form");
   const toggleDrillFormBtn = document.getElementById("toggle-drill-form-btn");
@@ -1443,7 +1457,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 퀵 카테고리 칩 선택
   document.querySelectorAll(".quick-chip").forEach((chip) => {
     chip.addEventListener("click", () => {
       if (drillCategoryInput) drillCategoryInput.value = chip.getAttribute("data-cat");
