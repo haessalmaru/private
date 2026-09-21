@@ -144,17 +144,18 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   window.showReleaseHistoryModal = function () {
-    const historyHtml = RELEASE_HISTORY.map((rel) => `
-      <div class="release-card">
-        <div class="release-card-header">
-          <span class="release-ver-badge">${rel.version}</span>
-          <strong class="release-card-title">${rel.title}</strong>
-        </div>
-        <ul class="release-feature-list">
-          ${rel.features.map((f) => `<li>${f}</li>`).join("")}
-        </ul>
-      </div>
-    `).join("");
+    const historyHtml = RELEASE_HISTORY.map((rel) => {
+      const feats = rel.features.map((f) => "<li>" + f + "</li>").join("");
+      return (
+        '<div class="release-card">' +
+          '<div class="release-card-header">' +
+            '<span class="release-ver-badge">' + rel.version + '</span>' +
+            '<strong class="release-card-title">' + rel.title + '</strong>' +
+          '</div>' +
+          '<ul class="release-feature-list">' + feats + '</ul>' +
+        '</div>'
+      );
+    }).join("");
 
     openModal("🚀 MyGolfNotes 릴리즈 이력 (최신순)", `
       <div class="release-history-wrap">
@@ -889,7 +890,7 @@ document.addEventListener("DOMContentLoaded", () => {
   updateSummaryAndPrevAction();
 
   // ==========================================
-  // [7-1. 월간 출석부 캘린더 네비게이션 (◀, ▶ 월 이동)]
+  // [7-1. 월간 출석부 캘린더 네비게이션]
   // ==========================================
   let currentCalYear = new Date().getFullYear();
   let currentCalMonth = new Date().getMonth();
@@ -906,15 +907,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     let daysHtml = "";
-    for (let i = 0; i < firstDayIndex; i++) daysHtml += `<div class="cal-day empty"></div>`;
+    for (let i = 0; i < firstDayIndex; i++) daysHtml += '<div class="cal-day empty"></div>';
     for (let d = 1; d <= lastDate; d++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
       const practicedMinutes = practicedMap[dateStr];
       const isToday = dateStr === getTodayString();
+      const dotHtml = practicedMinutes ? `<span class="day-dot">● ${practicedMinutes}분</span>` : "";
       daysHtml += `
         <div class="cal-day ${practicedMinutes ? 'practiced' : ''} ${isToday ? 'today' : ''}" data-date="${dateStr}">
           <span class="day-num">${d}</span>
-          ${practicedMinutes ? `<span class="day-dot">● ${practicedMinutes}분</span>` : ''}
+          ${dotHtml}
         </div>
       `;
     }
@@ -1142,7 +1144,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // [9. 클럽 스펙 모듈 (문법 오류 제거 및 안전 렌더링)]
+  // [9. 클럽 스펙 모듈 (문법 에러 완전 차단 표준 문자열 결합)]
   // ==========================================
   const clubForm = document.getElementById("club-form");
   const toggleClubFormBtn = document.getElementById("toggle-club-form-btn");
@@ -1207,57 +1209,68 @@ document.addEventListener("DOMContentLoaded", () => {
       const card = document.createElement("div");
       card.className = "item-card club-expandable-card";
 
-      const badgeColor = club.status === "사용" ? "#2b3a2b" : (club.status === "방출" ? "#382323" : "#2a2d36");
-      const badgeTextColor = club.status === "사용" ? "#81c784" : (club.status === "방출" ? "#ef9a9a" : "#90caf9");
+      let badgeColor = "#2a2d36";
+      let badgeTextColor = "#90caf9";
+      if (club.status === "사용") {
+        badgeColor = "#2b3a2b";
+        badgeTextColor = "#81c784";
+      } else if (club.status === "방출") {
+        badgeColor = "#382323";
+        badgeTextColor = "#ef9a9a";
+      }
 
-      // 백틱 내부 중첩 따옴표 문법 에러를 방지하기 위해 변수로 분리
       const totalWeightStr = club.totalWeight ? club.totalWeight + "g" : "-";
       const cpmStr = club.cpm ? club.cpm + "cpm" : "-";
       const flexStr = club.flex ? club.flex : "-";
       const priceStr = club.price ? Number(club.price).toLocaleString() + "원" : "-";
+      const makerStr = club.maker ? club.maker + " " : "";
 
-      card.innerHTML = `
-        <div class="item-header">
-          <div>
-            <span class="item-badge" style="background-color: ${badgeColor}; color: ${badgeTextColor};">${club.status || "사용"} · ${club.type} · ${club.subname}</span>
-            <div class="item-main-title">${club.maker ? club.maker + " " : ""}<strong>${club.model}</strong></div>
-          </div>
-          <div class="card-action-group" onclick="event.stopPropagation();">
-            <button type="button" class="action-text-btn edit-club-btn" data-id="${club.id}">수정</button>
-            <button type="button" class="action-text-btn delete-club-btn" data-id="${club.id}">삭제</button>
-          </div>
-        </div>
+      let wedgeDetails = "";
+      if (club.type === "웨지") {
+        const bounceStr = club.wedgeBounce || "-";
+        const grindStr = club.wedgeGrind || "-";
+        wedgeDetails = "<div>⛳ 바운스: <strong>" + bounceStr + "</strong></div><div>⛳ 그라인드: <strong>" + grindStr + "</strong></div>";
+      }
 
-        <div class="spec-grid">
-          <div>🎯 비거리: <strong style="color:#81c784;">${club.distance || "-"}</strong></div>
-          <div>⚖️ 총중량: <strong>${totalWeightStr}</strong></div>
-          <div>⚡ 강도/CPM: <strong>${flexStr}/${cpmStr}</strong></div>
-          <div>⚖️ 스윙웨이트: <strong>${club.swingweight || "-"}</strong></div>
-        </div>
-
-        <div class="club-detail-drawer" id="drawer-${club.id}">
-          <div class="detail-divider"></div>
-          <div class="spec-grid spec-detail-grid">
-            <div>📐 로프트각: <strong>${club.loft || "-"}</strong></div>
-            <div>📐 라이각: <strong>${club.lie || "-"}</strong></div>
-            <div>🏌️ 클럽길이: <strong>${club.length || "-"}</strong></div>
-            <div>📦 체적(cc): <strong>${club.headVolume || "-"}</strong></div>
-            <div>🔩 헤드무게: <strong>${club.headWeight || "-"}</strong></div>
-            <div>🔩 무게추: <strong>${club.headWeightScrew || "-"}</strong></div>
-            <div>🪵 샤프트: <strong>${club.shaftMaterial || ""} ${club.shaftName || "-"}</strong></div>
-            <div>🪵 샤프트무게: <strong>${club.shaftWeight || "-"}</strong></div>
-            <div>🔄 토크: <strong>${club.torque || "-"}</strong></div>
-            <div>🎯 킥포인트: <strong>${club.kickpoint || "-"}</strong></div>
-            <div>🖐️ 그립: <strong>${club.gripType || "-"}</strong></div>
-            <div>🖐️ 그립규격: <strong>${club.gripSize || "-"}</strong></div>
-            <div>🖐️ 그립무게: <strong>${club.gripWeight || "-"}</strong></div>
-            ${club.type === "웨지" ? `<div>⛳ 바운스: <strong>${club.wedgeBounce \vert{}\vert{} "-"}</strong></div><div>⛳ 그라인드: <strong>${club.wedgeGrind || "-"}</strong></div>` : ""}
-            <div>💰 구입가: <strong>${priceStr}</strong></div>
-            <div>📅 구입일: <strong>${club.buyDate || "-"}</strong></div>
-          </div>
-        </div>
-        <div class="expand-hint">▼ 터치하여 상세 스펙 펼치기 / 접기</div>
-      `;
+      card.innerHTML = 
+        '<div class="item-header">' +
+          '<div>' +
+            '<span class="item-badge" style="background-color:' + badgeColor + '; color:' + badgeTextColor + ';">' + (club.status || "사용") + ' · ' + (club.type || "") + ' · ' + (club.subname || "") + '</span>' +
+            '<div class="item-main-title">' + makerStr + '<strong>' + (club.model || "") + '</strong></div>' +
+          '</div>' +
+          '<div class="card-action-group" onclick="event.stopPropagation();">' +
+            '<button type="button" class="action-text-btn edit-club-btn" data-id="' + club.id + '">수정</button>' +
+            '<button type="button" class="action-text-btn delete-club-btn" data-id="' + club.id + '">삭제</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="spec-grid">' +
+          '<div>🎯 비거리: <strong style="color:#81c784;">' + (club.distance || "-") + '</strong></div>' +
+          '<div>⚖️ 총중량: <strong>' + totalWeightStr + '</strong></div>' +
+          '<div>⚡ 강도/CPM: <strong>' + flexStr + '/' + cpmStr + '</strong></div>' +
+          '<div>⚖️ 스윙웨이트: <strong>' + (club.swingweight || "-") + '</strong></div>' +
+        '</div>' +
+        '<div class="club-detail-drawer" id="drawer-' + club.id + '">' +
+          '<div class="detail-divider"></div>' +
+          '<div class="spec-grid spec-detail-grid">' +
+            '<div>📐 로프트각: <strong>' + (club.loft || "-") + '</strong></div>' +
+            '<div>📐 라이각: <strong>' + (club.lie || "-") + '</strong></div>' +
+            '<div>🏌️ 클럽길이: <strong>' + (club.length || "-") + '</strong></div>' +
+            '<div>📦 체적(cc): <strong>' + (club.headVolume || "-") + '</strong></div>' +
+            '<div>🔩 헤드무게: <strong>' + (club.headWeight || "-") + '</strong></div>' +
+            '<div>🔩 무게추: <strong>' + (club.headWeightScrew || "-") + '</strong></div>' +
+            '<div>🪵 샤프트: <strong>' + (club.shaftMaterial || "") + ' ' + (club.shaftName || "-") + '</strong></div>' +
+            '<div>🪵 샤프트무게: <strong>' + (club.shaftWeight || "-") + '</strong></div>' +
+            '<div>🔄 토크: <strong>' + (club.torque || "-") + '</strong></div>' +
+            '<div>🎯 킥포인트: <strong>' + (club.kickpoint || "-") + '</strong></div>' +
+            '<div>🖐️ 그립: <strong>' + (club.gripType || "-") + '</strong></div>' +
+            '<div>🖐️ 그립규격: <strong>' + (club.gripSize || "-") + '</strong></div>' +
+            '<div>🖐️ 그립무게: <strong>' + (club.gripWeight || "-") + '</strong></div>' +
+            wedgeDetails +
+            '<div>💰 구입가: <strong>' + priceStr + '</strong></div>' +
+            '<div>📅 구입일: <strong>' + (club.buyDate || "-") + '</strong></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="expand-hint">▼ 터치하여 상세 스펙 펼치기 / 접기</div>';
 
       card.addEventListener("click", () => {
         const drawer = card.querySelector(".club-detail-drawer");
@@ -1418,7 +1431,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderClubs();
 
   // ==========================================
-  // [10. 드릴 & 레슨 모듈 (검색/필터 칩/카드 UI 완벽 동작)]
+  // [10. 드릴 & 레슨 모듈]
   // ==========================================
   const drillForm = document.getElementById("drill-form");
   const toggleDrillFormBtn = document.getElementById("toggle-drill-form-btn");
@@ -1527,20 +1540,21 @@ document.addEventListener("DOMContentLoaded", () => {
       const card = document.createElement("div");
       card.className = "item-card";
 
-      card.innerHTML = `
-        <div class="item-header">
-          <div>
-            <span class="item-badge">${drill.category || "일반"}</span>
-            <div class="item-main-title">${drill.title}</div>
-          </div>
-          <div class="card-action-group">
-            <button type="button" class="action-text-btn edit-drill-btn" data-id="${drill.id}">수정</button>
-            <button type="button" class="action-text-btn delete-drill-btn" data-id="${drill.id}">삭제</button>
-          </div>
-        </div>
-        ${drill.memo ? `<p class="field-label" style="color: #cccccc; margin: 4px 0 6px;">💡 ${drill.memo}</p>` : ""}
-        <a href="${drill.url}" target="_blank" rel="noopener noreferrer" class="link-action-btn">▶ Youtube / 레슨 바로가기</a>
-      `;
+      const memoHtml = drill.memo ? '<p class="field-label" style="color: #cccccc; margin: 4px 0 6px;">💡 ' + drill.memo + '</p>' : "";
+
+      card.innerHTML = 
+        '<div class="item-header">' +
+          '<div>' +
+            '<span class="item-badge">' + (drill.category || "일반") + '</span>' +
+            '<div class="item-main-title">' + (drill.title || "") + '</div>' +
+          '</div>' +
+          '<div class="card-action-group">' +
+            '<button type="button" class="action-text-btn edit-drill-btn" data-id="' + drill.id + '">수정</button>' +
+            '<button type="button" class="action-text-btn delete-drill-btn" data-id="' + drill.id + '">삭제</button>' +
+          '</div>' +
+        '</div>' +
+        memoHtml +
+        '<a href="' + drill.url + '" target="_blank" rel="noopener noreferrer" class="link-action-btn">▶ Youtube / 레슨 바로가기</a>';
 
       const editBtn = card.querySelector(".edit-drill-btn");
       if (editBtn) {

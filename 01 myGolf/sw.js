@@ -1,4 +1,4 @@
-const CACHE_NAME = "mygolf-v31-stable-all";
+const CACHE_NAME = "mygolf-v32-final-syntax-fixed";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
@@ -11,7 +11,7 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS_TO_CACHE);
-    }).catch(err => {
+    }).catch((err) => {
       console.log("Cache install skipped non-critical assets:", err);
     })
   );
