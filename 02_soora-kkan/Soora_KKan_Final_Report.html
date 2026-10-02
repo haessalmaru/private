@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>프로젝트 결과보고서 - SOORA-KKAN (수라깐)</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 15mm 15mm 20mm 15mm;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "맑은 고딕", "Apple SD Gothic Neo", sans-serif;
+      line-height: 1.6;
+      color: #1e293b;
+      background-color: #ffffff;
+      margin: 0;
+      padding: 20px;
+    }
+    .header-box {
+      border-bottom: 3px solid #d97706;
+      padding-bottom: 14px;
+      margin-bottom: 22px;
+    }
+    .doc-category {
+      font-size: 12px;
+      font-weight: 800;
+      color: #d97706;
+      letter-spacing: 1.5px;
+    }
+    h1 {
+      font-size: 24px;
+      margin: 6px 0 8px 0;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+    }
+    .summary-text {
+      font-size: 13.5px;
+      color: #475569;
+      margin: 0;
+    }
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 12px;
+    }
+    .meta-table td {
+      padding: 6px 10px;
+      border: 1px solid #cbd5e1;
+    }
+    .meta-table td.label {
+      font-weight: 700;
+      background-color: #f1f5f9;
+      width: 16%;
+      color: #334155;
+    }
+    h2 {
+      font-size: 16px;
+      color: #0f172a;
+      border-left: 4px solid #d97706;
+      padding-left: 8px;
+      margin-top: 24px;
+      margin-bottom: 10px;
+      letter-spacing: -0.3px;
+    }
+    h3 {
+      font-size: 13.5px;
+      color: #334155;
+      margin-top: 14px;
+      margin-bottom: 6px;
+    }
+    p, li {
+      font-size: 12.5px;
+      color: #334155;
+      margin: 4px 0;
+    }
+    ul, ol {
+      padding-left: 20px;
+      margin: 6px 0;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 12px;
+    }
+    table.data-table th, table.data-table td {
+      border: 1px solid #cbd5e1;
+      padding: 7px 9px;
+      text-align: left;
+    }
+    table.data-table th {
+      background-color: #f8fafc;
+      color: #0f172a;
+      font-weight: 700;
+      text-align: center;
+    }
+    .highlight {
+      background-color: #fef3c7;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+    .step-box {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+    }
+    .step-title {
+      font-weight: 700;
+      color: #0f172a;
+      font-size: 12.5px;
+      margin-bottom: 4px;
+    }
+    .footer {
+      margin-top: 30px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 10px;
+      font-size: 11px;
+      color: #94a3b8;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header-box">
+    <div class="doc-category">VIBE CODING PROJECT FINAL REPORT</div>
+    <h1>SOORA-KKAN (수라깐) : 조별 요리 경연 심사 시스템</h1>
+    <p class="summary-text">
+      사내 팀 야유회 요리 경연을 위한 AI 멀티모달 비전 분석 및 팀장 맞춤형 평가 PWA 구축 결과보고서
+    </p>
+
+    <table class="meta-table">
+      <tr>
+        <td class="label">프로젝트 명칭</td>
+        <td>SOORA-KKAN (수라깐 - 수라간 + 깐깐한 팀장)</td>
+        <td class="label">개발 기간</td>
+        <td>2026.10</td>
+      </tr>
+      <tr>
+        <td class="label">주요 기술 스택</td>
+        <td>React, Vite, Tailwind CSS, Gemini 2.5 Flash API</td>
+        <td class="label">개발 방법론</td>
+        <td>Vibe Coding (AI 주도 점진적 코드 생성 및 배포)</td>
+      </tr>
+      <tr>
+        <td class="label">배포 플랫폼</td>
+        <td>Vercel (PWA 모바일 웹 배포)</td>
+        <td class="label">데이터 스토리지</td>
+        <td>Client-side LocalStorage (네트워크 독립성 확보)</td>
+      </tr>
+    </table>
+  </div>
+
+  <h2>1. 프로젝트 기획 의도 및 배경</h2>
+  <p>
+    사내 야유회에서 진행되는 조별 요리 경연대회는 팀원 간의 소통과 단합을 증진시키는 핵심 이벤트입니다.
+    기존의 주관적이고 단순한 수기 채점 방식을 탈피하여 <strong>스마트폰 기반의 공정하고 체계적인 심사 툴</strong>을 구축하고,
+    <strong>AI 시각 분석</strong>과 <strong>위트 있는 심사위원 페르소나</strong>를 결합하여 행사 자체의 재미와 몰입도를 극대화하고자 기획되었습니다.
+  </p>
+  <ul>
+    <li><strong>네이밍 아이덴티티:</strong> 전통 궁중의 권위를 상징하는 '수라간'에 '깐깐한 팀장'의 시각을 결합하여 <strong>'SOORA-KKAN'</strong>으로 명명.</li>
+    <li><strong>모바일 최적화 (PWA):</strong> 별도 스토어 다운로드 없이 현장에서 스마트폰 홈 화면에 바로 설치하여 단일 앱 형태로 구동.</li>
+    <li><strong>오프라인 대응형 아키텍처:</strong> 야외 통신 불안정 환경에 대비하여 로컬 브라우저 저장소 연동 및 Dual Engine(Gemini API + 내장 휴리스틱 엔진) 구축.</li>
+  </ul>
+
+  <h2>2. 100점 만점 심사 및 환산 알고리즘 체계</h2>
+  <p>
+    시각 완성도(40%), 조리 기술 및 팀워크(45%), 팀장 개인 취향(15%)의 3단계로 배점을 구성하여 공정성과 재미를 모두 확보하였습니다.
+  </p>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>대분류</th>
+        <th>세부 평가 항목</th>
+        <th>배점</th>
+        <th>평가 방식 및 가중치 환산 로직</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td rowspan="2" style="text-align:center; font-weight:700; background:#fdfdfd;">AI 비전<br>(40점)</td>
+        <td>비주얼 완성도 & 플레이팅 밸런스</td>
+        <td style="text-align:center;">20점</td>
+        <td rowspan="2">
+          <strong>Gemini 2.5 Flash Vision API 연동</strong><br>
+          스마트폰 촬영 이미지 분석 (색상 조화, 마이야르 반응, 텍스처) 후 점수 산출 및 백종원/안성재 스타일의 위트 있는 심사평 생성
+        </td>
+      </tr>
+      <tr>
+        <td>조리 상태(브라우닝/익힘) & 텍스처</td>
+        <td style="text-align:center;">20점</td>
+      </tr>
+      <tr>
+        <td rowspan="4" style="text-align:center; font-weight:700; background:#fdfdfd;">팀장 심사<br>(45점)</td>
+        <td>1. 요리 완성도 & 조리 테크닉</td>
+        <td style="text-align:center;">10점</td>
+        <td>5점 척도 터치 입력 × 2배 환산 (최대 10점)</td>
+      </tr>
+      <tr>
+        <td>2. 조리 시간 준수 & 팀워크/협동심</td>
+        <td style="text-align:center;">10점</td>
+        <td>5점 척도 터치 입력 × 2배 환산 (최대 10점)</td>
+      </tr>
+      <tr>
+        <td>3. 풍미 & 식감, 간의 밸런스</td>
+        <td style="text-align:center;">15점</td>
+        <td>5점 척도 터치 입력 × 3배 환산 (최대 15점)</td>
+      </tr>
+      <tr>
+        <td>4. 야유회 분위기 부합도 & 창의성</td>
+        <td style="text-align:center;">10점</td>
+        <td>5점 척도 터치 입력 × 2배 환산 (최대 10점)</td>
+      </tr>
+      <tr>
+        <td rowspan="3" style="text-align:center; font-weight:700; background:#fdfdfd;">팀장 취향 Pick<br>(15점)</td>
+        <td>Q1. 팀장의 음료/주류 페어링 적합도</td>
+        <td style="text-align:center;">5점</td>
+        <td>5점 척도 터치 입력 (문항당 5점 만점)</td>
+      </tr>
+      <tr>
+        <td>Q2. 팀장 개인 취향(굽기/간/재료) 부합도</td>
+        <td style="text-align:center;">5점</td>
+        <td>5점 척도 터치 입력 (문항당 5점 만점)</td>
+      </tr>
+      <tr>
+        <td>Q3. "행사 후에도 다시 찾고 싶은 중독성"</td>
+        <td style="text-align:center;">5점</td>
+        <td>5점 척도 터치 입력 (문항당 5점 만점)</td>
+      </tr>
+      <tr style="background:#fffbeb; font-weight:bold;">
+        <td colspan="2" style="text-align:center;">총 점</td>
+        <td style="text-align:center; color:#b45309;">100점</td>
+        <td>실시간 자동 합산 및 실시간 랭킹 리더보드 즉시 정렬</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>3. Vibe Coding 단계별 개발 내역</h2>
+
+  <div class="step-box">
+    <div class="step-title">1단계: 프로젝트 환경 구성 및 인터랙티브 UI 구축</div>
+    <ul>
+      <li>Node.js v24 기반 Vite + React 프로젝트 생성 및 Tailwind CSS v4 스타일링 시스템 구축.</li>
+      <li>초기 3초 인트로 스플래시 화면(회전 캐릭터 + 바운싱 타이틀) 및 고정형 엠블럼 헤더 개발.</li>
+      <li>조 명칭, 출전 요리명, 조원 명단 입력과 10종 요리/캠핑 아이콘을 지원하는 조 등록 모달 구현.</li>
+    </ul>
+  </div>
+
+  <div class="step-box">
+    <div class="step-title">2단계: AI 멀티모달 비전 연동 및 채점 시스템 완성</div>
+    <ul>
+      <li>HTML5 <code>capture="environment"</code> 속성을 통한 스마트폰 카메라 즉각 촬영 및 갤러리 파일 업로더 구현.</li>
+      <li>Google AI Studio의 Gemini 2.5 Flash API 연동을 통한 사진 기반 시각 분석 및 구조화된 JSON 데이터 파싱.</li>
+      <li>별점(★) 기반 5점 척도 터치 UI를 구현하여 현장에서 빠른 점수 입력 및 100점 만점 자동 가중치 계산.</li>
+      <li><code>canvas-confetti</code> 라이브러리를 적용하여 1위 조 확인 시 축하 폭죽 애니메이션 연출.</li>
+    </ul>
+  </div>
+
+  <div class="step-box">
+    <div class="step-title">3단계: 모바일 PWA 환경 최적화 및 Vercel 클라우드 배포</div>
+    <ul>
+      <li>PWA 필수 규격 파일(<code>manifest.json</code>, <code>sw.js</code> 서비스 워커)을 절대 경로 기반으로 등록하여 안드로이드/iOS 홈 화면 추가 및 전체화면 구동 지원.</li>
+      <li>Vercel CLI를 통해 프로덕션 배포 완료 (<code>https://02-soora-kkan.vercel.app</code>).</li>
+    </ul>
+  </div>
+
+  <h2>4. 주요 트러블슈팅 및 해결 내역</h2>
+  <ul>
+    <li><strong>Tailwind CSS v4 호환성 문제:</strong> Vite 8 환경에서 기존 PostCSS 설정 충돌 발생 → <code>@tailwindcss/vite</code> 공식 플러그인 도입으로 설정 간소화 및 해결.</li>
+    <li><strong>Vite OXC 정규표현식 파싱 오류:</strong> JSON 마크다운 파싱 시 정규식 에러 발생 → <code>replaceAll()</code> 문자열 치환 방식으로 변경하여 안정성 확보.</li>
+    <li><strong>PWA 홈 화면 실행 시 404 Not Found 오류:</strong> <code>start_url</code> 상대 경로 지정 문제 → 루트 절대 경로(<code>/</code>) 지정 및 서비스 워커 등록을 통해 모바일 설치 규격 완비.</li>
+  </ul>
+
+  <h2>5. 기대 효과 및 활용 계획</h2>
+  <ul>
+    <li><strong>현장 운영 편의성:</strong> 팀장이 스마트폰 하나로 사진 촬영, 평가, 순위 확인까지 원스톱으로 처리하여 대회 진행 시간 대폭 단축.</li>
+    <li><strong>팀원 참여도 및 흥미 유발:</strong> 단순 점수 발표를 넘어 AI가 분석한 세부 비주얼 분석과 유머러스한 심사평을 공유하여 축제 분위기 조성.</li>
+  </ul>
+
+  <div class="footer">
+    <span>SOORA-KKAN (수라깐) 프로젝트 보고서</span>
+    <span>LG Electronics HS 열유동연소기술팀</span>
+  </div>
+
+</body>
+</html>
