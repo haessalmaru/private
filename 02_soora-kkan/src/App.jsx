@@ -199,7 +199,7 @@ function App() {
     }
   };
 
-  // 실제 Gemini 멀티모달 비전 API 호출 (gemini-3.8-flash 적용)
+  // 실제 Gemini 멀티모달 비전 API 호출 (구글 서버 혼잡 시 자동 모델 Failover 탑재)
   const triggerRealAiEvaluation = async (imageBase64) => {
     setIsAiAnalyzing(true);
     setIsFoodValid(true);
@@ -214,10 +214,9 @@ function App() {
       return;
     }
 
-    try {
-      const pureBase64 = imageBase64.split(',')[1];
-      
-      const prompt = `당신은 요리 경연 대회의 매우 엄격하고 깐깐한 심사위원 AI입니다.
+    const pureBase64 = imageBase64.split(',')[1];
+    
+    const prompt = `당신은 요리 경연 대회의 매우 엄격하고 깐깐한 심사위원 AI입니다.
 출전 조의 요리명: "${evaluatingTeam.dishName}".
 
 제공된 이미지를 정밀 분석하여 아래의 엄격한 규칙에 따라 순수 JSON으로만 출력하십시오:
@@ -237,62 +236,75 @@ function App() {
   "comment": "심사평 내용"
 }`;
 
-      // gemini-3.8-flash 엔드포인트 호출
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${cleanKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: prompt },
-              { inlineData: { mimeType: 'image/jpeg', data: pureBase64 } }
-            ]
-          }],
-          generationConfig: {
-            responseMimeType: "application/json"
+    // 구글 서버 트래픽 혼잡(High Demand) 대비 모델 순차 Failover 목록
+    const candidateModels = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-2.0-flash'];
+    let lastError = null;
+    let parsedResult = null;
+
+    for (const model of candidateModels) {
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${cleanKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { text: prompt },
+                { inlineData: { mimeType: 'image/jpeg', data: pureBase64 } }
+              ]
+            }],
+            generationConfig: {
+              responseMimeType: "application/json"
+            }
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (rawText) {
+            parsedResult = JSON.parse(rawText);
+            break; // 호출 성공 시 즉시 루프 탈출
           }
-        })
-      });
-
-      if (!res.ok) {
-        const errorDetail = await res.json();
-        throw new Error(errorDetail.error?.message || `통신 에러 (${res.status})`);
+        } else {
+          const errorDetail = await res.json();
+          lastError = new Error(errorDetail.error?.message || `통신 에러 (${res.status})`);
+          console.warn(`[${model}] 호출 실패, 보조 모델로 재시도합니다...`, lastError.message);
+        }
+      } catch (err) {
+        lastError = err;
       }
+    }
 
-      const data = await res.json();
-      const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!rawText) throw new Error('Gemini 응답 데이터가 비어 있습니다.');
-
-      const parsed = JSON.parse(rawText);
-
-      if (parsed.is_food === false) {
-        setIsFoodValid(false);
-        setAiResult({
-          visual: 0,
-          texture: 0,
-          comment: parsed.comment || "음식이 아닙니다! 출전 요리를 다시 등록해 주세요."
-        });
-      } else {
-        setIsFoodValid(true);
-        setAiResult({
-          visual: Math.min(20, Math.max(0, Number(parsed.visual_score) || 10)),
-          texture: Math.min(20, Math.max(0, Number(parsed.texture_score) || 10)),
-          comment: parsed.comment || "준수한 요리 완성도입니다."
-        });
-      }
-
-    } catch (err) {
-      console.error('Gemini 정밀 비전 에러:', err);
+    if (!parsedResult) {
       setIsFoodValid(false);
-      setAiErrorMsg(`AI 호출 실패: ${err.message}`);
+      setAiErrorMsg(`AI 호출 실패: ${lastError?.message || '구글 서버 지연입니다. 잠시 후 다시 시도해 주세요.'}`);
       setAiResult({
         visual: 0,
         texture: 0,
-        comment: `AI 분석 실패 (${err.message}). API 키와 네트워크를 확인해 주세요.`
+        comment: `AI 분석 실패. 잠시 후 [재촬영] 또는 [앨범 선택]을 다시 터치해 주세요.`
       });
-    } finally {
       setIsAiAnalyzing(false);
+      return;
     }
+
+    // 검증 결과 반영
+    if (parsedResult.is_food === false) {
+      setIsFoodValid(false);
+      setAiResult({
+        visual: 0,
+        texture: 0,
+        comment: parsedResult.comment || "음식이 아닙니다! 출전 요리를 다시 등록해 주세요."
+      });
+    } else {
+      setIsFoodValid(true);
+      setAiResult({
+        visual: Math.min(20, Math.max(0, Number(parsedResult.visual_score) || 12)),
+        texture: Math.min(20, Math.max(0, Number(parsedResult.texture_score) || 12)),
+        comment: parsedResult.comment || "준수한 요리 완성도입니다."
+      });
+    }
+    setIsAiAnalyzing(false);
   };
 
   const handleSaveEvaluation = () => {
@@ -350,7 +362,7 @@ function App() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans select-none pb-12">
       
-      {/* 1. 스플래시 */}
+      {/* 1. 스플래시 인트로 */}
       {showSplash && (
         <div className="fixed inset-0 z-50 bg-gradient-to-b from-amber-950 via-slate-950 to-slate-950 flex flex-col items-center justify-center p-6">
           <div className="relative mb-6">
@@ -593,7 +605,7 @@ function App() {
         )}
       </main>
 
-      {/* 4. 심사 모달 (Gemini 3.8 Flash UI 뱃지 적용) */}
+      {/* 4. 심사 모달 (Failover 대응) */}
       {evaluatingTeam && (
         <div className="fixed inset-0 z-50 bg-slate-950 flex flex-col overflow-y-auto">
           <div className="sticky top-0 z-10 bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 py-3 flex items-center justify-between">
@@ -618,9 +630,8 @@ function App() {
                 <span className="text-xs font-black text-amber-400 flex items-center gap-1.5">
                   <Camera className="w-4 h-4" /> [1단계] AI 비전 심사 (40점 만점)
                 </span>
-                {/* 상단 뱃지 텍스트: Gemini 3.8 Flash */}
                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${apiKey.trim() ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-300'}`}>
-                  {apiKey.trim() ? 'Gemini 3.8 Flash' : '키 등록 필요'}
+                  {apiKey.trim() ? 'Gemini AI 연동' : '키 등록 필요'}
                 </span>
               </div>
 
@@ -694,7 +705,7 @@ function App() {
                   {aiErrorMsg ? (
                     <div className="p-3 bg-rose-950/40 border border-rose-500/50 rounded-lg text-rose-300 text-xs">
                       <p className="font-bold flex items-center gap-1">
-                        <AlertTriangle className="w-4 h-4 text-rose-400" /> AI 호출 실패
+                        <AlertTriangle className="w-4 h-4 text-rose-400" /> AI 호출 지연
                       </p>
                       <p className="text-[11px] mt-1 text-slate-300">{aiErrorMsg}</p>
                     </div>
@@ -949,5 +960,4 @@ function App() {
   );
 }
 
-// 명시적 기본 내보내기 (Vite Rolldown 빌드 에러 방지)
 export default App;
