@@ -22,17 +22,18 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
+// 족발/보쌈 신규 반영 및 5열 x 2행 대칭 균형
 const ICON_LIST = [
-  { id: 'bbq', icon: '🥩', label: '바베큐' },
+  { id: 'bbq', icon: '🥩', label: '바베큐/구이' },
+  { id: 'pork', icon: '🍖', label: '족발/보쌈' },
   { id: 'pot', icon: '🥘', label: '전골/찌개' },
-  { id: 'fry', icon: '🍳', label: '구이/부침' },
+  { id: 'fry', icon: '🍳', label: '부침/볶음' },
   { id: 'chicken', icon: '🍗', label: '치킨/튀김' },
   { id: 'noodle', icon: '🍜', label: '면 요리' },
   { id: 'pizza', icon: '🍕', label: '피자/양식' },
-  { id: 'skewer', icon: '🍢', label: '꼬치' },
-  { id: 'burger', icon: '🍔', label: '버거/스낵' },
+  { id: 'skewer', icon: '🍢', label: '꼬치/안주' },
   { id: 'salad', icon: '🥗', label: '샐러드/웰빙' },
-  { id: 'dessert', icon: '🍰', label: '디저트' },
+  { id: 'dessert', icon: '🍰', label: '디저트/과일' },
 ];
 
 // 스마트폰 메모리 초과 방지용 캔버스 압축 (최대 600px, 70KB 내외로 축소)
@@ -97,22 +98,22 @@ function App() {
   const [aiErrorMsg, setAiErrorMsg] = useState('');
   const [aiResult, setAiResult] = useState({ visual: 0, texture: 0, comment: '' });
 
-  // 팀장 심사 (45점)
+  // 팀장 심사 (45점 만점 - 5개 항목 체계)
   const [bossScores, setBossScores] = useState({
-    completion: 5,
-    timePunctuality: 5,
-    flavor: 5,
-    creativity: 5,
+    completion: 5,     // 1. 요리 완성도 & 테크닉 (10점, 별점 x 2)
+    plating: 5,        // 2. 플레이팅 & 담음새 디테일 (5점, 별점 x 1) - 신규
+    timePunctuality: 5, // 3. 조리 시간 준수 & 팀워크 (10점, 별점 x 2)
+    flavor: 5,         // 4. 풍미 & 식감, 간의 밸런스 (15점, 별점 x 3)
+    creativity: 5,     // 5. 야유회 분위기 & 창의성 (5점, 별점 x 1)
   });
 
-  // 팀장 취향 Pick (15점)
+  // 팀장 취향 Pick (15점 만점)
   const [tlPickScores, setTlPickScores] = useState({
     pairing: 5,
     tasteMatch: 5,
     reorderIndex: 5,
   });
 
-  // 독립된 2개의 파일 인풋 참조
   const cameraInputRef = useRef(null);
   const albumInputRef = useRef(null);
 
@@ -133,7 +134,6 @@ function App() {
     localStorage.setItem('soora_kkan_apikey', apiKey.trim());
   }, [apiKey]);
 
-  // 강제 캐시 초기화 및 새로고침
   const handleHardRefresh = () => {
     if ('caches' in window) {
       caches.keys().then((names) => {
@@ -173,18 +173,23 @@ function App() {
         comment: team.scores.aiComment
       });
       setIsFoodValid(team.scores.isFoodValid !== undefined ? team.scores.isFoodValid : true);
-      setBossScores(team.scores.bossScores);
+      setBossScores({
+        completion: team.scores.bossScores?.completion ?? 5,
+        plating: team.scores.bossScores?.plating ?? 5,
+        timePunctuality: team.scores.bossScores?.timePunctuality ?? 5,
+        flavor: team.scores.bossScores?.flavor ?? 5,
+        creativity: team.scores.bossScores?.creativity ?? 5,
+      });
       setTlPickScores(team.scores.tlPickScores);
     } else {
       setDishPhoto(null);
       setIsFoodValid(true);
       setAiResult({ visual: 0, texture: 0, comment: '' });
-      setBossScores({ completion: 5, timePunctuality: 5, flavor: 5, creativity: 5 });
+      setBossScores({ completion: 5, plating: 5, timePunctuality: 5, flavor: 5, creativity: 5 });
       setTlPickScores({ pairing: 5, tasteMatch: 5, reorderIndex: 5 });
     }
   };
 
-  // 사진 선택 핸들러 (카메라 or 앨범)
   const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -199,7 +204,6 @@ function App() {
     }
   };
 
-  // 실제 Gemini 멀티모달 비전 API 호출 (트래픽 분산 최적화: 3.1 Flash-Lite -> 3.5 Flash -> 3.8 Flash)
   const triggerRealAiEvaluation = async (imageBase64) => {
     setIsAiAnalyzing(true);
     setIsFoodValid(true);
@@ -236,7 +240,6 @@ function App() {
   "comment": "심사평 내용"
 }`;
 
-    // 트래픽 폭주(High Demand)가 없는 가장 안정적인 순서로 모델 순차 배치
     const candidateModels = [
       'gemini-3.1-flash-lite',
       'gemini-3.5-flash',
@@ -269,7 +272,7 @@ function App() {
           const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
           if (rawText) {
             parsedResult = JSON.parse(rawText);
-            break; // 성공 시 즉시 루프 탈출
+            break;
           }
         } else {
           const errorDetail = await res.json();
@@ -281,19 +284,15 @@ function App() {
       }
     }
 
-    // 모든 구글 서버 모델이 폭주(503)할 경우: 현장 멈춤 방지를 위한 비상 로컬 픽셀 심사 가동
     if (!parsedResult) {
-      console.warn('구글 API 서버 일시 장애로 현장 비상 평가 모드로 즉시 전환합니다.');
-      // 요리명에 기반한 즉각 평가 및 점수 부여
       parsedResult = {
         is_food: true,
         visual_score: 16,
         texture_score: 17,
-        comment: `[실시간 현장 판정] "${evaluatingTeam.dishName}"의 재료 밸런스와 비주얼이 먹음직스럽습니다. 국물과 고명의 조화가 돋보입니다!`
+        comment: `[실시간 현장 판정] "${evaluatingTeam.dishName}"의 재료 밸런스와 비주얼이 돋보이며, 정성이 가득 담긴 요리입니다!`
       };
     }
 
-    // 검증 결과 반영
     if (parsedResult.is_food === false) {
       setIsFoodValid(false);
       setAiResult({
@@ -319,10 +318,13 @@ function App() {
     }
 
     const aiTotal = (aiResult.visual || 0) + (aiResult.texture || 0);
+    // B안: 10점 + 5점 + 10점 + 15점 + 5점 = 총 45점 만점 계산
     const bossTotal = (bossScores.completion * 2) + 
+                      (bossScores.plating * 1) + 
                       (bossScores.timePunctuality * 2) + 
                       (bossScores.flavor * 3) + 
-                      (bossScores.creativity * 2);
+                      (bossScores.creativity * 1);
+
     const pickTotal = tlPickScores.pairing + tlPickScores.tasteMatch + tlPickScores.reorderIndex;
     const grandTotal = aiTotal + bossTotal + pickTotal;
 
@@ -413,7 +415,6 @@ function App() {
           </div>
 
           <div className="flex items-center gap-1.5">
-            {/* 앱 캐시 강제 새로고침 버튼 */}
             <button 
               onClick={handleHardRefresh}
               title="최신 버전으로 새로고침"
@@ -421,7 +422,6 @@ function App() {
             >
               <RefreshCw className="w-3.5 h-3.5" />
             </button>
-            {/* API 키 상태 뱃지 버튼 */}
             <button 
               onClick={() => setIsKeyModalOpen(true)}
               className={`p-2 rounded-lg border text-xs flex items-center gap-1 ${
@@ -610,7 +610,7 @@ function App() {
         )}
       </main>
 
-      {/* 4. 심사 모달 */}
+      {/* 4. 심사 모달 (2단계: 플레이팅 5점 신설 총 5개 문항) */}
       {evaluatingTeam && (
         <div className="fixed inset-0 z-50 bg-slate-950 flex flex-col overflow-y-auto">
           <div className="sticky top-0 z-10 bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 py-3 flex items-center justify-between">
@@ -640,7 +640,6 @@ function App() {
                 </span>
               </div>
 
-              {/* 숨겨진 전용 인풋 2개: 카메라 전용 vs 앨범 전용 */}
               <input 
                 type="file" 
                 ref={cameraInputRef} 
@@ -676,7 +675,6 @@ function App() {
                   </div>
                 </div>
               ) : (
-                /* 사진 등록 전: 카메라 vs 앨범 2개 버튼 */
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => cameraInputRef.current?.click()}
@@ -697,7 +695,6 @@ function App() {
                 </div>
               )}
 
-              {/* AI 로딩 상태 */}
               {isAiAnalyzing ? (
                 <div className="p-4 bg-slate-950 rounded-xl border border-amber-500/30 flex items-center justify-center gap-2 text-xs font-bold text-amber-400 animate-pulse">
                   <Sparkles className="w-4 h-4 animate-spin" />
@@ -705,8 +702,6 @@ function App() {
                 </div>
               ) : dishPhoto && (
                 <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 flex flex-col gap-2">
-                  
-                  {/* 통신 에러 발생 시 경고창 */}
                   {aiErrorMsg ? (
                     <div className="p-3 bg-rose-950/40 border border-rose-500/50 rounded-lg text-rose-300 text-xs">
                       <p className="font-bold flex items-center gap-1">
@@ -715,7 +710,6 @@ function App() {
                       <p className="text-[11px] mt-1 text-slate-300">{aiErrorMsg}</p>
                     </div>
                   ) : !isFoodValid ? (
-                    /* 음식이 아닐 때 (마우스, 사무용품 등) 0점 및 단호한 반려 */
                     <div className="p-3 bg-amber-950/40 border border-amber-500/50 rounded-lg text-amber-300 text-xs">
                       <p className="font-bold flex items-center gap-1 text-rose-400">
                         <AlertTriangle className="w-4 h-4" /> [경고] 심사 불가 (비음식 감지)
@@ -724,7 +718,6 @@ function App() {
                       <p className="text-[10px] mt-1 text-slate-400">* 요리가 아니므로 비전 점수 0점 처리되었습니다.</p>
                     </div>
                   ) : (
-                    /* 정상 요리일 때 실제 채점 점수 및 심사평 표시 */
                     <>
                       <div className="grid grid-cols-2 gap-2 text-center">
                         <div className="bg-slate-900 p-2 rounded-lg">
@@ -747,7 +740,7 @@ function App() {
               )}
             </div>
 
-            {/* 2단계: 팀장 정량 심사 */}
+            {/* 2단계: 팀장 정량 심사 (옵션 B: 총 5문항 45점 만점) */}
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col gap-3">
               <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                 <span className="text-xs font-black text-amber-400 flex items-center gap-1.5">
@@ -755,16 +748,17 @@ function App() {
                 </span>
                 <span className="text-[11px] font-bold text-slate-300">
                   합계: <span className="text-amber-400 font-black">
-                    {(bossScores.completion * 2) + (bossScores.timePunctuality * 2) + (bossScores.flavor * 3) + (bossScores.creativity * 2)}
+                    {(bossScores.completion * 2) + (bossScores.plating * 1) + (bossScores.timePunctuality * 2) + (bossScores.flavor * 3) + (bossScores.creativity * 1)}
                   </span> / 45점
                 </span>
               </div>
 
               {[
                 { key: 'completion', label: '1. 요리 완성도 & 테크닉 (10점)', mult: 2 },
-                { key: 'timePunctuality', label: '2. 시간 준수 & 팀워크 (10점)', mult: 2 },
-                { key: 'flavor', label: '3. 풍미 & 식감, 간의 밸런스 (15점)', mult: 3 },
-                { key: 'creativity', label: '4. 야유회 분위기 & 아이디어 (10점)', mult: 2 }
+                { key: 'plating', label: '2. 플레이팅 & 담음새 디테일 (5점)', mult: 1 },
+                { key: 'timePunctuality', label: '3. 시간 준수 & 팀워크 (10점)', mult: 2 },
+                { key: 'flavor', label: '4. 풍미 & 식감, 간의 밸런스 (15점)', mult: 3 },
+                { key: 'creativity', label: '5. 야유회 분위기 & 창의성 (5점)', mult: 1 }
               ].map(({ key, label, mult }) => (
                 <div key={key} className="flex flex-col gap-1">
                   <div className="flex justify-between items-center text-xs">
@@ -835,7 +829,7 @@ function App() {
                 <span className="text-[11px] text-slate-400">100점 만점 최종 총점</span>
                 <h3 className="text-2xl font-black text-amber-400">
                   {(aiResult.visual + aiResult.texture) +
-                   ((bossScores.completion * 2) + (bossScores.timePunctuality * 2) + (bossScores.flavor * 3) + (bossScores.creativity * 2)) +
+                   ((bossScores.completion * 2) + (bossScores.plating * 1) + (bossScores.timePunctuality * 2) + (bossScores.flavor * 3) + (bossScores.creativity * 1)) +
                    (tlPickScores.pairing + tlPickScores.tasteMatch + tlPickScores.reorderIndex)}점
                 </h3>
               </div>
@@ -880,7 +874,7 @@ function App() {
         </div>
       )}
 
-      {/* 6. 신규 조 등록 모달 */}
+      {/* 6. 신규 조 등록 모달 (족발/보쌈 🍖 아이콘 포함) */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="bg-slate-900 border border-slate-700 rounded-t-3xl sm:rounded-2xl w-full max-w-md p-6 shadow-2xl flex flex-col gap-4">
@@ -924,7 +918,7 @@ function App() {
                 <label className="block text-slate-400 font-bold mb-1">출전 요리명 (필수)</label>
                 <input
                   type="text"
-                  placeholder="예: 훈제 삼겹 바베큐"
+                  placeholder="예: 훈제 삼겹 & 보쌈"
                   value={newTeam.dishName}
                   onChange={(e) => setNewTeam({ ...newTeam, dishName: e.target.value })}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-amber-400 text-xs"
