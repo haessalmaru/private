@@ -17,6 +17,7 @@
     .font-hanja { font-family: 'Noto Sans SC', 'Noto Sans KR', sans-serif; }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    * { word-break: keep-all; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased selection:bg-amber-100 selection:text-amber-900">
@@ -26,38 +27,34 @@
 <script type="text/babel">
 const { useState, useEffect, useMemo, useRef } = React;
 
-// ==========================================
-// 📌 버전 및 패치노트 데이터 (판올림 시 여기를 수정)
-// ==========================================
-const CURRENT_VERSION = 'v1.0.0';
+const CURRENT_VERSION = 'v1.0.1';
 const VERSION_HISTORY = [
+  {
+    version: 'v1.0.1',
+    date: '2026.10.18',
+    title: '모바일 화면 반응형 최적화',
+    changes: [
+      '모바일(스마트폰) 환경에서 텍스트 줄바꿈 꼬임 및 글자 잘림 현상 전면 개선',
+      '감정 근육 선택 버튼 모바일 2열 배치로 레이블 가독성 확보',
+      '마음 근육 사전 As-Is / To-Be 모바일 단일열 배치로 가독성 강화',
+      '헤더 및 하단 액션 버튼 반응형 정렬 보완'
+    ]
+  },
   {
     version: 'v1.0.0',
     date: '2026.10.18',
     title: 'On溫 Mind GYM 첫 공식 릴리즈',
     changes: [
-      'TCI 기질(RD)과 성격(C 연대감) 및 심리/코칭 기반 6대 감정 근육 프레임워크 구축',
-      'SVG 방사형 레이더 밸런스 차트 & 6가지 감정 열매가 맺히는 상록수 과실수 그래픽 탑재',
-      '3단계 대화형 감정일기 입력 폼 및 실제 작성 맥락을 100% 반영하는 온(溫) 1:1 맞춤 AI 코칭 연동',
-      '작은 실천 루틴 관리 및 외부 학습자료(유튜브/블로그/나의 메모) 북마크 서재 기능',
-      '회고 골든타임 리마인더 알람 시스템 (시간 지정 알람)',
-      '주/월/연 단위 성장 통계 및 인생오후 AI 성장 회고 에세이 자동 집필 엔진 탑재',
-      '스마트폰 ↔ 갤럭시 탭 S9+ 기기 간 데이터 백업/복원 기능 제공'
-    ]
-  },
-  {
-    version: 'v0.9.0',
-    date: '2026.10.17',
-    title: '내부 프로토타입 및 MVP 검증',
-    changes: [
-      '초기 6각형 레이더 차트 프로토타입 설계',
-      '감정일기 기본 작성 폼 및 로컬스토리지 저장 로직 테스트',
-      '기본 감정 드릴 카드 목록 구성'
+      'TCI 기질 및 심리/코칭 기반 6대 감정 근육 프레임워크 구축',
+      'SVG 방사형 레이더 밸런스 차트 & 과실수 그래픽 탑재',
+      '3단계 대화형 감정일기 및 온(溫) 1:1 맞춤 AI 코칭 연동',
+      '작은 실천 루틴 및 외부 학습자료 서재 기능',
+      '회고 골든타임 리마인더 알람 시스템',
+      '성장 리포트 통계 및 회고 에세이 집필 엔진 탑재'
     ]
   }
 ];
 
-// 1. 6대 마음 근육 기본 데이터
 const INITIAL_MUSCLES = [
   {
     id: 'warmth',
@@ -133,7 +130,6 @@ const INITIAL_MUSCLES = [
   }
 ];
 
-// 초기 실천 루틴 및 학습 자료
 const INITIAL_RESOURCES = [
   {
     id: 1,
@@ -177,7 +173,6 @@ const INITIAL_RESOURCES = [
   }
 ];
 
-// 2. SVG 방사형 다각형 차트
 function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle }) {
   const size = 300;
   const center = size / 2;
@@ -212,12 +207,12 @@ function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle }) {
           내면 근육 밸런스
         </span>
         <div className="flex items-center gap-3 text-[11px] text-slate-400">
-          <span className="flex items-center gap-1"><span className="w-2.5 h-0.5 bg-slate-300 inline-block border-b border-dashed border-slate-400"></span>초기 모습</span>
-          <span className="flex items-center gap-1"><span className="w-2.5 h-2 bg-blue-500/20 border border-blue-600 inline-block rounded-xs"></span>현재 성장</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-0.5 bg-slate-300 inline-block border-b border-dashed border-slate-400"></span>초기</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-2 bg-blue-500/20 border border-blue-600 inline-block rounded-xs"></span>현재</span>
         </div>
       </div>
 
-      <svg width={size} height={size} className="overflow-visible my-1">
+      <svg width={size} height={size} className="overflow-visible my-1 max-w-full">
         {levels.map((lvl) => {
           const points = muscles.map((_, i) => {
             const { x, y } = getCoordinates(i, lvl);
@@ -288,7 +283,6 @@ function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle }) {
   );
 }
 
-// 3. 인생오후의 듬직한 마음 과실수 컴포넌트
 function PrismFruitTree({ muscles, totalLogsCount }) {
   const growthStage = useMemo(() => {
     if (totalLogsCount < 3) return { stage: 1, name: '뿌리내리는 묘목', desc: '대지에 든든한 온기의 뿌리를 내리는 중' };
@@ -320,11 +314,11 @@ function PrismFruitTree({ muscles, totalLogsCount }) {
           <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100/80 text-emerald-800">
             {growthStage.name}
           </span>
-          <p className="text-[10px] text-slate-400 mt-0.5">총 {totalLogsCount}번의 마음 머무름</p>
+          <p className="text-[10px] text-slate-400 mt-0.5">총 {totalLogsCount}번의 머무름</p>
         </div>
       </div>
 
-      <div className="relative w-56 h-60 flex items-center justify-center my-0.5">
+      <div className="relative w-52 h-56 flex items-center justify-center my-0.5">
         <svg viewBox="0 0 240 250" className="w-full h-full filter drop-shadow-xs overflow-visible">
           <ellipse cx="120" cy="225" rx="72" ry="16" fill="#D4A359" opacity="0.85" />
           <ellipse cx="120" cy="223" rx="60" ry="11" fill="#C59345" opacity="0.5" />
@@ -368,7 +362,6 @@ function PrismFruitTree({ muscles, totalLogsCount }) {
   );
 }
 
-// 4. 새로운 루틴/학습자료 등록 모달
 function AddResourceModal({ isOpen, onClose, onAddResource, muscles }) {
   if (!isOpen) return null;
   const [formData, setFormData] = useState({
@@ -393,21 +386,21 @@ function AddResourceModal({ isOpen, onClose, onAddResource, muscles }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-      <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-slate-100">
+      <div className="bg-white rounded-3xl max-w-md w-full p-5 md:p-6 shadow-xl border border-slate-100">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-base font-bold text-slate-800">새로운 실천 루틴 & 자료 등록</h2>
           <button onClick={onClose} className="p-1 rounded-full text-slate-400 hover:text-slate-600">✕</button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
+        <form onSubmit={handleSubmit} className="space-y-3 text-xs">
           <div>
             <label className="font-semibold text-slate-700 block mb-1">자료 유형 선택</label>
             <div className="grid grid-cols-4 gap-1.5">
               {[
-                { id: 'routine', label: '실천 루틴', icon: '🏃' },
+                { id: 'routine', label: '루틴', icon: '🏃' },
                 { id: 'youtube', label: '유튜브', icon: '🎥' },
                 { id: 'article', label: '아티클', icon: '📖' },
-                { id: 'memo', label: '나의 메모', icon: '✍️' }
+                { id: 'memo', label: '메모', icon: '✍️' }
               ].map(t => (
                 <button
                   key={t.id}
@@ -443,7 +436,7 @@ function AddResourceModal({ isOpen, onClose, onAddResource, muscles }) {
             <label className="font-semibold text-slate-700 block mb-1">제목</label>
             <input
               type="text"
-              placeholder="예: 경청 3초 호흡법, 브레네 브라운 특강 요약"
+              placeholder="예: 경청 3초 호흡법, 브레네 브라운 특강"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800"
@@ -467,7 +460,7 @@ function AddResourceModal({ isOpen, onClose, onAddResource, muscles }) {
             <label className="font-semibold text-slate-700 block mb-1">내용 / 실천 행동 / 핵심 인사이트</label>
             <textarea
               rows="3"
-              placeholder="구체적인 실천 행동이나 영상/칼럼의 핵심 깨달음을 편하게 적어두세요."
+              placeholder="구체적인 실천 행동이나 영상/칼럼의 핵심 깨달음을 적어두세요."
               value={formData.desc}
               onChange={(e) => setFormData({ ...formData, desc: e.target.value })}
               className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800"
@@ -486,7 +479,7 @@ function AddResourceModal({ isOpen, onClose, onAddResource, muscles }) {
               type="submit"
               className="flex-1 py-2.5 rounded-xl bg-slate-800 text-white font-semibold hover:bg-slate-900 shadow-xs"
             >
-              서재에 보관하기
+              보관하기
             </button>
           </div>
         </form>
@@ -495,7 +488,6 @@ function AddResourceModal({ isOpen, onClose, onAddResource, muscles }) {
   );
 }
 
-// 5. 마음 근육 상세 정의서 모달
 function MuscleDetailModal({ muscle, isOpen, onClose, onSave }) {
   if (!isOpen || !muscle) return null;
   const [formData, setFormData] = useState({ ...muscle });
@@ -506,20 +498,20 @@ function MuscleDetailModal({ muscle, isOpen, onClose, onSave }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-      <div className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 shadow-xl border border-slate-100">
+      <div className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-5 md:p-6 shadow-xl border border-slate-100">
         <div className="flex justify-between items-start mb-4">
           <div>
             <span className="text-xs font-semibold px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: formData.color }}>
               마음 근육 성찰 카드
             </span>
-            <h2 className="text-xl font-bold text-slate-800 mt-2">{formData.name}</h2>
+            <h2 className="text-lg font-bold text-slate-800 mt-2">{formData.name}</h2>
             <p className="text-xs text-slate-400 font-mono">{formData.english}</p>
           </div>
           <button onClick={onClose} className="p-1 rounded-full text-slate-400 hover:text-slate-600 text-sm">✕</button>
         </div>
 
-        <div className="space-y-4 text-xs">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="space-y-3.5 text-xs">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
             <div className="p-3 bg-rose-50/60 rounded-xl border border-rose-100">
               <label className="font-semibold text-rose-800 block mb-1">익숙했던 자동적 반응 (As-Is)</label>
               <textarea name="asIs" value={formData.asIs} onChange={handleChange} rows="3" className="w-full p-2 rounded-lg border border-rose-200 bg-white text-slate-700 text-xs" />
@@ -536,13 +528,13 @@ function MuscleDetailModal({ muscle, isOpen, onClose, onSave }) {
           </div>
 
           <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200/70">
-            <label className="font-semibold text-slate-500 block mb-0.5 text-[11px]">학술 및 심리학적 배경 (참고 자료)</label>
+            <label className="font-semibold text-slate-500 block mb-0.5 text-[11px]">학술 및 심리학적 배경</label>
             <textarea name="source" value={formData.source} onChange={handleChange} rows="2" className="w-full p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 text-[11px]" />
           </div>
 
           <div className="flex items-center gap-4 pt-1">
             <div>
-              <label className="font-semibold text-slate-700 block mb-1">과실 대표 색상</label>
+              <label className="font-semibold text-slate-700 block mb-1">대표 색상</label>
               <input type="color" name="color" value={formData.color} onChange={handleChange} className="w-9 h-9 rounded-lg cursor-pointer border-0" />
             </div>
             <div className="flex-1">
@@ -559,14 +551,13 @@ function MuscleDetailModal({ muscle, isOpen, onClose, onSave }) {
 
         <div className="mt-5 flex gap-2">
           <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold text-xs">닫기</button>
-          <button onClick={() => { onSave(formData); onClose(); }} className="flex-1 py-2.5 rounded-xl bg-slate-800 text-white font-semibold text-xs shadow-xs">기록 저장하기</button>
+          <button onClick={() => { onSave(formData); onClose(); }} className="flex-1 py-2.5 rounded-xl bg-slate-800 text-white font-semibold text-xs shadow-xs">기록 저장</button>
         </div>
       </div>
     </div>
   );
 }
 
-// 6. 설정 모달
 function SettingsModal({ 
   isOpen, 
   onClose, 
@@ -585,12 +576,12 @@ function SettingsModal({
 
   const handleSaveApiKey = () => {
     localStorage.setItem('gemini_api_key', apiKey.trim());
-    alert('Gemini API 키가 안전하게 저장되었습니다!');
+    alert('Gemini API 키가 저장되었습니다.');
   };
 
   const handleSaveAlarm = () => {
     onSaveAlarmSettings(localAlarm);
-    alert('⏰ 알람 설정이 안전하게 저장되었습니다.');
+    alert('⏰ 알람 설정이 저장되었습니다.');
   };
 
   const handleExport = () => {
@@ -624,7 +615,7 @@ function SettingsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-      <div className="bg-white rounded-3xl max-w-sm w-full max-h-[90vh] overflow-y-auto p-6 shadow-xl border border-slate-100 space-y-4 text-xs">
+      <div className="bg-white rounded-3xl max-w-sm w-full max-h-[90vh] overflow-y-auto p-5 md:p-6 shadow-xl border border-slate-100 space-y-4 text-xs">
         <div className="flex justify-between items-center border-b pb-3">
           <h2 className="text-sm font-bold text-slate-800">앱 설정 & 알람</h2>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600">✕</button>
@@ -654,7 +645,7 @@ function SettingsModal({
             </div>
             {localAlarm.enabled && (
               <div className="flex items-center justify-between pt-1">
-                <span className="text-slate-600">알람 시간 설정:</span>
+                <span className="text-slate-600">알람 시간:</span>
                 <input
                   type="time"
                   value={localAlarm.time}
@@ -670,7 +661,7 @@ function SettingsModal({
               onClick={handleSaveAlarm}
               className="flex-1 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-semibold text-[11px]"
             >
-              알람 설정 저장
+              알람 저장
             </button>
             <button
               onClick={onTriggerTestNotification}
@@ -707,22 +698,21 @@ function SettingsModal({
         </div>
 
         <div>
-          <h3 className="font-bold text-slate-700 mb-1">📱 기기 간 데이터 동기화 (폰 ↔ 갤럭시 탭)</h3>
-          <p className="text-slate-500 mb-3 leading-relaxed">
-            한 기기에서 데이터를 백업 파일로 내보낸 후, 다른 기기에서 불러오시면 동일하게 연동됩니다.
+          <h3 className="font-bold text-slate-700 mb-1">📱 기기 간 데이터 동기화</h3>
+          <p className="text-slate-500 mb-2 leading-relaxed">
+            백업 파일 내보내기/불러오기로 기기 간 데이터를 동기화합니다.
           </p>
           <div className="flex gap-2">
             <button onClick={handleExport} className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium">
-              데이터 내보내기 ⬇
+              내보내기 ⬇
             </button>
             <label className="flex-1 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-medium text-center cursor-pointer">
-              데이터 불러오기 ⬆
+              불러오기 ⬆
               <input type="file" accept=".json" onChange={handleImport} className="hidden" />
             </label>
           </div>
         </div>
 
-        {/* 버전 정보 표시 및 모달 링크 */}
         <div className="pt-2 border-t flex items-center justify-between text-slate-400 text-[11px]">
           <span>현재 버전: <strong className="text-slate-600 font-mono">{CURRENT_VERSION}</strong></span>
           <button 
@@ -744,7 +734,6 @@ function SettingsModal({
   );
 }
 
-// 7. 마크다운 텍스트 렌더러
 function renderMarkdownEssay(content) {
   if (!content) return null;
   const lines = content.trim().split('\n');
@@ -775,7 +764,6 @@ function renderMarkdownEssay(content) {
   });
 }
 
-// 8. 📌 버전 기록 모달 (좌우 여백 확장 및 문장단위 줄바꿈 정제 완료)
 function VersionModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
@@ -792,43 +780,38 @@ function VersionModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-      {/* max-w-xl로 폭을 넓혀 시원한 가독성 확보 */}
-      <div className="bg-white rounded-3xl max-w-xl w-full max-h-[85vh] overflow-y-auto p-6 md:p-7 shadow-2xl border border-slate-100 space-y-5 text-xs">
-        
-        {/* 상단 타이틀 */}
-        <div className="flex justify-between items-center border-b border-slate-100 pb-3.5">
-          <div className="flex items-center gap-2.5">
-            <span className="text-xl">📋</span>
+      <div className="bg-white rounded-3xl max-w-xl w-full max-h-[85vh] overflow-y-auto p-5 md:p-7 shadow-2xl border border-slate-100 space-y-4 text-xs">
+        <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">📋</span>
             <div>
               <h2 className="text-sm font-bold text-slate-800">버전 기록 & 판올림 히스토리</h2>
-              <p className="text-[10px] text-slate-400">인생오후 감정정원의 성장 기록과 업데이트 내역</p>
+              <p className="text-[10px] text-slate-400">인생오후 감정정원 업데이트 내역</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 text-sm">✕</button>
+          <button onClick={onClose} className="p-1 rounded-full text-slate-400 hover:text-slate-600 text-sm">✕</button>
         </div>
 
-        {/* 1. 최신 릴리즈 (상단 항상 완전 노출 - 여백 및 줄바꿈 최적화) */}
         {latestRelease && (
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <div className="flex items-center justify-between px-1">
               <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Current Release (최신 버전)</span>
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">Latest</span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">Latest</span>
             </div>
             
-            <div className="bg-gradient-to-br from-slate-900 via-slate-850 to-slate-800 text-white p-5 md:p-6 rounded-2xl shadow-sm space-y-3">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-850 to-slate-800 text-white p-4.5 md:p-5 rounded-2xl shadow-sm space-y-2.5">
               <div className="flex justify-between items-center">
-                <span className="text-base font-black font-mono tracking-tight text-amber-300">
+                <span className="text-sm md:text-base font-black font-mono tracking-tight text-amber-300">
                   {latestRelease.version}
                 </span>
-                <span className="text-[11px] text-slate-400 font-mono">{latestRelease.date}</span>
+                <span className="text-[10px] text-slate-400 font-mono">{latestRelease.date}</span>
               </div>
               
               <h3 className="text-xs font-bold text-white tracking-tight">{latestRelease.title}</h3>
               
-              {/* 들여쓰기 꼬임 없는 단정한 텍스트 목록 */}
               <div className="pt-2 border-t border-slate-700/80 space-y-2">
                 {latestRelease.changes.map((c, i) => (
-                  <div key={i} className="flex items-start gap-2 text-[11px] text-slate-200 leading-relaxed break-keep-all">
+                  <div key={i} className="flex items-start gap-2 text-[11px] text-slate-200 leading-relaxed">
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0"></span>
                     <span className="flex-1">{c}</span>
                   </div>
@@ -838,7 +821,6 @@ function VersionModal({ isOpen, onClose }) {
           </div>
         )}
 
-        {/* 2. 이전 판올림 기록 (아코디언 토글 형태) */}
         {previousReleases.length > 0 && (
           <div className="space-y-2 pt-2 border-t border-slate-100">
             <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block px-1">Previous Versions (이전 기록)</span>
@@ -850,28 +832,28 @@ function VersionModal({ isOpen, onClose }) {
                     <button
                       type="button"
                       onClick={() => toggleVersion(vh.version)}
-                      className="w-full p-4 flex items-center justify-between text-left hover:bg-slate-100/70 transition-all"
+                      className="w-full p-3.5 flex items-center justify-between text-left hover:bg-slate-100/70 transition-all"
                     >
-                      <div className="flex items-center gap-2.5">
-                        <span className="font-mono font-bold text-slate-800 text-xs bg-white border border-slate-200 px-2 py-0.5 rounded-md">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-bold text-slate-800 text-xs bg-white border border-slate-200 px-1.5 py-0.5 rounded-md">
                           {vh.version}
                         </span>
-                        <span className="text-slate-700 font-medium text-xs truncate max-w-[240px] md:max-w-[280px]">
+                        <span className="text-slate-700 font-medium text-xs truncate max-w-[170px] sm:max-w-[260px]">
                           {vh.title}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center gap-1.5 shrink-0">
                         <span className="text-[10px] text-slate-400 font-mono">{vh.date}</span>
-                        <span className="text-[11px] text-slate-400 transition-transform duration-300">
+                        <span className="text-[10px] text-slate-400">
                           {isExpanded ? '▲' : '▼'}
                         </span>
                       </div>
                     </button>
 
                     {isExpanded && (
-                      <div className="p-4 pt-1 border-t border-slate-200/60 bg-white space-y-2 animate-fadeIn">
+                      <div className="p-3.5 pt-1 border-t border-slate-200/60 bg-white space-y-2 animate-fadeIn">
                         {vh.changes.map((c, i) => (
-                          <div key={i} className="flex items-start gap-2 text-[11px] text-slate-600 leading-relaxed break-keep-all">
+                          <div key={i} className="flex items-start gap-2 text-[11px] text-slate-600 leading-relaxed">
                             <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0"></span>
                             <span className="flex-1">{c}</span>
                           </div>
@@ -885,10 +867,10 @@ function VersionModal({ isOpen, onClose }) {
           </div>
         )}
 
-        <div className="pt-2">
+        <div className="pt-1">
           <button
             onClick={onClose}
-            className="w-full py-2.5 rounded-xl bg-slate-800 text-white font-semibold text-xs hover:bg-slate-900 shadow-xs transition-all"
+            className="w-full py-2.5 rounded-xl bg-slate-800 text-white font-semibold text-xs hover:bg-slate-900 shadow-xs"
           >
             닫기
           </button>
@@ -898,7 +880,6 @@ function VersionModal({ isOpen, onClose }) {
   );
 }
 
-// 9. 메인 App 컴포넌트
 function App() {
   const [activeTab, setActiveTab] = useState('record');
   const [muscles, setMuscles] = useState(INITIAL_MUSCLES);
@@ -910,22 +891,18 @@ function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isVersionOpen, setIsVersionOpen] = useState(false);
 
-  // Step 2: 알람 설정 상태
   const [alarmSettings, setAlarmSettings] = useState({
     enabled: true,
     time: '22:30'
   });
 
-  // Step 3: 성장 연대기 필터 및 회고 에세이 상태
   const [historyPeriod, setHistoryPeriod] = useState('all');
   const [periodEssay, setPeriodEssay] = useState(null);
   const [isEssayLoading, setIsEssayLoading] = useState(false);
 
-  // AI 코치 응답 상태
   const [aiFeedback, setAiFeedback] = useState(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
 
-  // 일기 입력 폼 상태
   const [selectedMuscleForLog, setSelectedMuscleForLog] = useState('warmth');
   const [logForm, setLogForm] = useState({
     feeling: '',
@@ -966,19 +943,17 @@ function App() {
     }
   ]);
 
-  // 로컬 스토리지 동기화
   useEffect(() => {
-    const savedMuscles = localStorage.getItem('on_mindgym_muscles_v11');
-    const savedLogs = localStorage.getItem('on_mindgym_logs_v11');
-    const savedResources = localStorage.getItem('on_mindgym_resources_v11');
-    const savedAlarm = localStorage.getItem('on_mindgym_alarm_v11');
+    const savedMuscles = localStorage.getItem('on_mindgym_muscles_v12');
+    const savedLogs = localStorage.getItem('on_mindgym_logs_v12');
+    const savedResources = localStorage.getItem('on_mindgym_resources_v12');
+    const savedAlarm = localStorage.getItem('on_mindgym_alarm_v12');
     if (savedMuscles) setMuscles(JSON.parse(savedMuscles));
     if (savedLogs) setLogs(JSON.parse(savedLogs));
     if (savedResources) setResources(JSON.parse(savedResources));
     if (savedAlarm) setAlarmSettings(JSON.parse(savedAlarm));
   }, []);
 
-  // 알람 타이머
   const lastAlertDateRef = useRef('');
   useEffect(() => {
     const checkAlarm = () => {
@@ -1032,7 +1007,7 @@ function App() {
 
   const handleSaveAlarmSettings = (newSettings) => {
     setAlarmSettings(newSettings);
-    localStorage.setItem('on_mindgym_alarm_v11', JSON.stringify(newSettings));
+    localStorage.setItem('on_mindgym_alarm_v12', JSON.stringify(newSettings));
     if (newSettings.enabled && 'Notification' in window && Notification.permission !== 'granted') {
       Notification.requestPermission();
     }
@@ -1041,20 +1016,20 @@ function App() {
   const handleSaveMuscle = (updatedMuscle) => {
     const updated = muscles.map(m => m.id === updatedMuscle.id ? updatedMuscle : m);
     setMuscles(updated);
-    localStorage.setItem('on_mindgym_muscles_v11', JSON.stringify(updated));
+    localStorage.setItem('on_mindgym_muscles_v12', JSON.stringify(updated));
   };
 
   const handleAddResource = (newRes) => {
     const updated = [newRes, ...resources];
     setResources(updated);
-    localStorage.setItem('on_mindgym_resources_v11', JSON.stringify(updated));
-    alert('새로운 루틴/학습 자료가 성공적으로 저장되었습니다!');
+    localStorage.setItem('on_mindgym_resources_v12', JSON.stringify(updated));
+    alert('새로운 루틴/학습 자료가 저장되었습니다.');
   };
 
   const handleRestoreData = (data) => {
-    if (data.muscles) { setMuscles(data.muscles); localStorage.setItem('on_mindgym_muscles_v11', JSON.stringify(data.muscles)); }
-    if (data.logs) { setLogs(data.logs); localStorage.setItem('on_mindgym_logs_v11', JSON.stringify(data.logs)); }
-    if (data.resources) { setResources(data.resources); localStorage.setItem('on_mindgym_resources_v11', JSON.stringify(data.resources)); }
+    if (data.muscles) { setMuscles(data.muscles); localStorage.setItem('on_mindgym_muscles_v12', JSON.stringify(data.muscles)); }
+    if (data.logs) { setLogs(data.logs); localStorage.setItem('on_mindgym_logs_v12', JSON.stringify(data.logs)); }
+    if (data.resources) { setResources(data.resources); localStorage.setItem('on_mindgym_resources_v12', JSON.stringify(data.resources)); }
   };
 
   const generateContextualFeedback = (currentLog, targetMuscle) => {
@@ -1084,7 +1059,7 @@ function App() {
 코칭 지침:
 1. 내담자가 작성한 실제 내용을 반드시 직접 언급하며 깊은 공감과 지지를 건네세요.
 2. 엉뚱하거나 일반적인 조언 대신, 내담자가 적은 [${targetMuscle?.name}] 근육의 성숙에 초점을 맞추세요.
-3. 정중하고 따뜻한 해요체로 3문장 피드백을 작성한 뒤, 마지막 줄에 내담자가 더 깊이 성찰할 수 있는 강력한 코칭 질문 1개를 다음 형식으로 제시하세요:
+3. 정중하고 따뜻한 해요체로 3문장 피드백을 작성한 뒤, 마지막 줄에 강력한 코칭 질문 1개를 다음 형식으로 제시하세요:
 🌱 코칭 질문: "..."
 `;
 
@@ -1122,7 +1097,7 @@ function App() {
 
   const handleAddLog = (e) => {
     e.preventDefault();
-    if (!logForm.feeling.trim()) return alert('오늘 머물렀던 감정을 편안하게 적어주세요.');
+    if (!logForm.feeling.trim()) return alert('오늘 머물렀던 감정을 적어주세요.');
 
     const targetMuscle = muscles.find(m => m.id === selectedMuscleForLog);
     const targetRoutine = resources.find(r => String(r.id) === String(logForm.selectedRitualId));
@@ -1140,7 +1115,7 @@ function App() {
 
     const newLogs = [newLog, ...logs];
     setLogs(newLogs);
-    localStorage.setItem('on_mindgym_logs_v11', JSON.stringify(newLogs));
+    localStorage.setItem('on_mindgym_logs_v12', JSON.stringify(newLogs));
 
     const updatedMuscles = muscles.map(m => {
       if (m.id === selectedMuscleForLog) {
@@ -1149,7 +1124,7 @@ function App() {
       return m;
     });
     setMuscles(updatedMuscles);
-    localStorage.setItem('on_mindgym_muscles_v11', JSON.stringify(updatedMuscles));
+    localStorage.setItem('on_mindgym_muscles_v12', JSON.stringify(updatedMuscles));
 
     handleRequestAiCoaching(newLog);
     setLogForm({ feeling: '', action: '', shift: '', selectedRitualId: '' });
@@ -1201,7 +1176,7 @@ function App() {
 
   const handleGeneratePeriodEssay = async () => {
     if (filteredHistoryLogs.length === 0) {
-      return alert('선택하신 기간에 작성된 일기가 없습니다. 먼저 일기를 작성해 주세요.');
+      return alert('선택하신 기간에 작성된 일기가 없습니다.');
     }
 
     setIsEssayLoading(true);
@@ -1217,23 +1192,23 @@ function App() {
     const apiKey = localStorage.getItem('gemini_api_key');
     const logSummaries = filteredHistoryLogs.map((l, idx) => {
       const m = muscles.find(muscle => muscle.id === l.muscleId);
-      return `[기록 ${idx + 1}] 근육: ${m?.name} | 머문 감정: "${l.feeling}" | 새로운 시도: "${l.action}" | 여운: "${l.shift}"`;
+      return `[기록 ${idx + 1}] 근육: ${m?.name} | 감정: "${l.feeling}" | 시도: "${l.action}" | 여운: "${l.shift}"`;
     }).join('\n');
 
     const promptText = `
 당신은 '인생오후'의 성숙과 통합을 이끄는 전문 코치이자 수필가입니다.
-내담자가 ${periodName} 동안 기록한 감정일기 데이터는 다음과 같습니다:
+내담자가 ${periodName} 동안 기록한 감정일기 데이터:
 ${logSummaries}
 
 가장 많이 단련한 마음 근육: ${periodStats.topMuscle ? periodStats.topMuscle.name : '마음의 온기'}
 
 에세이 작성 지침:
-1. 제목: 내담자의 성숙을 상징하는 기품 있고 서정적인 제목을 정해 주세요. (예: "냉정의 강을 건너 온기의 바다로 나아가는 시간")
+1. 제목: 내담자의 성숙을 상징하는 기품 있고 서정적인 제목 (예: "냉정의 강을 건너 온기의 바다로 나아가는 시간")
 2. 본문 서사:
-   - 기질적인 이성과 결론 중심(냉정함)에서 벗어나, 서툰 감정을 알아차리고 타인을 수용하며 온기를 건넨 내담자의 발자국들을 따뜻하게 조명해 주세요.
-   - 내담자가 직접 기록한 표현들을 문맥 속에 자연스럽게 인용해 주세요.
-3. 마무리: 인생오후를 향해 뿌리를 깊게 내린 내면의 큰 상록수를 격려하며 다정한 코칭적 축복으로 맺어주세요.
-4. 문체: 깊은 울림을 주는 정중하고 품격 있는 에세이 문체 (~했습니다, ~합니다).
+   - 기질적인 이성과 결론 중심에서 벗어나, 타인을 수용하고 온기를 건넨 내담자의 발자국들을 따뜻하게 조명
+   - 내담자가 기록한 실제 표현을 자연스럽게 인용
+3. 마무리: 인생오후 상록수를 격려하며 다정한 코칭적 축복으로 마무리
+4. 문체: 품격 있는 에세이 문체 (~했습니다, ~합니다).
 `;
 
     if (apiKey) {
@@ -1291,40 +1266,41 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
   }, [resources]);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col max-w-5xl mx-auto px-4 md:px-6 py-4 md:py-6 gap-5">
+    <div className="min-h-screen bg-slate-50 flex flex-col max-w-5xl mx-auto px-3.5 sm:px-6 py-3.5 sm:py-6 gap-4 sm:gap-5">
       
-      {/* 상단 헤더 */}
-      <header className="bg-white rounded-2xl border border-slate-100 shadow-xs px-5 py-3.5 flex items-center justify-between">
-        <div className="flex items-center gap-3.5">
-          <div className="w-9 h-9 rounded-xl bg-slate-900 text-white shadow-xs flex items-center justify-center font-bold text-sm tracking-tight border border-slate-800 shrink-0">
+      {/* 1. 상단 헤더: 모바일 반응형 정리 */}
+      <header className="bg-white rounded-2xl border border-slate-100 shadow-xs px-4 py-3 sm:px-5 sm:py-3.5 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-900 text-white shadow-xs flex items-center justify-center font-bold text-xs sm:text-sm tracking-tight border border-slate-800 shrink-0">
             On
           </div>
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2 leading-none">
-              <span className="text-base font-bold text-slate-900 tracking-tight">On</span>
-              <span className="font-hanja text-orange-500 font-black text-lg leading-none transform translate-y-[-0.5px]">溫</span>
-              <span className="text-slate-300 font-light text-sm mx-0.5">|</span>
-              <span className="text-slate-700 font-semibold text-base tracking-tight">Mind GYM</span>
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-1.5 leading-none">
+              <span className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">On</span>
+              <span className="font-hanja text-orange-500 font-black text-base sm:text-lg leading-none transform translate-y-[-0.5px]">溫</span>
+              <span className="text-slate-300 font-light text-xs sm:text-sm mx-0.5">|</span>
+              <span className="text-slate-700 font-semibold text-sm sm:text-base tracking-tight truncate">Mind GYM</span>
             </div>
-            <p className="text-[11px] text-slate-400 mt-1 leading-none">
+            <p className="text-[10px] sm:text-[11px] text-slate-400 mt-1 leading-none truncate">
               인생오후, 내면의 근육이 깊어지는 정원
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {alarmSettings.enabled && (
-            <span className="text-[11px] bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-mono flex items-center gap-1">
+            <span className="text-[10px] sm:text-[11px] bg-slate-100 text-slate-600 px-2 py-1 rounded-full font-mono flex items-center gap-1">
               <span>⏰</span>
               <span>{alarmSettings.time}</span>
             </span>
           )}
-          <span className="text-[11px] bg-emerald-50 text-emerald-800 border border-emerald-100 px-3 py-1.5 rounded-full font-medium">
+          {/* 모바일에서는 긴 텍스트 숨김 처리 */}
+          <span className="hidden sm:inline-block text-[11px] bg-emerald-50 text-emerald-800 border border-emerald-100 px-3 py-1.5 rounded-full font-medium whitespace-nowrap">
             따뜻함과 연결을 기르는 달
           </span>
           <button
             onClick={() => setIsSettingsOpen(true)}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all text-xs"
+            className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all text-xs"
             title="동기화 및 알람 설정"
           >
             ⚙️
@@ -1332,10 +1308,10 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
         </div>
       </header>
 
-      {/* 메인 2단 분할 레이아웃 */}
-      <main className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-5 pb-6">
+      {/* 2. 메인 분할 레이아웃 */}
+      <main className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-5 pb-6">
         
-        {/* 좌측 영역 */}
+        {/* 좌측 영역: 레이더 차트 & 나무 */}
         <section className="md:col-span-5 flex flex-col gap-4">
           <RadarBalanceChart
             muscles={muscles}
@@ -1345,52 +1321,53 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
               setIsModalOpen(true);
             }}
           />
-          <div className="h-68">
+          <div className="h-64 sm:h-68">
             <PrismFruitTree muscles={muscles} totalLogsCount={logs.length} />
           </div>
         </section>
 
-        {/* 우측 인터랙션 영역 */}
+        {/* 우측 영역: 탭 및 콘텐츠 */}
         <section className="md:col-span-7 flex flex-col gap-4">
           
-          {/* 상단 4개 탭 */}
-          <div className="flex bg-slate-200/60 p-1 rounded-2xl gap-1 text-xs font-semibold text-slate-600">
+          {/* 상단 4개 탭 (모바일에서 스크롤 없이 축약형으로 대응) */}
+          <div className="grid grid-cols-4 bg-slate-200/60 p-1 rounded-2xl gap-1 text-[11px] sm:text-xs font-semibold text-slate-600">
             <button
               onClick={() => setActiveTab('record')}
-              className={`flex-1 py-2.5 rounded-xl transition-all ${activeTab === 'record' ? 'bg-white text-slate-800 shadow-xs' : 'hover:text-slate-800'}`}
+              className={`py-2 sm:py-2.5 rounded-xl transition-all text-center truncate ${activeTab === 'record' ? 'bg-white text-slate-800 shadow-xs' : 'hover:text-slate-800'}`}
             >
-              오늘의 마음 챙김
+              마음 챙김
             </button>
             <button
               onClick={() => setActiveTab('handbook')}
-              className={`flex-1 py-2.5 rounded-xl transition-all ${activeTab === 'handbook' ? 'bg-white text-slate-800 shadow-xs' : 'hover:text-slate-800'}`}
+              className={`py-2 sm:py-2.5 rounded-xl transition-all text-center truncate ${activeTab === 'handbook' ? 'bg-white text-slate-800 shadow-xs' : 'hover:text-slate-800'}`}
             >
-              마음 근육 사전
+              근육 사전
             </button>
             <button
               onClick={() => setActiveTab('rituals')}
-              className={`flex-1 py-2.5 rounded-xl transition-all ${activeTab === 'rituals' ? 'bg-white text-slate-800 shadow-xs' : 'hover:text-slate-800'}`}
+              className={`py-2 sm:py-2.5 rounded-xl transition-all text-center truncate ${activeTab === 'rituals' ? 'bg-white text-slate-800 shadow-xs' : 'hover:text-slate-800'}`}
             >
-              실천 루틴 & 서재
+              루틴 & 서재
             </button>
             <button
               onClick={() => setActiveTab('history')}
-              className={`flex-1 py-2.5 rounded-xl transition-all ${activeTab === 'history' ? 'bg-white text-slate-800 shadow-xs' : 'hover:text-slate-800'}`}
+              className={`py-2 sm:py-2.5 rounded-xl transition-all text-center truncate ${activeTab === 'history' ? 'bg-white text-slate-800 shadow-xs' : 'hover:text-slate-800'}`}
             >
-              나의 성장 연대기
+              성장 연대기
             </button>
           </div>
 
           {/* TAB 1: 오늘의 마음 챙김 */}
           {activeTab === 'record' && (
             <div className="space-y-4">
-              <div className="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex flex-col gap-4">
-                <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-                  <h2 className="text-xs font-bold text-slate-700">오늘 의식적으로 마주한 마음 근육</h2>
-                  <span className="text-[11px] text-slate-400 font-mono">단축키: Ctrl + Enter로 편안히 기록</span>
+              <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-xs border border-slate-100 flex flex-col gap-3.5">
+                <div className="flex justify-between items-center border-b border-slate-100 pb-2.5">
+                  <h2 className="text-xs font-bold text-slate-700">오늘 마주한 마음 근육</h2>
+                  <span className="hidden sm:inline text-[11px] text-slate-400 font-mono">단축키: Ctrl + Enter</span>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2">
+                {/* 모바일 2열, 태블릿 3열로 글자 잘림 방지 */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {muscles.map((m) => {
                     const isSelected = selectedMuscleForLog === m.id;
                     return (
@@ -1405,59 +1382,60 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                         }`}
                       >
                         <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: m.color }}></span>
-                        <span className="truncate">{m.name}</span>
+                        <span className="whitespace-nowrap">{m.name}</span>
                       </button>
                     );
                   })}
                 </div>
 
-                <form onSubmit={handleAddLog} className="space-y-3.5 text-xs">
+                <form onSubmit={handleAddLog} className="space-y-3 text-xs">
                   <div>
                     <label className="font-medium text-slate-700 block mb-1">
-                      오늘 하루, 마음속에 조용히 머물렀던 감정은 무엇이었나요?
+                      오늘 하루, 마음에 조용히 머물렀던 감정은?
                     </label>
                     <textarea
                       rows="2"
-                      placeholder="익숙한 냉정함, 스쳐 지나간 서운함, 혹은 작은 고마움 등 어떤 느낌이었는지 편하게 끄적여보세요."
+                      placeholder="익숙한 냉정함, 서운함, 혹은 작은 고마움 등 편하게 적어보세요."
                       value={logForm.feeling}
                       onChange={(e) => setLogForm({ ...logForm, feeling: e.target.value })}
-                      className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50/60 focus:bg-white focus:border-slate-400 focus:ring-0 text-slate-800 placeholder:text-slate-400"
+                      className="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 bg-slate-50/60 focus:bg-white text-slate-800 placeholder:text-slate-400"
                     />
                   </div>
 
                   <div>
                     <label className="font-medium text-slate-700 block mb-1">
-                      그 순간, 평소와 다르게 건네본 말이나 작은 시도가 있었나요?
+                      평소와 다르게 건네본 말이나 작은 시도는?
                     </label>
                     <textarea
                       rows="2"
-                      placeholder="조언을 아끼고 눈맞춤을 했거나, 부드러운 말투로 속마음을 털어놓았던 작은 시도를 적어보세요."
+                      placeholder="조언을 아끼고 눈맞춤을 했거나, 부드러운 말투로 건넨 시도를 적어보세요."
                       value={logForm.action}
                       onChange={(e) => setLogForm({ ...logForm, action: e.target.value })}
-                      className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50/60 focus:bg-white focus:border-slate-400 focus:ring-0 text-slate-800 placeholder:text-slate-400"
+                      className="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 bg-slate-50/60 focus:bg-white text-slate-800 placeholder:text-slate-400"
                     />
                   </div>
 
                   <div>
                     <label className="font-medium text-slate-700 block mb-1">
-                      그 시도 끝에 어떤 마음의 여운이나 변화가 남았나요?
+                      그 시도 끝에 어떤 마음의 여운이 남았나요?
                     </label>
                     <textarea
                       rows="2"
-                      placeholder="내 안의 가벼워진 기분, 혹은 상대방의 풀어진 표정 등 잔잔한 여운을 남겨주세요."
+                      placeholder="내 안의 가벼워진 기분, 혹은 상대방의 풀어진 표정 등 여운을 남겨주세요."
                       value={logForm.shift}
                       onChange={(e) => setLogForm({ ...logForm, shift: e.target.value })}
-                      className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50/60 focus:bg-white focus:border-slate-400 focus:ring-0 text-slate-800 placeholder:text-slate-400"
+                      className="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 bg-slate-50/60 focus:bg-white text-slate-800 placeholder:text-slate-400"
                     />
                   </div>
 
-                  <div className="flex items-center justify-between pt-1">
+                  {/* 모바일에서 버튼이 세로로 깨지지 않도록 레이아웃 정리 */}
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-1">
                     <select
                       value={logForm.selectedRitualId}
                       onChange={(e) => setLogForm({ ...logForm, selectedRitualId: e.target.value })}
-                      className="p-2 rounded-xl border border-slate-200 bg-slate-50 text-[11px] text-slate-600 max-w-[210px]"
+                      className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-[11px] text-slate-600 w-full sm:max-w-[210px]"
                     >
-                      <option value="">연계 실천한 루틴 (선택사항)</option>
+                      <option value="">연계 실천 루틴 (선택)</option>
                       {routineOptions.map((r) => (
                         <option key={r.id} value={r.id}>{r.title}</option>
                       ))}
@@ -1466,7 +1444,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                     <button
                       id="submit-log-btn"
                       type="submit"
-                      className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-medium text-xs shadow-xs transition-all flex items-center gap-1.5"
+                      className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-medium text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap"
                     >
                       <span>나무에 온기 전하기</span>
                       <span>🌿</span>
@@ -1476,7 +1454,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
               </div>
 
               {(isAiLoading || aiFeedback) && (
-                <div className="bg-gradient-to-br from-amber-50/80 via-white to-orange-50/60 p-5 rounded-2xl border border-amber-200/80 shadow-xs space-y-2.5">
+                <div className="bg-gradient-to-br from-amber-50/80 via-white to-orange-50/60 p-4 sm:p-5 rounded-2xl border border-amber-200/80 shadow-xs space-y-2.5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-lg bg-orange-500 text-white flex items-center justify-center text-xs font-serif font-bold">
@@ -1485,7 +1463,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                       <h3 className="text-xs font-bold text-slate-800">온(溫) AI 코치의 마음 거울</h3>
                     </div>
                     {isAiLoading ? (
-                      <span className="text-[11px] text-amber-600 animate-pulse">마음을 정성스레 읽는 중...</span>
+                      <span className="text-[11px] text-amber-600 animate-pulse">마음을 읽는 중...</span>
                     ) : (
                       <span className="text-[10px] px-2 py-0.5 rounded-md bg-white/80 border border-amber-200 text-amber-800 font-medium">
                         온(溫) 1:1 맞춤 코칭
@@ -1497,10 +1475,9 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                     <div className="space-y-2 py-2">
                       <div className="h-3 bg-amber-100/60 rounded-full animate-pulse w-full"></div>
                       <div className="h-3 bg-amber-100/60 rounded-full animate-pulse w-5/6"></div>
-                      <div className="h-3 bg-amber-100/60 rounded-full animate-pulse w-3/4"></div>
                     </div>
                   ) : (
-                    <div className="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap bg-white/80 p-4 rounded-xl border border-amber-100/90 shadow-2xs">
+                    <div className="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap bg-white/80 p-3.5 sm:p-4 rounded-xl border border-amber-100/90 shadow-2xs">
                       {aiFeedback}
                     </div>
                   )}
@@ -1509,12 +1486,12 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
             </div>
           )}
 
-          {/* TAB 2: 마음 근육 사전 */}
+          {/* TAB 2: 마음 근육 사전 (모바일 1열 배치로 글자 잘림 방지) */}
           {activeTab === 'handbook' && (
             <div className="space-y-3">
               <div className="p-3 bg-stone-100/70 border border-stone-200/60 rounded-2xl text-xs text-stone-700">
-                <span className="font-bold">🌿 인생오후의 6대 마음 근육:</span>
-                <p className="mt-0.5 text-stone-600">이성적 판단과 성취를 넘어, 따뜻한 온기와 유대감으로 삶을 채워가는 안내서입니다. 카드를 클릭하면 상세한 성찰 질문과 의미를 확인할 수 있습니다.</p>
+                <span className="font-bold">🌿 6대 마음 근육:</span>
+                <p className="mt-0.5 text-stone-600 leading-relaxed">카드를 탭하면 상세한 성찰 질문과 As-Is / To-Be의 의미를 확인할 수 있습니다.</p>
               </div>
 
               {muscles.map((m) => (
@@ -1524,9 +1501,9 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                     setActiveMuscleId(m.id);
                     setIsModalOpen(true);
                   }}
-                  className="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs hover:border-slate-300 transition-all cursor-pointer"
+                  className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-100 shadow-xs hover:border-slate-300 transition-all cursor-pointer"
                 >
-                  <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: m.color }}></span>
                       <h3 className="text-xs font-bold text-slate-800">{m.name}</h3>
@@ -1535,14 +1512,21 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                     <span className="text-xs font-semibold text-slate-600 font-mono">{m.current}점</span>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-2 text-[11px] pt-1.5 pb-2">
-                    <div className="text-slate-500"><strong className="text-rose-500">As-Is:</strong> {m.asIs.substring(0, 34)}...</div>
-                    <div className="text-slate-500"><strong className="text-emerald-600">To-Be:</strong> {m.toBe.substring(0, 34)}...</div>
+                  {/* 모바일에서는 1열(위아래), 데스크톱에서는 2열로 넉넉하게 표시 */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2 text-[11px] pt-1 pb-2">
+                    <div className="text-slate-500 bg-rose-50/50 p-2 rounded-lg leading-relaxed">
+                      <strong className="text-rose-600 block mb-0.5">As-Is (자동적 반응):</strong>
+                      {m.asIs}
+                    </div>
+                    <div className="text-slate-600 bg-emerald-50/50 p-2 rounded-lg leading-relaxed">
+                      <strong className="text-emerald-700 block mb-0.5">To-Be (성숙의 모습):</strong>
+                      {m.toBe}
+                    </div>
                   </div>
 
                   <div className="pt-2 border-t border-slate-50 flex items-center justify-between text-[10px] text-slate-400">
-                    <span>출처: {m.source}</span>
-                    <span className="text-slate-300">자세히 보기 →</span>
+                    <span className="truncate max-w-[200px]">출처: {m.source}</span>
+                    <span className="text-slate-400 shrink-0">상세 보기 →</span>
                   </div>
                 </div>
               ))}
@@ -1552,14 +1536,14 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
           {/* TAB 3: 실천 루틴 & 서재 */}
           {activeTab === 'rituals' && (
             <div className="space-y-3">
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <h3 className="text-xs font-bold text-slate-700">마음 리추얼 & 학습 서재</h3>
-                  <p className="text-[11px] text-slate-400">골프노트 드릴처럼 실천하고, 언제든 꺼내 읽는 성찰의 보고</p>
+                  <p className="text-[11px] text-slate-400">골프노트 드릴처럼 실천하고 언제든 꺼내 읽는 성찰의 보고</p>
                 </div>
                 <button
                   onClick={() => setIsAddResourceOpen(true)}
-                  className="px-3 py-1.5 rounded-xl bg-slate-800 text-white font-medium text-xs hover:bg-slate-900 transition-all shadow-xs flex items-center gap-1"
+                  className="w-full sm:w-auto px-3 py-2 rounded-xl bg-slate-800 text-white font-medium text-xs hover:bg-slate-900 transition-all shadow-xs flex items-center justify-center gap-1 shrink-0"
                 >
                   <span>+</span>
                   <span>새 루틴/자료 추가</span>
@@ -1568,16 +1552,16 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
 
               <div className="flex gap-1.5 overflow-x-auto pb-1 text-[11px] hide-scrollbar">
                 {[
-                  { id: 'all', label: '전체보기' },
+                  { id: 'all', label: '전체' },
                   { id: 'routine', label: '실천 루틴 🏃' },
                   { id: 'youtube', label: '유튜브 🎥' },
-                  { id: 'article', label: '아티클/블로그 📖' },
-                  { id: 'memo', label: '나의 칼럼/메모 ✍️' }
+                  { id: 'article', label: '아티클 📖' },
+                  { id: 'memo', label: '메모 ✍️' }
                 ].map(f => (
                   <button
                     key={f.id}
                     onClick={() => setResourceFilter(f.id)}
-                    className={`px-3 py-1 rounded-xl whitespace-nowrap transition-all font-medium ${
+                    className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition-all font-medium ${
                       resourceFilter === f.id
                         ? 'bg-slate-800 text-white shadow-xs'
                         : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50'
@@ -1611,7 +1595,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                             </span>
                           </div>
                           {r.type === 'routine' ? (
-                            <span className="text-[10px] font-medium text-slate-500">누적 {r.completedCount}회 실천</span>
+                            <span className="text-[10px] font-medium text-slate-500">누적 {r.completedCount}회</span>
                           ) : (
                             <span className="text-[10px] text-slate-400 font-mono">{r.date}</span>
                           )}
@@ -1628,7 +1612,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                               rel="noreferrer"
                               className="whitespace-nowrap shrink-0 text-[10px] text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 font-medium px-2 py-0.5 rounded-lg flex items-center gap-1 transition-all"
                             >
-                              <span>링크 열기</span>
+                              <span>링크</span>
                               <span>↗</span>
                             </a>
                           )}
@@ -1641,8 +1625,8 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                           onClick={() => {
                             const updated = resources.map(item => item.id === r.id ? { ...item, completedCount: item.completedCount + 1 } : item);
                             setResources(updated);
-                            localStorage.setItem('on_mindgym_resources_v11', JSON.stringify(updated));
-                            alert(`🌿 [${r.title}] 실천을 완료했습니다. 내면 근육이 단단해졌습니다.`);
+                            localStorage.setItem('on_mindgym_resources_v12', JSON.stringify(updated));
+                            alert(`🌿 [${r.title}] 실천을 완료했습니다.`);
                           }}
                           className="mt-3 w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-semibold rounded-xl border border-slate-200 transition-all"
                         >
@@ -1660,12 +1644,12 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
           {activeTab === 'history' && (
             <div className="space-y-4">
               
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <h3 className="text-xs font-bold text-slate-800">성장 리포트 & 회고록</h3>
-                  <p className="text-[11px] text-slate-400">인생오후를 채워가는 나의 감정 근육 변화 통계</p>
+                  <p className="text-[11px] text-slate-400">인생오후를 채워가는 감정 근육 통계</p>
                 </div>
-                <div className="flex bg-slate-200/70 p-1 rounded-xl gap-1 text-[11px] font-medium text-slate-600">
+                <div className="flex bg-slate-200/70 p-1 rounded-xl gap-1 text-[11px] font-medium text-slate-600 w-full sm:w-auto">
                   {[
                     { id: 'all', label: '전체' },
                     { id: 'week', label: '주간' },
@@ -1675,7 +1659,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                     <button
                       key={p.id}
                       onClick={() => setHistoryPeriod(p.id)}
-                      className={`px-2.5 py-1 rounded-lg transition-all ${historyPeriod === p.id ? 'bg-white text-slate-800 font-bold shadow-2xs' : 'hover:text-slate-800'}`}
+                      className={`flex-1 sm:flex-initial px-2.5 py-1 rounded-lg transition-all text-center ${historyPeriod === p.id ? 'bg-white text-slate-800 font-bold shadow-2xs' : 'hover:text-slate-800'}`}
                     >
                       {p.label}
                     </button>
@@ -1684,13 +1668,13 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
               </div>
 
               <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-50 pb-2.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-50 pb-2.5 gap-1.5">
                   <span className="text-xs text-slate-500">
                     선택 기간 기록: <strong className="text-slate-800 font-mono">{periodStats.total}회</strong>
                   </span>
                   {periodStats.topMuscle ? (
-                    <span className="text-[11px] px-2.5 py-0.5 rounded-full font-semibold" style={{ backgroundColor: `${periodStats.topMuscle.color}20`, color: periodStats.topMuscle.color }}>
-                      🔥 가장 뜨겁게 단련된 근육: {periodStats.topMuscle.name} ({periodStats.topCount}회)
+                    <span className="text-[10px] sm:text-[11px] px-2.5 py-0.5 rounded-full font-semibold inline-block w-fit" style={{ backgroundColor: `${periodStats.topMuscle.color}20`, color: periodStats.topMuscle.color }}>
+                      🔥 최다 단련: {periodStats.topMuscle.name} ({periodStats.topCount}회)
                     </span>
                   ) : (
                     <span className="text-[11px] text-slate-400">기록을 시작해 보세요</span>
@@ -1703,22 +1687,22 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                     const pct = periodStats.total > 0 ? (count / periodStats.total) * 100 : 0;
                     return (
                       <div key={m.id} className="flex items-center gap-2 text-[11px]">
-                        <span className="w-20 truncate text-slate-600 font-medium">{m.name}</span>
+                        <span className="w-16 sm:w-20 truncate text-slate-600 font-medium text-[10px] sm:text-[11px]">{m.name}</span>
                         <div className="flex-1 bg-slate-100 h-2 rounded-full overflow-hidden">
                           <div
                             className="h-full rounded-full transition-all duration-700"
                             style={{ width: `${pct}%`, backgroundColor: m.color }}
                           ></div>
                         </div>
-                        <span className="w-8 text-right font-mono text-slate-400 text-[10px]">{count}회</span>
+                        <span className="w-7 text-right font-mono text-slate-400 text-[10px]">{count}회</span>
                       </div>
                     );
                   })}
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-stone-50 via-white to-amber-50/40 p-4.5 rounded-2xl border border-amber-200/60 shadow-xs space-y-3">
-                <div className="flex items-center justify-between">
+              <div className="bg-gradient-to-br from-stone-50 via-white to-amber-50/40 p-4 sm:p-4.5 rounded-2xl border border-amber-200/60 shadow-xs space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                   <div className="flex items-center gap-2">
                     <span className="text-base">🌲</span>
                     <div>
@@ -1729,7 +1713,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                   <button
                     onClick={handleGeneratePeriodEssay}
                     disabled={isEssayLoading}
-                    className="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white font-medium text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 disabled:opacity-50"
+                    className="w-full sm:w-auto px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white font-medium text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 shrink-0"
                   >
                     <span>{isEssayLoading ? '집필 중...' : '회고 에세이 집필 ✨'}</span>
                   </button>
@@ -1739,7 +1723,6 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                   <div className="space-y-2 py-3">
                     <div className="h-3 bg-amber-100/60 rounded-full animate-pulse w-full"></div>
                     <div className="h-3 bg-amber-100/60 rounded-full animate-pulse w-5/6"></div>
-                    <div className="h-3 bg-amber-100/60 rounded-full animate-pulse w-4/6"></div>
                   </div>
                 )}
 
@@ -1760,20 +1743,20 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                   filteredHistoryLogs.map((log) => {
                     const m = muscles.find(muscle => muscle.id === log.muscleId);
                     return (
-                      <div key={log.id} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs space-y-2 hover:border-slate-300 transition-all">
+                      <div key={log.id} className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-100 shadow-xs space-y-2 hover:border-slate-300 transition-all">
                         <div className="flex justify-between items-center">
                           <div className="flex items-center gap-2">
                             <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: m?.color }}></span>
                             <span className="text-xs font-bold text-slate-800">{m?.name}</span>
                             {log.ritualTitle && (
-                              <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">
-                                실천: {log.ritualTitle}
+                              <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md truncate max-w-[140px]">
+                                {log.ritualTitle}
                               </span>
                             )}
                           </div>
-                          <span className="text-[10px] text-slate-400 font-mono">{log.date}</span>
+                          <span className="text-[10px] text-slate-400 font-mono shrink-0">{log.date}</span>
                         </div>
-                        <div className="text-xs space-y-1.5 text-slate-700 pt-1">
+                        <div className="text-xs space-y-1.5 text-slate-700 pt-1 leading-relaxed">
                           <p><strong className="text-slate-500">감정:</strong> {log.feeling}</p>
                           <p><strong className="text-slate-700">시도:</strong> {log.action}</p>
                           <p><strong className="text-emerald-700">여운:</strong> {log.shift}</p>
@@ -1789,16 +1772,16 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
       </main>
 
       {/* 📌 하단 릴리즈 푸터 */}
-      <footer className="release-footer pt-2 pb-6 text-center text-slate-400 text-xs flex items-center justify-center gap-2 border-t border-slate-200/60">
+      <footer className="release-footer pt-2 pb-6 text-center text-slate-400 text-xs flex items-center justify-center gap-1.5 sm:gap-2 border-t border-slate-200/60">
         <span>On溫 Mind GYM</span>
-        <span className="font-mono font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md text-[11px]">{CURRENT_VERSION}</span>
+        <span className="font-mono font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md text-[10px] sm:text-[11px]">{CURRENT_VERSION}</span>
         <span>·</span>
         <button
           type="button"
           onClick={() => setIsVersionOpen(true)}
           className="text-indigo-600 hover:text-indigo-800 hover:underline font-medium transition-all"
         >
-          버전 기록 & 패치노트 보기
+          버전 기록 보기
         </button>
       </footer>
 
