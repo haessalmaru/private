@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Icon Generator</title></head>
+<body>
+<canvas id="c" width="512" height="512" style="display:none;"></canvas>
+<script>
+  const c = document.getElementById('c');
+  const ctx = c.getContext('2d');
+
+  // 1. 배경: 깊이 있는 차콜-네이비 그라데이션 + 둥근 사각형
+  const bgGrad = ctx.createLinearGradient(0, 0, 512, 512);
+  bgGrad.addColorStop(0, '#0F172A');
+  bgGrad.addColorStop(1, '#1E293B');
+  ctx.fillStyle = bgGrad;
+  ctx.beginPath();
+  ctx.roundRect(0, 0, 512, 512, 110);
+  ctx.fill();
+
+  // 2. 부드러운 온기 오라 (빛 번짐)
+  const glow = ctx.createRadialGradient(256, 260, 40, 256, 260, 220);
+  glow.addColorStop(0, 'rgba(249, 115, 22, 0.25)');
+  glow.addColorStop(0.6, 'rgba(16, 185, 129, 0.15)');
+  glow.addColorStop(1, 'rgba(15, 23, 42, 0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(256, 260, 220, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 3. 단단한 줄기와 대지 (나무 기둥)
+  ctx.fillStyle = '#80624C';
+  ctx.beginPath();
+  ctx.moveTo(256, 390);
+  ctx.quadraticCurveTo(240, 340, 246, 270);
+  ctx.lineTo(266, 270);
+  ctx.quadraticCurveTo(272, 340, 256, 390);
+  ctx.fill();
+
+  // 대지 언덕
+  ctx.fillStyle = '#C59345';
+  ctx.beginPath();
+  ctx.ellipse(256, 395, 110, 18, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 4. 울창한 에메랄드 상록수 캐노피
+  function drawLeaf(x, y, r, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  drawLeaf(195, 225, 62, '#68A72F');
+  drawLeaf(317, 225, 62, '#68A72F');
+  drawLeaf(205, 165, 58, '#76BA38');
+  drawLeaf(307, 165, 58, '#76BA38');
+  drawLeaf(256, 130, 68, '#84CC16');
+  drawLeaf(256, 205, 75, '#76BA38');
+
+  // 5. 6대 감정 근육의 프리즘 열매들
+  const fruits = [
+    { x: 195, y: 175, r: 18, c: '#F97316' }, // 정서적 온기
+    { x: 317, y: 175, r: 18, c: '#10B981' }, // 타인 수용
+    { x: 256, y: 110, r: 19, c: '#EC4899' }, // 정서적 공명
+    { x: 180, y: 245, r: 17, c: '#8B5CF6' }, // 관대함과 자비
+    { x: 332, y: 245, r: 17, c: '#3B82F6' }, // 취약성의 용기
+    { x: 256, y: 220, r: 20, c: '#F59E0B' }  // 향유와 감사
+  ];
+
+  fruits.forEach(f => {
+    ctx.fillStyle = f.c;
+    ctx.beginPath();
+    ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.stroke();
+    // 하이라이트
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.beginPath();
+    ctx.arc(f.x - f.r*0.35, f.y - f.r*0.35, f.r*0.3, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // 6. 중앙 엠블럼: On (溫) 금빛 뱃지
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+  ctx.strokeStyle = '#F59E0B';
+  ctx.lineWidth = 3.5;
+  ctx.beginPath();
+  ctx.roundRect(146, 320, 220, 68, 34);
+  ctx.fill();
+  ctx.stroke();
+
+  // 텍스트 On 溫
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = 'bold 34px Pretendard, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('On ', 225, 355);
+
+  ctx.fillStyle = '#F97316';
+  ctx.font = 'bold 36px "Noto Sans SC", sans-serif';
+  ctx.fillText('溫', 280, 354);
+
+  // 자동 다운로드 실행
+  c.toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'icon-512.png';
+    a.click();
+    document.body.innerHTML = '<h2 style="font-family:sans-serif;text-align:center;margin-top:40px;">✅ icon-512.png 다운로드 완료! 창을 닫으셔도 됩니다.</h2>';
+  });
+</script>
+</body>
+</html>
