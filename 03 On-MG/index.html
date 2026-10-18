@@ -35,52 +35,43 @@
 <script type="text/babel">
 const { useState, useEffect, useMemo, useRef } = React;
 
-// ==========================================
-// 📌 버전 및 패치노트 데이터 (v1.3.2)
-// ==========================================
-const CURRENT_VERSION = 'v1.3.2';
+const CURRENT_VERSION = 'v1.4.0';
 const VERSION_HISTORY = [
+  {
+    version: 'v1.4.0',
+    date: '2026.10.18',
+    title: 'TCI 검사 프로파일(2026.09.28) 기반 6대 근육 출발선 및 As-Is/To-Be 정밀 동기화',
+    changes: [
+      'TCI 성인용 검사 결과지의 백분위 수치를 반영하여 6대 근육의 객관적 출발선(Baseline) 재구축',
+      '완벽주의 인내력(99%)과 연대감(7%)의 기질적 균형을 회복하기 위한 As-Is 및 To-Be 성찰 카드 문구 전면 개편',
+      '시작 기준일을 공식 TCI 검사일(2026.09.28)로 셋팅 및 시계열 트래커 연동'
+    ]
+  },
   {
     version: 'v1.3.2',
     date: '2026.10.18',
     title: '일기 기록 인라인 수정 및 삭제 기능 탑재',
     changes: [
-      '성장 연대기 탭의 각 일기 카드에 [수정] 및 [삭제] 관리 기능 추가',
-      '테스트용 일기 및 오입력 데이터 삭제 시 로컬과 Firebase 클라우드 동시 동기화',
-      '인라인 폼을 통한 감정, 시도, 여운 텍스트 즉시 수정 및 자동 저장 지원'
-    ]
-  },
-  {
-    version: 'v1.3.0',
-    date: '2026.10.18',
-    title: '완전 자동 클라우드 동기화(Auto-Sync) 엔진 구축',
-    changes: [
-      '수동 버튼 조작 없이 일기 작성 시 Firebase 클라우드 자동 업로드',
-      '앱 기동 시 클라우드 최신 일기 및 근육 스탯 감지 후 기기 간 자동 동기화'
-    ]
-  },
-  {
-    version: 'v1.2.0',
-    date: '2026.10.18',
-    title: '레이더 차트 시계열 트래킹 및 목표 비교 시스템 개편',
-    changes: [
-      '실제 시작일(Baseline)과 최근 성장일(Current) 자동 연동',
-      '레이더 차트 시계열 발전 비교 필터(시작일, 1개월, 분기, 반기) 탑재'
+      '성장 연대기 탭의 각 일기 카드에 [수정] 및 [삭제] 기능 추가',
+      '삭제 및 수정 시 Firebase 클라우드 즉시 자동 동기화'
     ]
   }
 ];
 
+// ==========================================
+// 📌 TCI 2026.09.28 검사 결과 반영 6대 마음 근육 데이터
+// ==========================================
 const INITIAL_MUSCLES = [
   {
     id: 'warmth',
     name: '정서적 온기',
     english: 'Emotional Warmth',
     color: '#F97316',
-    source: '기질 성격 검사(TCI) 사회적 민감성 & 게슈탈트 접촉 이론',
-    asIs: '논리적인 사실과 결론 위주로 대화하며, 마음의 온도를 드러내는 것을 어색해함.',
-    toBe: '판단하기 전에 따뜻한 눈맞춤과 다정한 말투로 내 마음의 온도를 먼저 건넴.',
+    source: 'TCI 사회적 민감성(RD 백분위 34%) & 게슈탈트 접촉 이론',
+    asIs: '논리적인 사실과 결론 위주로 대화하며, 마음의 온도를 표현하기보다 용건에 집중함.',
+    toBe: '판단과 지적에 앞서 따뜻한 눈맞춤과 다정한 말투로 내면의 온도를 먼저 건넴.',
     coachingQuestion: '오늘 누군가에게 이성적 조언 대신 따뜻한 표정과 다정한 한마디를 먼저 건네보았나요?',
-    baseline: 40,
+    baseline: 34,
     current: 65
   },
   {
@@ -88,11 +79,11 @@ const INITIAL_MUSCLES = [
     name: '타인 수용',
     english: 'Social Acceptance',
     color: '#10B981',
-    source: '기질 성격 검사(TCI) 연대감 & 칼 로저스의 무조건적 긍정적 존중',
-    asIs: '내 기준(효율, 논리, 속도)에 미치지 못하는 타인의 모습에 쉽게 답답함을 느낌.',
-    toBe: '타인의 서투름과 다른 속도를 "그럴 수 있다"며 너른 품으로 인정해 줌.',
+    source: 'TCI 연대감-타인수용(CO1 저조) & 칼 로저스의 무조건적 긍정 존중',
+    asIs: '나의 높은 기준(완벽, 속도, 논리)에 미치지 못하는 타인의 모습에 쉽게 답답함을 느낌.',
+    toBe: '타인의 서투름과 나와 다른 고유한 템포를 "그럴 수 있다"며 너른 품으로 인정해 줌.',
     coachingQuestion: '내 생각과 다른 상대의 모습 앞에서 판단을 멈추고 잠시 머물러주었나요?',
-    baseline: 35,
+    baseline: 20,
     current: 60
   },
   {
@@ -100,11 +91,11 @@ const INITIAL_MUSCLES = [
     name: '정서적 공명',
     english: 'Empathetic Resonance',
     color: '#EC4899',
-    source: '기질 성격 검사(TCI) 연대감 & 코액티브 코칭 맥락 경청',
-    asIs: '상대가 감정을 꺼낼 때 즉시 해결책과 조언을 제시하며 감정을 지나침.',
-    toBe: '조언을 멈추고 상대의 처지가 되어 기쁨과 아픔의 무게를 함께 느껴줌.',
+    source: 'TCI 연대감-공감(CO2 저조) & 코액티브 코칭 맥락 경청(Level 3)',
+    asIs: '상대가 고민이나 감정을 꺼낼 때, 즉시 분석하고 해결책(Solution)부터 제시함.',
+    toBe: '조언을 멈추고 상대의 처지가 되어 기쁨과 아픔의 무게를 온전히 느껴줌.',
     coachingQuestion: '해결책을 말하고 싶은 마음을 가라앉히고 상대의 감정 단어를 거울처럼 되짚어주었나요?',
-    baseline: 50,
+    baseline: 25,
     current: 75
   },
   {
@@ -112,11 +103,11 @@ const INITIAL_MUSCLES = [
     name: '관대함과 자비',
     english: 'Compassion & Grace',
     color: '#8B5CF6',
-    source: '기질 성격 검사(TCI) 연대감 & 자비중심치료(CFT)',
-    asIs: '나와 타인의 사소한 실수에 시시비비를 가리고 엄격하게 대함.',
-    toBe: '불완전함을 자연스럽게 받아들이고, 실수 앞에서도 넉넉한 너그러움을 지님.',
+    source: 'TCI 연대감-관대함(CO4 저조) & 인내력 완벽주의(PS4 99%) 상쇄',
+    asIs: '작은 실수나 빈틈 앞에서 시시비비를 가리고 나 자신과 타인에게 엄격하게 잣대를 댐.',
+    toBe: '불완전함을 삶의 자연스러운 결로 수용하며, 서툰 실수 앞에서도 넉넉한 미소를 건넴.',
     coachingQuestion: '서툰 실수 앞에서 시시비비를 따지기보다 너그러운 미소를 건넸나요?',
-    baseline: 30,
+    baseline: 15,
     current: 60
   },
   {
@@ -124,11 +115,11 @@ const INITIAL_MUSCLES = [
     name: '취약성의 용기',
     english: 'Vulnerability & Courage',
     color: '#3B82F6',
-    source: '기질 성격 검사(TCI) 사회적 민감성 & 브레네 브라운 취약성의 힘',
-    asIs: '완벽한 모습만 보여주려 하며, 서운함이나 약한 감정을 혼자 삭임.',
-    toBe: '서운함이나 아쉬움, 도움이 필요한 마음을 솔직하고 담백하게 표현함.',
+    source: 'TCI 인내력(완벽주의 방패 99%) & 브레네 브라운 취약성의 힘',
+    asIs: '빈틈없는 완벽한 모습만 보이려 하며, 서운함이나 약한 감정, 도움 요청을 혼자 삭임.',
+    toBe: '단단한 방패를 내려놓고, 내 안의 부드럽고 솔직한 속마음과 한계를 담백하게 털어놓음.',
     coachingQuestion: '단단한 가면을 내려놓고, 내 안의 부드럽고 솔직한 속마음을 표현해보았나요?',
-    baseline: 25,
+    baseline: 20,
     current: 50
   },
   {
@@ -136,11 +127,11 @@ const INITIAL_MUSCLES = [
     name: '향유와 감사',
     english: 'Savoring & Gratitude',
     color: '#F59E0B',
-    source: '긍정심리학 & 프레드 브라이언트 향유(Savoring) 심리학',
-    asIs: '성취 직후 곧바로 다음 목표로 넘어가며 현재의 기쁨을 온전히 누리지 못함.',
-    toBe: '스쳐 지나가는 사소한 호의와 평온한 순간을 깊이 음미하고 감사함.',
+    source: 'TCI 자기초월(ST 백분위 12%) & 프레드 브라이언트 향유(Savoring) 심리학',
+    asIs: '목표 달성 직후 곧바로 다음 과업으로 넘어가며, 현재의 성취와 일상의 은혜를 지나침.',
+    toBe: '스쳐 지나가는 사소한 호의와 평온한 순간에 멈추어 깊이 음미하고 진심으로 감사함.',
     coachingQuestion: '오늘 무심히 스쳐 갈 뻔했던 작은 기쁨이나 평온함을 온전히 만끽했나요?',
-    baseline: 60,
+    baseline: 25,
     current: 85
   }
 ];
@@ -188,9 +179,7 @@ const INITIAL_RESOURCES = [
   }
 ];
 
-// ==========================================
-// ☁️ Firebase Firestore REST API 헬퍼 함수
-// ==========================================
+// Firebase Firestore REST API 헬퍼 함수
 function parseFirebaseConfig(rawConfigStr) {
   if (!rawConfigStr || !rawConfigStr.trim()) return null;
   const str = rawConfigStr;
@@ -259,16 +248,10 @@ async function fetchFromFirestore(cfg) {
   return null;
 }
 
-// ==========================================
-// 1. 레이더 차트 컴포넌트
-// ==========================================
+// 1. 레이더 차트
 function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle, startDate, lastActiveDate }) {
   const [timeframe, setTimeframe] = useState('start');
-  
-  const size = 290;
-  const center = size / 2;
-  const radius = 100;
-  const totalPoints = muscles.length;
+  const size = 290, center = size / 2, radius = 100, totalPoints = muscles.length;
 
   const getReferenceValue = (m) => {
     if (timeframe === 'start') return m.baseline;
@@ -281,10 +264,7 @@ function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle, startDate,
   const getCoordinates = (index, value) => {
     const angle = (Math.PI * 2 / totalPoints) * index - Math.PI / 2;
     const r = (value / 100) * radius;
-    return {
-      x: center + r * Math.cos(angle),
-      y: center + r * Math.sin(angle)
-    };
+    return { x: center + r * Math.cos(angle), y: center + r * Math.sin(angle) };
   };
 
   const levels = [20, 40, 60, 80, 100];
@@ -309,7 +289,7 @@ function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle, startDate,
           <div className="flex items-center gap-2.5 text-[11px]">
             <span className="flex items-center gap-1 text-slate-500 font-mono">
               <span className="w-2.5 h-0.5 bg-slate-400 inline-block border-b border-dashed border-slate-500"></span>
-              {timeframe === 'start' ? `시작(${startDate})` : '비교 기준'}
+              {timeframe === 'start' ? `TCI(${startDate})` : '비교 기준'}
             </span>
             <span className="flex items-center gap-1 text-blue-700 font-bold font-mono">
               <span className="w-2.5 h-2 bg-blue-500/20 border border-blue-600 inline-block rounded-xs"></span>
@@ -322,7 +302,7 @@ function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle, startDate,
           <span className="text-slate-400 pl-1 font-semibold">비교 기준:</span>
           <div className="flex gap-1">
             {[
-              { id: 'start', label: '시작일 대비' },
+              { id: 'start', label: 'TCI 출발선' },
               { id: '1m', label: '1개월 전' },
               { id: '3m', label: '분기(3개월)' },
               { id: '6m', label: '반기(6개월)' }
@@ -408,13 +388,13 @@ function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle, startDate,
         })}
       </svg>
       <div className="text-[10px] sm:text-[11px] text-slate-400 text-center mt-1">
-        근육 꼭짓점을 누르면 상세한 성찰 카드를 확인하실 수 있습니다.
+        근육 꼭짓점을 누르면 TCI 출발선과 성찰 카드를 확인하실 수 있습니다.
       </div>
     </div>
   );
 }
 
-// 2. 마음 과실수 컴포넌트
+// 2. 마음 과실수
 function PrismFruitTree({ muscles, totalLogsCount }) {
   const growthStage = useMemo(() => {
     if (totalLogsCount < 3) return { stage: 1, name: '뿌리내리는 묘목', desc: '대지에 든든한 온기의 뿌리를 내리는 중' };
@@ -657,7 +637,7 @@ function MuscleDetailModal({ muscle, isOpen, onClose, onSave }) {
           </div>
 
           <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200/70">
-            <label className="font-semibold text-slate-500 block mb-0.5 text-[11px]">학술 및 심리학적 배경</label>
+            <label className="font-semibold text-slate-500 block mb-0.5 text-[11px]">학술 및 TCI 심리학적 배경</label>
             <textarea name="source" value={formData.source} onChange={handleChange} rows="2" className="w-full p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 text-[11px]" />
           </div>
 
@@ -676,6 +656,11 @@ function MuscleDetailModal({ muscle, isOpen, onClose, onSave }) {
                 onChange={handleChange}
                 className="w-full accent-slate-500"
               />
+              <div className="flex justify-between text-[9px] text-slate-400">
+                <span>0점 (매우 낮음)</span>
+                <span>50점 (보통)</span>
+                <span>100점 (매우 높음)</span>
+              </div>
             </div>
 
             <div className="border-t border-slate-200 pt-2">
@@ -839,7 +824,7 @@ function SettingsModal({
           <div className="flex items-center justify-between">
             <span className="font-bold text-blue-950 flex items-center gap-1.5">
               <span>📅</span>
-              <span>시작 기준일 설정</span>
+              <span>TCI 검사 기준일 설정</span>
             </span>
           </div>
           <div className="flex gap-1.5 pt-1">
@@ -847,7 +832,7 @@ function SettingsModal({
               type="text"
               value={localStartDate}
               onChange={(e) => setLocalStartDate(e.target.value)}
-              placeholder="예: 2026.10.18"
+              placeholder="예: 2026.09.28"
               className="flex-1 p-2 rounded-xl border border-blue-200 bg-white font-mono text-[11px] text-slate-800"
             />
             <button
@@ -1095,9 +1080,7 @@ function VersionModal({ isOpen, onClose }) {
   );
 }
 
-// ==========================================
 // 8. 메인 App 컴포넌트
-// ==========================================
 function App() {
   const [activeTab, setActiveTab] = useState('record');
   const [muscles, setMuscles] = useState(INITIAL_MUSCLES);
@@ -1109,8 +1092,8 @@ function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isVersionOpen, setIsVersionOpen] = useState(false);
 
-  // 시계열 트래킹 상태
-  const [startDate, setStartDate] = useState('2026.10.18');
+  // 시계열 트래킹 상태 (TCI 검사일자 2026.09.28로 초기화)
+  const [startDate, setStartDate] = useState('2026.09.28');
   const [lastActiveDate, setLastActiveDate] = useState('10.18');
 
   // Firebase 설정 및 실시간 동기화 상태
@@ -1146,9 +1129,9 @@ function App() {
       date: '2026. 10. 18.',
       timestamp: Date.now() - 3600000 * 2,
       muscleId: 'acceptance',
-      feeling: '인정하기',
-      action: '그럴 수 있지',
-      shift: '한껏 풍성해짐을 느낌',
+      feeling: '나와 다른 연구원의 작업 속도에 답답함을 느낌',
+      action: '지적을 멈추고 "그럴 수 있지, 각자의 페이스가 있으니까"라고 속으로 인정함',
+      shift: '조급했던 마음이 한결 편안해지고 시야가 넓어짐',
       ritualTitle: null
     },
     {
@@ -1156,9 +1139,9 @@ function App() {
       date: '2026. 10. 18.',
       timestamp: Date.now() - 3600000 * 4,
       muscleId: 'savoring',
-      feeling: '감사합니다 하는 마음에서 우러나오는 표현 직접 하기',
-      action: '감사합니다. 감사합니다.',
-      shift: '감사함이 나에게 되돌아 오는 느낌.',
+      feeling: '팀원의 작은 배려에 마음 깊은 고마움이 스침',
+      action: '형식적인 목례 대신 "덕분에 오늘 회의가 참 든든했습니다"라고 직접 표현함',
+      shift: '감사함이 메아리처럼 나에게 되돌아와 마음이 훈훈해짐',
       ritualTitle: null
     },
     {
@@ -1166,21 +1149,21 @@ function App() {
       date: '2026. 10. 18.',
       timestamp: Date.now() - 3600000 * 8,
       muscleId: 'warmth',
-      feeling: '회의 중 후배 연구원의 실수를 지적하려다 문득 마음의 경직을 느꼈다.',
-      action: '평소처럼 문제점부터 짚기 전에, 먼저 "많이 고민하고 준비했네"라며 따뜻한 눈빛을 건넸다.',
-      shift: '방어적이던 상대의 표정이 편안해지며 훨씬 진솔하고 창의적인 대화가 이어졌다.',
+      feeling: '후배 연구원의 서툰 보고서를 보며 문제점부터 짚으려다 멈춤',
+      action: '평소의 날카로운 분석을 미루고 먼저 따뜻한 눈맞춤과 다정한 안부를 건넴',
+      shift: '상대의 굳어있던 표정이 풀리며 진솔하고 창의적인 대화로 이어짐',
       ritualTitle: '따뜻한 눈맞춤과 다정한 안부'
     }
   ]);
 
   // 로컬 로드 & 클라우드 Auto-Pull
   useEffect(() => {
-    const savedMuscles = localStorage.getItem('on_mindgym_muscles_v16');
-    const savedLogs = localStorage.getItem('on_mindgym_logs_v16');
-    const savedResources = localStorage.getItem('on_mindgym_resources_v16');
-    const savedAlarm = localStorage.getItem('on_mindgym_alarm_v16');
-    const savedStartDate = localStorage.getItem('on_mindgym_startdate_v16');
-    const savedLastActive = localStorage.getItem('on_mindgym_lastactive_v16');
+    const savedMuscles = localStorage.getItem('on_mindgym_muscles_v17');
+    const savedLogs = localStorage.getItem('on_mindgym_logs_v17');
+    const savedResources = localStorage.getItem('on_mindgym_resources_v17');
+    const savedAlarm = localStorage.getItem('on_mindgym_alarm_v17');
+    const savedStartDate = localStorage.getItem('on_mindgym_startdate_v17');
+    const savedLastActive = localStorage.getItem('on_mindgym_lastactive_v17');
     
     if (savedMuscles) setMuscles(JSON.parse(savedMuscles));
     if (savedLogs) setLogs(JSON.parse(savedLogs));
@@ -1203,7 +1186,6 @@ function App() {
     }
   }, [firebaseConfigStr]);
 
-  // 클라우드 백그라운드 자동 저장 (Auto-Push)
   const triggerAutoSaveCloud = async (newMuscles, newLogs, newResources, sDate) => {
     const cfg = parseFirebaseConfig(firebaseConfigStr);
     if (!cfg) return;
@@ -1219,16 +1201,16 @@ function App() {
     setCloudSyncState(res.ok ? 'synced' : 'error');
   };
 
-  // 🗑️ 일기 삭제 핸들러 (로컬 + 클라우드 즉시 반영)
+  // 일기 삭제 핸들러
   const handleDeleteLog = (logId) => {
     if (!confirm('이 일기 기록을 삭제하시겠습니까?')) return;
     const filtered = logs.filter(l => l.id !== logId);
     setLogs(filtered);
-    localStorage.setItem('on_mindgym_logs_v16', JSON.stringify(filtered));
+    localStorage.setItem('on_mindgym_logs_v17', JSON.stringify(filtered));
     triggerAutoSaveCloud(muscles, filtered, resources, startDate);
   };
 
-  // ✏️ 일기 수정 핸들러
+  // 일기 수정 핸들러
   const handleStartEdit = (log) => {
     setEditingLogId(log.id);
     setEditForm({
@@ -1241,7 +1223,7 @@ function App() {
   const handleSaveEdit = (logId) => {
     const updatedLogs = logs.map(l => l.id === logId ? { ...l, ...editForm } : l);
     setLogs(updatedLogs);
-    localStorage.setItem('on_mindgym_logs_v16', JSON.stringify(updatedLogs));
+    localStorage.setItem('on_mindgym_logs_v17', JSON.stringify(updatedLogs));
     setEditingLogId(null);
     triggerAutoSaveCloud(muscles, updatedLogs, resources, startDate);
   };
@@ -1299,7 +1281,7 @@ function App() {
 
   const handleSaveAlarmSettings = (newSettings) => {
     setAlarmSettings(newSettings);
-    localStorage.setItem('on_mindgym_alarm_v16', JSON.stringify(newSettings));
+    localStorage.setItem('on_mindgym_alarm_v17', JSON.stringify(newSettings));
     if (newSettings.enabled && 'Notification' in window && Notification.permission !== 'granted') {
       Notification.requestPermission();
     }
@@ -1327,18 +1309,18 @@ function App() {
 
   const handleUpdateStartDate = (newDate) => {
     setStartDate(newDate);
-    localStorage.setItem('on_mindgym_startdate_v16', newDate);
+    localStorage.setItem('on_mindgym_startdate_v17', newDate);
     triggerAutoSaveCloud(muscles, logs, resources, newDate);
   };
 
   const handleSaveMuscle = (updatedMuscle) => {
     const updated = muscles.map(m => m.id === updatedMuscle.id ? updatedMuscle : m);
     setMuscles(updated);
-    localStorage.setItem('on_mindgym_muscles_v16', JSON.stringify(updated));
+    localStorage.setItem('on_mindgym_muscles_v17', JSON.stringify(updated));
     
     const todayFormatted = `${new Date().getMonth() + 1}.${new Date().getDate()}`;
     setLastActiveDate(todayFormatted);
-    localStorage.setItem('on_mindgym_lastactive_v16', todayFormatted);
+    localStorage.setItem('on_mindgym_lastactive_v17', todayFormatted);
 
     triggerAutoSaveCloud(updated, logs, resources, startDate);
   };
@@ -1346,16 +1328,16 @@ function App() {
   const handleAddResource = (newRes) => {
     const updated = [newRes, ...resources];
     setResources(updated);
-    localStorage.setItem('on_mindgym_resources_v16', JSON.stringify(updated));
+    localStorage.setItem('on_mindgym_resources_v17', JSON.stringify(updated));
     alert('새로운 루틴/학습 자료가 저장되었습니다.');
     triggerAutoSaveCloud(muscles, logs, updated, startDate);
   };
 
   const handleRestoreData = (data) => {
-    if (data.muscles) { setMuscles(data.muscles); localStorage.setItem('on_mindgym_muscles_v16', JSON.stringify(data.muscles)); }
-    if (data.logs) { setLogs(data.logs); localStorage.setItem('on_mindgym_logs_v16', JSON.stringify(data.logs)); }
-    if (data.resources) { setResources(data.resources); localStorage.setItem('on_mindgym_resources_v16', JSON.stringify(data.resources)); }
-    if (data.startDate) { setStartDate(data.startDate); localStorage.setItem('on_mindgym_startdate_v16', data.startDate); }
+    if (data.muscles) { setMuscles(data.muscles); localStorage.setItem('on_mindgym_muscles_v17', JSON.stringify(data.muscles)); }
+    if (data.logs) { setLogs(data.logs); localStorage.setItem('on_mindgym_logs_v17', JSON.stringify(data.logs)); }
+    if (data.resources) { setResources(data.resources); localStorage.setItem('on_mindgym_resources_v17', JSON.stringify(data.resources)); }
+    if (data.startDate) { setStartDate(data.startDate); localStorage.setItem('on_mindgym_startdate_v17', data.startDate); }
   };
 
   const generateContextualFeedback = (currentLog, targetMuscle) => {
@@ -1364,7 +1346,7 @@ function App() {
     const action = currentLog.action.trim();
     const shift = currentLog.shift.trim();
 
-    return `오늘 하루 '${feeling}'이라는 내면의 신호를 놓치지 않고 마주하신 그 알아차림 자체가 이미 큰 성장입니다. 특히 평소의 자동적 반응을 멈추고 "${action}"라는 새로운 시도를 건네신 덕분에, 내 안에서 "${shift}"라는 귀한 울림이 피어났네요.\n\n${muscleName} 근육은 이렇게 일상의 작은 틈에서 의식적으로 선택할 때 비로소 단단해집니다. 오늘 뿌린 씨앗이 내면의 숲을 한층 더 풍요롭게 만들었습니다.\n\n🌱 코칭 질문: "오늘 느낀 '${shift}'의 여운을 기억하며, 다음번에 비슷한 순간이 찾아왔을 때 나 자신에게 가장 먼저 들려주고 싶은 한마디는 무엇인가요?"`;
+    return `오늘 하루 '${feeling}'이라는 내면의 신호를 놓치지 않고 마주하신 그 알아차림 자체가 이미 큰 성장입니다. 특히 높은 완벽주의와 이성적 판단을 잠시 내려놓고 "${action}"라는 새로운 시도를 건네신 덕분에, 내 안에서 "${shift}"라는 귀한 울림이 피어났네요.\n\n${muscleName} 근육은 이렇게 일상의 작은 틈에서 의식적으로 선택할 때 비로소 단단해집니다. 오늘 뿌린 씨앗이 내면의 숲을 한층 더 풍요롭게 만들었습니다.\n\n🌱 코칭 질문: "오늘 느낀 '${shift}'의 여운을 기억하며, 다음번에 비슷한 순간이 찾아왔을 때 나 자신에게 가장 먼저 들려주고 싶은 한마디는 무엇인가요?"`;
   };
 
   const handleRequestAiCoaching = async (currentLog) => {
@@ -1441,11 +1423,11 @@ function App() {
 
     const newLogs = [newLog, ...logs];
     setLogs(newLogs);
-    localStorage.setItem('on_mindgym_logs_v16', JSON.stringify(newLogs));
+    localStorage.setItem('on_mindgym_logs_v17', JSON.stringify(newLogs));
 
     const todayFormatted = `${new Date().getMonth() + 1}.${new Date().getDate()}`;
     setLastActiveDate(todayFormatted);
-    localStorage.setItem('on_mindgym_lastactive_v16', todayFormatted);
+    localStorage.setItem('on_mindgym_lastactive_v17', todayFormatted);
 
     const updatedMuscles = muscles.map(m => {
       if (m.id === selectedMuscleForLog) {
@@ -1454,7 +1436,7 @@ function App() {
       return m;
     });
     setMuscles(updatedMuscles);
-    localStorage.setItem('on_mindgym_muscles_v16', JSON.stringify(updatedMuscles));
+    localStorage.setItem('on_mindgym_muscles_v17', JSON.stringify(updatedMuscles));
 
     triggerAutoSaveCloud(updatedMuscles, newLogs, resources, startDate);
     handleRequestAiCoaching(newLog);
@@ -1536,7 +1518,7 @@ ${logSummaries}
 에세이 작성 지침:
 1. 제목: 서정적 제목 (예: "냉정의 강을 건너 온기의 바다로 나아가는 시간")
 2. 본문 서사:
-   - 기질적인 이성과 결론 중심에서 벗어나, 타인을 수용하고 온기를 건넨 내담자의 발자국들을 따뜻하게 조명
+   - 기질적인 완벽주의(PS 99%)와 이성 중심에서 벗어나, 타인을 수용하고 온기를 건넨 내담자의 발자국들을 따뜻하게 조명
    - 내담자가 기록한 실제 표현 인용
 3. 마무리: 인생오후 상록수를 격려하며 다정한 코칭적 축복으로 마무리
 4. 문체: 품격 있는 에세이 문체 (~했습니다, ~합니다).
@@ -1575,7 +1557,7 @@ ${logSummaries}
 
 ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서, 내면의 나침반은 뚜렷하게 **[${topName}]**을 향하고 있었습니다.
 
-익숙했던 자동적 비판과 거리두기를 멈추고 "${sampleAction}"라며 한 걸음 다가섰을 때, 그 작은 틈에서 피어난 것은 "${sampleShift}"라는 아름다운 여운이었습니다. 내가 먼저 취약해지고, 상대의 서투름을 "그럴 수 있다"고 품어줄 때, 얼어붙었던 관계의 지층 아래로 따뜻한 봄물이 흐르기 시작했습니다.
+익숙했던 완벽주의적 비판과 거리두기를 멈추고 "${sampleAction}"라며 한 걸음 다가섰을 때, 그 작은 틈에서 피어난 것은 "${sampleShift}"라는 아름다운 여운이었습니다. 내가 먼저 취약해지고, 상대의 서투름을 "그럴 수 있다"고 품어줄 때, 얼어붙었던 관계의 지층 아래로 따뜻한 봄물이 흐르기 시작했습니다.
 
 인생오후의 성숙은 더 많은 것을 쥐는 것이 아니라, 내 안의 굳은 방패를 내려놓고 다채로운 감정의 결을 온전히 누리는 데 있습니다. 오늘 대지에 내린 온기의 뿌리는 내일 더 많은 이들에게 넉넉한 그늘을 드리우는 큰 상록수가 되어줄 것입니다.
       `.trim();
@@ -1830,8 +1812,8 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
           {activeTab === 'handbook' && (
             <div className="space-y-2.5">
               <div className="p-3 bg-stone-100/70 border border-stone-200/60 rounded-2xl text-xs text-stone-700">
-                <span className="font-bold">🌿 6대 마음 근육:</span>
-                <p className="mt-0.5 text-stone-600 leading-relaxed">카드를 탭하면 나의 출발선(Baseline)과 현재 체감도를 보정할 수 있습니다.</p>
+                <span className="font-bold">🌿 6대 마음 근육 (2026.09.28 TCI 검사 반영):</span>
+                <p className="mt-0.5 text-stone-600 leading-relaxed">카드를 탭하면 나의 TCI 출발선(Baseline)과 As-Is / To-Be의 의미를 확인할 수 있습니다.</p>
               </div>
 
               {muscles.map((m) => (
@@ -1850,7 +1832,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                       <span className="text-[10px] text-slate-400 font-mono">({m.english})</span>
                     </div>
                     <div className="flex items-center gap-2 font-mono text-xs">
-                      <span className="text-slate-400 text-[11px]">시작 {m.baseline}점</span>
+                      <span className="text-slate-400 text-[11px]">TCI 출발 {m.baseline}점</span>
                       <span className="text-slate-300">→</span>
                       <span className="font-bold text-blue-700">{m.current}점</span>
                     </div>
@@ -1968,7 +1950,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                           onClick={() => {
                             const updated = resources.map(item => item.id === r.id ? { ...item, completedCount: item.completedCount + 1 } : item);
                             setResources(updated);
-                            localStorage.setItem('on_mindgym_resources_v16', JSON.stringify(updated));
+                            localStorage.setItem('on_mindgym_resources_v17', JSON.stringify(updated));
                             alert(`🌿 [${r.title}] 실천을 완료했습니다.`);
                             triggerAutoSaveCloud(muscles, logs, updated, startDate);
                           }}
@@ -1984,7 +1966,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
             </div>
           )}
 
-          {/* TAB 4: 나의 성장 연대기 (일기 인라인 수정 및 삭제 탑재) */}
+          {/* TAB 4: 나의 성장 연대기 */}
           {activeTab === 'history' && (
             <div className="space-y-3.5">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -2076,7 +2058,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                 )}
               </div>
 
-              {/* 기록된 일기 목록 (인라인 수정 및 삭제 제공) */}
+              {/* 기록된 일기 목록 (인라인 수정 및 삭제) */}
               <div className="space-y-2 pt-1">
                 <h4 className="text-xs font-bold text-slate-700">기록된 마음 챙김 일기 ({filteredHistoryLogs.length}개)</h4>
                 {filteredHistoryLogs.length === 0 ? (
@@ -2102,7 +2084,6 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                             <span className="text-[10px] text-slate-400 font-mono ml-1">{log.date}</span>
                           </div>
 
-                          {/* 수정 / 삭제 버튼 */}
                           <div className="flex items-center gap-1 text-[11px]">
                             {isEditing ? (
                               <>
@@ -2138,7 +2119,6 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                           </div>
                         </div>
 
-                        {/* 인라인 수정 폼 or 내용 읽기 모드 */}
                         {isEditing ? (
                           <div className="space-y-1.5 pt-1 text-xs">
                             <div>
