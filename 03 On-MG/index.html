@@ -478,9 +478,9 @@ function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle, startDate,
           );
         })}
 
-        {muscles.map((m, i) => {
+       {muscles.map((m, i) => {
           const angle = (Math.PI * 2 / totalPoints) * i - Math.PI / 2;
-          const labelDist = radius + 20;
+          const labelDist = radius + 22;
           const lx = center + labelDist * Math.cos(angle);
           const ly = center + labelDist * Math.sin(angle);
           const isSelected = activeMuscleId === m.id;
@@ -489,16 +489,24 @@ function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle, startDate,
             <g key={m.id} className="cursor-pointer" onClick={() => onSelectMuscle(m.id)}>
               <text
                 x={lx}
-                y={ly}
+                y={ly - 4}
                 textAnchor="middle"
                 dominantBaseline="central"
-                className={`text-[11px] font-medium transition-all ${
-                  isSelected ? 'fill-blue-600 font-bold scale-105' : 'fill-slate-600 hover:fill-slate-900'
+                className={`text-[11px] transition-colors duration-150 select-none ${
+                  isSelected ? 'fill-blue-600 font-extrabold' : 'fill-slate-700 font-semibold hover:fill-slate-900'
                 }`}
               >
                 {m.name}
               </text>
-              <text x={lx} y={ly + 11} textAnchor="middle" dominantBaseline="central" className="text-[9px] fill-slate-400 font-mono">
+              <text 
+                x={lx} 
+                y={ly + 10} 
+                textAnchor="middle" 
+                dominantBaseline="central" 
+                className={`text-[10px] font-mono select-none ${
+                  isSelected ? 'fill-blue-500 font-bold' : 'fill-slate-400 font-medium'
+                }`}
+              >
                 {m.current}점
               </text>
             </g>
