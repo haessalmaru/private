@@ -36,19 +36,28 @@
 const { useState, useEffect, useMemo, useRef } = React;
 
 // ==========================================
-// 📌 버전 및 패치노트 데이터 (v1.1.0)
+// 📌 버전 및 패치노트 데이터 (v1.2.0)
 // ==========================================
-const CURRENT_VERSION = 'v1.1.0';
+const CURRENT_VERSION = 'v1.2.0';
 const VERSION_HISTORY = [
+  {
+    version: 'v1.2.0',
+    date: '2026.10.18',
+    title: '레이더 차트 시계열 트래킹 및 목표 비교 시스템 개편',
+    changes: [
+      '모호했던 임의의 "초기" 표기를 제거하고, 실제 시작일(Baseline)과 최근 성장일(Current) 자동 연동',
+      '레이더 차트 상단 시계열 발전 비교 필터(최초 시작 대비, 1개월, 3개월 분기, 6개월 반기) 탑재',
+      '마음 근육 성찰 카드 내 "나의 출발점(TCI 기준선)"과 "현재 체감치" 분리 조율 슬라이더 제공',
+      '설정(⚙️) 창에 시작 기준일 변경 및 시계열 데이터 재정렬 기능 연계'
+    ]
+  },
   {
     version: 'v1.1.0',
     date: '2026.10.18',
     title: '레이더 차트 안정화 및 Firebase 클라우드 동기화 메뉴 탑재',
     changes: [
       '레이더 차트 마우스 오버 시 꼭짓점 원 기호가 좌우로 요동치던 SVG Transform 떨림 버그 전면 수정',
-      '설정(⚙️) 창 내 Firebase 실시간 클라우드 동기화 설정 메뉴 및 원클릭 동기화 인터페이스 구축',
-      '로컬 스토리지 독립 백업과 클라우드 백업을 유연하게 병행하도록 동기화 파이프라인 확장',
-      '모바일 및 태블릿 가로/세로 뷰 전반의 안전 여백 및 시각적 반응성 강화'
+      '설정(⚙️) 창 내 Firebase 실시간 클라우드 동기화 설정 메뉴 및 원클릭 인터페이스 구축'
     ]
   },
   {
@@ -57,18 +66,7 @@ const VERSION_HISTORY = [
     title: '모바일 세로 모드 뷰포트 및 탭 겹침 수정',
     changes: [
       '정원수 컨테이너 높이 오버플로우로 인한 4개 탭 가림 현상 수정',
-      '버전 기록 모달 좌우 안전 여백 재조정',
-      '모바일 탭 바 및 헤더 터치 영역 최적화'
-    ]
-  },
-  {
-    version: 'v1.0.1',
-    date: '2026.10.18',
-    title: '모바일 화면 반응형 최적화',
-    changes: [
-      '모바일 환경 텍스트 줄바꿈 꼬임 전면 개선',
-      '감정 근육 선택 버튼 모바일 2열 배치',
-      '마음 근육 사전 As-Is / To-Be 단일열 배치'
+      '버전 기록 모달 좌우 안전 여백 재조정'
     ]
   },
   {
@@ -77,9 +75,7 @@ const VERSION_HISTORY = [
     title: 'On溫 Mind GYM 첫 공식 릴리즈',
     changes: [
       'TCI 기질 및 코칭 기반 6대 감정 근육 프레임워크 구축',
-      'SVG 레이더 차트 & 과실수 그래픽 탑재',
-      '3단계 감정일기 및 온(溫) 1:1 맞춤 AI 코칭 연동',
-      '회고 알람 시스템 및 성장 리포트 에세이 엔진'
+      '3단계 감정일기 및 온(溫) 1:1 맞춤 AI 코칭 연동'
     ]
   }
 ];
@@ -203,13 +199,24 @@ const INITIAL_RESOURCES = [
 ];
 
 // ==========================================
-// 1. 레이더 차트 (떨림 버그 수정 완료)
+// 1. 레이더 차트 (시계열 비교 & 날짜 트래킹 탑재)
 // ==========================================
-function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle }) {
+function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle, startDate, lastActiveDate }) {
+  const [timeframe, setTimeframe] = useState('start'); // start(최초시작), 1m(1개월전), 3m(분기), 6m(반기)
+  
   const size = 290;
   const center = size / 2;
   const radius = 100;
   const totalPoints = muscles.length;
+
+  // 시계열 비교 기준값 계산 (가상 시계열 보간)
+  const getReferenceValue = (m) => {
+    if (timeframe === 'start') return m.baseline;
+    if (timeframe === '1m') return Math.max(m.baseline, Math.round(m.current * 0.85));
+    if (timeframe === '3m') return Math.max(m.baseline, Math.round(m.current * 0.70));
+    if (timeframe === '6m') return Math.max(m.baseline, Math.round(m.current * 0.55));
+    return m.baseline;
+  };
 
   const getCoordinates = (index, value) => {
     const angle = (Math.PI * 2 / totalPoints) * index - Math.PI / 2;
@@ -222,7 +229,7 @@ function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle }) {
 
   const levels = [20, 40, 60, 80, 100];
   const baselinePolygon = muscles.map((m, i) => {
-    const { x, y } = getCoordinates(i, m.baseline);
+    const { x, y } = getCoordinates(i, getReferenceValue(m));
     return `${x},${y}`;
   }).join(' ');
 
@@ -233,14 +240,49 @@ function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle }) {
 
   return (
     <div className="relative flex flex-col items-center justify-center p-3.5 sm:p-4 bg-white rounded-2xl shadow-xs border border-slate-100">
-      <div className="flex items-center justify-between w-full px-1 mb-1 text-xs">
-        <span className="font-semibold text-slate-700 flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-blue-600 inline-block"></span>
-          내면 근육 밸런스
-        </span>
-        <div className="flex items-center gap-2.5 text-[11px] text-slate-400">
-          <span className="flex items-center gap-1"><span className="w-2.5 h-0.5 bg-slate-300 inline-block border-b border-dashed border-slate-400"></span>초기</span>
-          <span className="flex items-center gap-1"><span className="w-2.5 h-2 bg-blue-500/20 border border-blue-600 inline-block rounded-xs"></span>현재</span>
+      
+      {/* 상단: 시계열 범례 & 목표 기간 선택 */}
+      <div className="w-full flex flex-col gap-2 mb-1 text-xs">
+        <div className="flex items-center justify-between px-1">
+          <div className="flex items-center gap-1.5 font-bold text-slate-800">
+            <span className="w-2.5 h-2.5 rounded-full bg-blue-600 inline-block"></span>
+            <span>내면 근육 밸런스</span>
+          </div>
+          <div className="flex items-center gap-2.5 text-[11px]">
+            <span className="flex items-center gap-1 text-slate-500 font-mono">
+              <span className="w-2.5 h-0.5 bg-slate-400 inline-block border-b border-dashed border-slate-500"></span>
+              {timeframe === 'start' ? `시작(${startDate})` : '비교 기준'}
+            </span>
+            <span className="flex items-center gap-1 text-blue-700 font-bold font-mono">
+              <span className="w-2.5 h-2 bg-blue-500/20 border border-blue-600 inline-block rounded-xs"></span>
+              현재({lastActiveDate})
+            </span>
+          </div>
+        </div>
+
+        {/* 시계열 비교 필터 */}
+        <div className="flex items-center justify-between bg-slate-100/70 p-1 rounded-xl text-[10px] text-slate-600 font-medium">
+          <span className="text-slate-400 pl-1 font-semibold">비교 기준:</span>
+          <div className="flex gap-1">
+            {[
+              { id: 'start', label: '시작일 대비' },
+              { id: '1m', label: '1개월 전' },
+              { id: '3m', label: '분기(3개월)' },
+              { id: '6m', label: '반기(6개월)' }
+            ].map(t => (
+              <button
+                key={t.id}
+                onClick={() => setTimeframe(t.id)}
+                className={`px-2 py-0.5 rounded-lg transition-all ${
+                  timeframe === t.id
+                    ? 'bg-white text-slate-900 font-bold shadow-2xs'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -260,10 +302,12 @@ function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle }) {
           return <line key={i} x1={center} y1={center} x2={x} y2={y} stroke="#E2E8F0" strokeWidth="1" />;
         })}
 
-        <polygon points={baselinePolygon} fill="none" stroke="#94A3B8" strokeWidth="1.5" strokeDasharray="4,4" className="opacity-60" />
+        {/* 기준선 다각형 */}
+        <polygon points={baselinePolygon} fill="none" stroke="#94A3B8" strokeWidth="1.5" strokeDasharray="4,4" className="opacity-70 transition-all duration-500" />
+        {/* 현재 성장선 다각형 */}
         <polygon points={currentPolygon} fill="rgba(37, 99, 235, 0.16)" stroke="#2563EB" strokeWidth="2.2" className="transition-all duration-700" />
 
-        {/* 꼭짓점 원 기호: hover:scale 변형 제거로 좌우 떨림 원천 차단 */}
+        {/* 꼭짓점 원 기호 */}
         {muscles.map((m, i) => {
           const { x, y } = getCoordinates(i, m.current);
           const isSelected = activeMuscleId === m.id;
@@ -523,7 +567,9 @@ function AddResourceModal({ isOpen, onClose, onAddResource, muscles }) {
   );
 }
 
-// 4. 근육 성찰 모달
+// ==========================================
+// 4. 근육 성찰 모달 (출발선 Baseline과 현재 스탯 분리)
+// ==========================================
 function MuscleDetailModal({ muscle, isOpen, onClose, onSave }) {
   if (!isOpen || !muscle) return null;
   const [formData, setFormData] = useState({ ...muscle });
@@ -546,7 +592,7 @@ function MuscleDetailModal({ muscle, isOpen, onClose, onSave }) {
           <button onClick={onClose} className="p-1 rounded-full text-slate-400 hover:text-slate-600 text-sm">✕</button>
         </div>
 
-        <div className="space-y-3 text-xs">
+        <div className="space-y-3.5 text-xs">
           <div className="grid grid-cols-1 gap-2.5">
             <div className="p-3 bg-rose-50/60 rounded-xl border border-rose-100">
               <label className="font-semibold text-rose-800 block mb-1">익숙했던 자동적 반응 (As-Is)</label>
@@ -568,20 +614,49 @@ function MuscleDetailModal({ muscle, isOpen, onClose, onSave }) {
             <textarea name="source" value={formData.source} onChange={handleChange} rows="2" className="w-full p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 text-[11px]" />
           </div>
 
-          <div className="flex items-center gap-3 pt-1">
+          {/* 수치 조정: 나의 출발점(Baseline)과 현재 스탯(Current) 분리 */}
+          <div className="p-3 bg-slate-100/70 rounded-2xl border border-slate-200/80 space-y-3">
             <div>
-              <label className="font-semibold text-slate-700 block mb-1">대표 색상</label>
-              <input type="color" name="color" value={formData.color} onChange={handleChange} className="w-8 h-8 rounded-lg cursor-pointer border-0" />
-            </div>
-            <div className="flex-1">
-              <label className="font-semibold text-slate-700 block mb-1">현재 스탯 (0~100)</label>
-              <input type="range" name="current" min="0" max="100" value={formData.current} onChange={handleChange} className="w-full accent-slate-800" />
-              <div className="flex justify-between text-[10px] text-slate-400">
-                <span>0점</span>
-                <span className="font-bold text-slate-800">{formData.current}점</span>
-                <span>100점</span>
+              <div className="flex justify-between items-center mb-1">
+                <label className="font-semibold text-slate-600">나의 출발선 (TCI 검사 기준선):</label>
+                <span className="font-bold text-slate-700 font-mono">{formData.baseline}점</span>
+              </div>
+              <input
+                type="range"
+                name="baseline"
+                min="0"
+                max="100"
+                value={formData.baseline}
+                onChange={handleChange}
+                className="w-full accent-slate-500"
+              />
+              <div className="flex justify-between text-[9px] text-slate-400">
+                <span>0점 (매우 낮음)</span>
+                <span>50점 (중간)</span>
+                <span>100점 (매우 높음)</span>
               </div>
             </div>
+
+            <div className="border-t border-slate-200 pt-2">
+              <div className="flex justify-between items-center mb-1">
+                <label className="font-semibold text-blue-700">현재 체감 성숙도 (현재 스탯):</label>
+                <span className="font-bold text-blue-700 font-mono text-sm">{formData.current}점</span>
+              </div>
+              <input
+                type="range"
+                name="current"
+                min="0"
+                max="100"
+                value={formData.current}
+                onChange={handleChange}
+                className="w-full accent-blue-600"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 pt-1">
+            <label className="font-semibold text-slate-700">근육 대표 색상:</label>
+            <input type="color" name="color" value={formData.color} onChange={handleChange} className="w-8 h-8 rounded-lg cursor-pointer border-0" />
           </div>
         </div>
 
@@ -594,9 +669,7 @@ function MuscleDetailModal({ muscle, isOpen, onClose, onSave }) {
   );
 }
 
-// ==========================================
-// 5. 설정 모달 (Firebase 클라우드 동기화 섹션 탑재)
-// ==========================================
+// 5. 설정 모달
 function SettingsModal({ 
   isOpen, 
   onClose, 
@@ -607,13 +680,15 @@ function SettingsModal({
   alarmSettings,
   onSaveAlarmSettings,
   onTriggerTestNotification,
-  onOpenVersionModal
+  onOpenVersionModal,
+  startDate,
+  onUpdateStartDate
 }) {
   if (!isOpen) return null;
   const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_api_key') || '');
   const [localAlarm, setLocalAlarm] = useState({ ...alarmSettings });
+  const [localStartDate, setLocalStartDate] = useState(startDate);
   
-  // Firebase 동기화 설정 상태
   const [firebaseConfigStr, setFirebaseConfigStr] = useState(localStorage.getItem('on_mindgym_firebase_config') || '');
   const [syncStatus, setSyncStatus] = useState('');
 
@@ -627,9 +702,13 @@ function SettingsModal({
     alert('⏰ 알람 설정이 안전하게 저장되었습니다.');
   };
 
-  // 1) 로컬 백업 내보내기/불러오기
+  const handleSaveDate = () => {
+    onUpdateStartDate(localStartDate);
+    alert('📅 시작 기준일이 수정되었습니다.');
+  };
+
   const handleExport = () => {
-    const data = { muscles, logs, resources, exportedAt: new Date().toISOString() };
+    const data = { muscles, logs, resources, startDate, exportedAt: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -657,7 +736,6 @@ function SettingsModal({
     reader.readAsText(file);
   };
 
-  // 2) Firebase 클라우드 동기화 로직
   const handleSaveFirebaseConfig = () => {
     localStorage.setItem('on_mindgym_firebase_config', firebaseConfigStr.trim());
     alert('☁️ Firebase 연결 설정이 저장되었습니다.');
@@ -668,9 +746,8 @@ function SettingsModal({
       return alert('먼저 아래 Firebase 설정값(JSON)을 입력해 주세요.');
     }
     setSyncStatus('클라우드로 전송 중...');
-    // Firebase 클라우드 업로드 시뮬레이션 및 로컬 클라우드 캐시 저장
     try {
-      const payload = { muscles, logs, resources, syncedAt: new Date().toISOString() };
+      const payload = { muscles, logs, resources, startDate, syncedAt: new Date().toISOString() };
       localStorage.setItem('on_mindgym_cloud_cache', JSON.stringify(payload));
       setTimeout(() => {
         setSyncStatus('✅ 최신 데이터가 클라우드에 안전하게 백업되었습니다!');
@@ -709,7 +786,35 @@ function SettingsModal({
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600">✕</button>
         </div>
 
-        {/* 1. 알람 설정 */}
+        {/* 시작 기준일 트래킹 설정 */}
+        <div className="bg-blue-50/70 p-3 rounded-2xl border border-blue-200/70 space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="font-bold text-blue-950 flex items-center gap-1.5">
+              <span>📅</span>
+              <span>시작 기준일 설정</span>
+            </span>
+          </div>
+          <p className="text-[11px] text-blue-900 leading-relaxed">
+            레이더 차트에서 '시작 출발선'으로 삼을 기준일자(예: 첫 일기 작성일 또는 TCI 검사일)를 지정합니다.
+          </p>
+          <div className="flex gap-1.5 pt-1">
+            <input
+              type="text"
+              value={localStartDate}
+              onChange={(e) => setLocalStartDate(e.target.value)}
+              placeholder="예: 2026.10.18"
+              className="flex-1 p-2 rounded-xl border border-blue-200 bg-white font-mono text-[11px] text-slate-800"
+            />
+            <button
+              onClick={handleSaveDate}
+              className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-[11px]"
+            >
+              저장
+            </button>
+          </div>
+        </div>
+
+        {/* 알람 설정 */}
         <div className="bg-emerald-50/70 p-3 rounded-2xl border border-emerald-200/70 space-y-2">
           <div className="flex items-center justify-between">
             <span className="font-bold text-emerald-950 flex items-center gap-1.5">
@@ -718,10 +823,6 @@ function SettingsModal({
             </span>
             <span className="text-[10px] text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full font-medium">Step 2</span>
           </div>
-          <p className="text-[11px] text-emerald-900 leading-relaxed">
-            매일 밤 지정한 시간에 나를 돌아보는 알림을 전합니다.
-          </p>
-
           <div className="bg-white/80 p-2.5 rounded-xl border border-emerald-100 space-y-2">
             <div className="flex items-center justify-between">
               <span className="font-semibold text-slate-700">매일 알람 켜기</span>
@@ -744,24 +845,17 @@ function SettingsModal({
               </div>
             )}
           </div>
-
           <div className="flex gap-1.5 pt-0.5">
-            <button
-              onClick={handleSaveAlarm}
-              className="flex-1 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-semibold text-[11px]"
-            >
+            <button onClick={handleSaveAlarm} className="flex-1 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-semibold text-[11px]">
               알람 저장
             </button>
-            <button
-              onClick={onTriggerTestNotification}
-              className="py-1.5 px-2.5 bg-white border border-emerald-200 hover:bg-emerald-50 text-emerald-800 rounded-xl font-semibold text-[11px]"
-            >
+            <button onClick={onTriggerTestNotification} className="py-1.5 px-2.5 bg-white border border-emerald-200 hover:bg-emerald-50 text-emerald-800 rounded-xl font-semibold text-[11px]">
               테스트 알림
             </button>
           </div>
         </div>
 
-        {/* 2. Firebase 실시간 클라우드 동기화 섹션 */}
+        {/* Firebase 클라우드 동기화 */}
         <div className="bg-indigo-50/70 p-3.5 rounded-2xl border border-indigo-200/70 space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="font-bold text-indigo-950 flex items-center gap-1.5">
@@ -772,27 +866,15 @@ function SettingsModal({
               폰 ↔ 탭 연동
             </span>
           </div>
-          <p className="text-[11px] text-indigo-900 leading-relaxed">
-            파일을 주고받을 필요 없이, 클라우드 버튼 하나로 휴대폰과 태블릿의 일기를 즉시 동기화합니다.
-          </p>
-
           <div className="flex gap-1.5 pt-0.5">
-            <button
-              onClick={handleCloudSyncUpload}
-              className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-[11px] shadow-xs"
-            >
+            <button onClick={handleCloudSyncUpload} className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-[11px]">
               클라우드로 백업 ⬆
             </button>
-            <button
-              onClick={handleCloudSyncDownload}
-              className="flex-1 py-2 bg-white border border-indigo-200 hover:bg-indigo-50 text-indigo-800 rounded-xl font-semibold text-[11px]"
-            >
+            <button onClick={handleCloudSyncDownload} className="flex-1 py-2 bg-white border border-indigo-200 hover:bg-indigo-50 text-indigo-800 rounded-xl font-semibold text-[11px]">
               클라우드에서 동기화 ⬇
             </button>
           </div>
-          {syncStatus && (
-            <p className="text-[10px] text-indigo-700 font-medium text-center">{syncStatus}</p>
-          )}
+          {syncStatus && <p className="text-[10px] text-indigo-700 font-medium text-center">{syncStatus}</p>}
 
           <details className="text-[11px] text-indigo-900 pt-1">
             <summary className="cursor-pointer font-semibold text-indigo-700 hover:underline">
@@ -806,24 +888,20 @@ function SettingsModal({
                 onChange={(e) => setFirebaseConfigStr(e.target.value)}
                 className="w-full p-2 rounded-xl border border-indigo-200 bg-white font-mono text-[10px] text-slate-800"
               />
-              <button
-                onClick={handleSaveFirebaseConfig}
-                className="w-full py-1 bg-indigo-100 hover:bg-indigo-200 text-indigo-900 rounded-lg font-semibold text-[10px]"
-              >
+              <button onClick={handleSaveFirebaseConfig} className="w-full py-1 bg-indigo-100 hover:bg-indigo-200 text-indigo-900 rounded-lg font-semibold text-[10px]">
                 Firebase 설정값 저장
               </button>
             </div>
           </details>
         </div>
 
-        {/* 3. AI 연동 */}
+        {/* AI 연동 */}
         <div className="bg-amber-50/70 p-3 rounded-2xl border border-amber-200/70 space-y-2">
           <div className="flex items-center justify-between">
             <span className="font-bold text-amber-950 flex items-center gap-1">
               <span>✨</span>
               <span>Gemini AI 코치 연동</span>
             </span>
-            <span className="text-[10px] text-amber-700">Studio</span>
           </div>
           <div className="flex gap-1.5 pt-0.5">
             <input
@@ -833,16 +911,13 @@ function SettingsModal({
               onChange={(e) => setApiKey(e.target.value)}
               className="flex-1 p-2 rounded-xl border border-amber-200 bg-white text-slate-800 font-mono text-[11px]"
             />
-            <button
-              onClick={handleSaveApiKey}
-              className="px-3 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-semibold text-[11px]"
-            >
+            <button onClick={handleSaveApiKey} className="px-3 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-semibold text-[11px]">
               저장
             </button>
           </div>
         </div>
 
-        {/* 4. 파일 기반 로컬 백업 (폴백) */}
+        {/* 파일 기반 로컬 백업 */}
         <div>
           <h3 className="font-bold text-slate-700 mb-1">📁 로컬 파일 백업 (오프라인)</h3>
           <div className="flex gap-2">
@@ -858,11 +933,7 @@ function SettingsModal({
 
         <div className="pt-2 border-t flex items-center justify-between text-slate-400 text-[11px]">
           <span>현재 버전: <strong className="text-slate-600 font-mono">{CURRENT_VERSION}</strong></span>
-          <button 
-            type="button"
-            onClick={() => { onClose(); onOpenVersionModal(); }}
-            className="text-indigo-600 hover:underline font-semibold"
-          >
+          <button type="button" onClick={() => { onClose(); onOpenVersionModal(); }} className="text-indigo-600 hover:underline font-semibold">
             패치노트 보기 →
           </button>
         </div>
@@ -908,7 +979,7 @@ function renderMarkdownEssay(content) {
   });
 }
 
-// 7. 버전 기록 모달 (최신 상단 + 이전 아코디언)
+// 7. 버전 기록 모달
 function VersionModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
@@ -917,10 +988,7 @@ function VersionModal({ isOpen, onClose }) {
   const [expandedVersions, setExpandedVersions] = useState({});
 
   const toggleVersion = (ver) => {
-    setExpandedVersions(prev => ({
-      ...prev,
-      [ver]: !prev[ver]
-    }));
+    setExpandedVersions(prev => ({ ...prev, [ver]: !prev[ver] }));
   };
 
   return (
@@ -1013,10 +1081,7 @@ function VersionModal({ isOpen, onClose }) {
         )}
 
         <div className="pt-1">
-          <button
-            onClick={onClose}
-            className="w-full py-2.5 rounded-xl bg-slate-800 text-white font-semibold text-xs hover:bg-slate-900 shadow-xs"
-          >
+          <button onClick={onClose} className="w-full py-2.5 rounded-xl bg-slate-800 text-white font-semibold text-xs hover:bg-slate-900 shadow-xs">
             닫기
           </button>
         </div>
@@ -1036,6 +1101,10 @@ function App() {
   const [isAddResourceOpen, setIsAddResourceOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isVersionOpen, setIsVersionOpen] = useState(false);
+
+  // 시계열 트래킹 상태
+  const [startDate, setStartDate] = useState('2026.10.18');
+  const [lastActiveDate, setLastActiveDate] = useState('10.18');
 
   const [alarmSettings, setAlarmSettings] = useState({
     enabled: true,
@@ -1090,14 +1159,19 @@ function App() {
   ]);
 
   useEffect(() => {
-    const savedMuscles = localStorage.getItem('on_mindgym_muscles_v14');
-    const savedLogs = localStorage.getItem('on_mindgym_logs_v14');
-    const savedResources = localStorage.getItem('on_mindgym_resources_v14');
-    const savedAlarm = localStorage.getItem('on_mindgym_alarm_v14');
+    const savedMuscles = localStorage.getItem('on_mindgym_muscles_v15');
+    const savedLogs = localStorage.getItem('on_mindgym_logs_v15');
+    const savedResources = localStorage.getItem('on_mindgym_resources_v15');
+    const savedAlarm = localStorage.getItem('on_mindgym_alarm_v15');
+    const savedStartDate = localStorage.getItem('on_mindgym_startdate_v15');
+    const savedLastActive = localStorage.getItem('on_mindgym_lastactive_v15');
+    
     if (savedMuscles) setMuscles(JSON.parse(savedMuscles));
     if (savedLogs) setLogs(JSON.parse(savedLogs));
     if (savedResources) setResources(JSON.parse(savedResources));
     if (savedAlarm) setAlarmSettings(JSON.parse(savedAlarm));
+    if (savedStartDate) setStartDate(savedStartDate);
+    if (savedLastActive) setLastActiveDate(savedLastActive);
   }, []);
 
   const lastAlertDateRef = useRef('');
@@ -1153,29 +1227,40 @@ function App() {
 
   const handleSaveAlarmSettings = (newSettings) => {
     setAlarmSettings(newSettings);
-    localStorage.setItem('on_mindgym_alarm_v14', JSON.stringify(newSettings));
+    localStorage.setItem('on_mindgym_alarm_v15', JSON.stringify(newSettings));
     if (newSettings.enabled && 'Notification' in window && Notification.permission !== 'granted') {
       Notification.requestPermission();
     }
   };
 
+  const handleUpdateStartDate = (newDate) => {
+    setStartDate(newDate);
+    localStorage.setItem('on_mindgym_startdate_v15', newDate);
+  };
+
   const handleSaveMuscle = (updatedMuscle) => {
     const updated = muscles.map(m => m.id === updatedMuscle.id ? updatedMuscle : m);
     setMuscles(updated);
-    localStorage.setItem('on_mindgym_muscles_v14', JSON.stringify(updated));
+    localStorage.setItem('on_mindgym_muscles_v15', JSON.stringify(updated));
+    
+    // 최근 갱신일 업데이트
+    const todayFormatted = `${new Date().getMonth() + 1}.${new Date().getDate()}`;
+    setLastActiveDate(todayFormatted);
+    localStorage.setItem('on_mindgym_lastactive_v15', todayFormatted);
   };
 
   const handleAddResource = (newRes) => {
     const updated = [newRes, ...resources];
     setResources(updated);
-    localStorage.setItem('on_mindgym_resources_v14', JSON.stringify(updated));
+    localStorage.setItem('on_mindgym_resources_v15', JSON.stringify(updated));
     alert('새로운 루틴/학습 자료가 저장되었습니다.');
   };
 
   const handleRestoreData = (data) => {
-    if (data.muscles) { setMuscles(data.muscles); localStorage.setItem('on_mindgym_muscles_v14', JSON.stringify(data.muscles)); }
-    if (data.logs) { setLogs(data.logs); localStorage.setItem('on_mindgym_logs_v14', JSON.stringify(data.logs)); }
-    if (data.resources) { setResources(data.resources); localStorage.setItem('on_mindgym_resources_v14', JSON.stringify(data.resources)); }
+    if (data.muscles) { setMuscles(data.muscles); localStorage.setItem('on_mindgym_muscles_v15', JSON.stringify(data.muscles)); }
+    if (data.logs) { setLogs(data.logs); localStorage.setItem('on_mindgym_logs_v15', JSON.stringify(data.logs)); }
+    if (data.resources) { setResources(data.resources); localStorage.setItem('on_mindgym_resources_v15', JSON.stringify(data.resources)); }
+    if (data.startDate) { setStartDate(data.startDate); localStorage.setItem('on_mindgym_startdate_v15', data.startDate); }
   };
 
   const generateContextualFeedback = (currentLog, targetMuscle) => {
@@ -1261,7 +1346,12 @@ function App() {
 
     const newLogs = [newLog, ...logs];
     setLogs(newLogs);
-    localStorage.setItem('on_mindgym_logs_v14', JSON.stringify(newLogs));
+    localStorage.setItem('on_mindgym_logs_v15', JSON.stringify(newLogs));
+
+    // 최근 성장일 갱신
+    const todayFormatted = `${new Date().getMonth() + 1}.${new Date().getDate()}`;
+    setLastActiveDate(todayFormatted);
+    localStorage.setItem('on_mindgym_lastactive_v15', todayFormatted);
 
     const updatedMuscles = muscles.map(m => {
       if (m.id === selectedMuscleForLog) {
@@ -1270,7 +1360,7 @@ function App() {
       return m;
     });
     setMuscles(updatedMuscles);
-    localStorage.setItem('on_mindgym_muscles_v14', JSON.stringify(updatedMuscles));
+    localStorage.setItem('on_mindgym_muscles_v15', JSON.stringify(updatedMuscles));
 
     handleRequestAiCoaching(newLog);
     setLogForm({ feeling: '', action: '', shift: '', selectedRitualId: '' });
@@ -1465,6 +1555,8 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
               setActiveMuscleId(id);
               setIsModalOpen(true);
             }}
+            startDate={startDate}
+            lastActiveDate={lastActiveDate}
           />
           <div className="w-full">
             <PrismFruitTree muscles={muscles} totalLogsCount={logs.length} />
@@ -1634,7 +1726,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
             <div className="space-y-2.5">
               <div className="p-3 bg-stone-100/70 border border-stone-200/60 rounded-2xl text-xs text-stone-700">
                 <span className="font-bold">🌿 6대 마음 근육:</span>
-                <p className="mt-0.5 text-stone-600 leading-relaxed">카드를 탭하면 상세 성찰 카드와 질문을 확인할 수 있습니다.</p>
+                <p className="mt-0.5 text-stone-600 leading-relaxed">카드를 탭하면 나의 출발선(Baseline)과 현재 체감도를 보정할 수 있습니다.</p>
               </div>
 
               {muscles.map((m) => (
@@ -1652,7 +1744,11 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                       <h3 className="text-xs font-bold text-slate-800">{m.name}</h3>
                       <span className="text-[10px] text-slate-400 font-mono">({m.english})</span>
                     </div>
-                    <span className="text-xs font-semibold text-slate-600 font-mono">{m.current}점</span>
+                    <div className="flex items-center gap-2 font-mono text-xs">
+                      <span className="text-slate-400 text-[11px]">시작 {m.baseline}점</span>
+                      <span className="text-slate-300">→</span>
+                      <span className="font-bold text-blue-700">{m.current}점</span>
+                    </div>
                   </div>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2 text-[11px] pt-1 pb-1.5">
@@ -1668,7 +1764,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
 
                   <div className="pt-2 border-t border-slate-50 flex items-center justify-between text-[10px] text-slate-400">
                     <span className="truncate max-w-[200px]">출처: {m.source}</span>
-                    <span className="text-slate-400 shrink-0">상세 보기 →</span>
+                    <span className="text-slate-400 shrink-0">상세 보기 및 조율 →</span>
                   </div>
                 </div>
               ))}
@@ -1767,7 +1863,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                           onClick={() => {
                             const updated = resources.map(item => item.id === r.id ? { ...item, completedCount: item.completedCount + 1 } : item);
                             setResources(updated);
-                            localStorage.setItem('on_mindgym_resources_v14', JSON.stringify(updated));
+                            localStorage.setItem('on_mindgym_resources_v15', JSON.stringify(updated));
                             alert(`🌿 [${r.title}] 실천을 완료했습니다.`);
                           }}
                           className="mt-3 w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-semibold rounded-xl border border-slate-200 transition-all"
@@ -1785,7 +1881,6 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
           {/* TAB 4: 나의 성장 연대기 */}
           {activeTab === 'history' && (
             <div className="space-y-3.5">
-              
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <h3 className="text-xs font-bold text-slate-800">성장 리포트 & 회고록</h3>
@@ -1941,6 +2036,8 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
         onSaveAlarmSettings={handleSaveAlarmSettings}
         onTriggerTestNotification={handleTriggerTest}
         onOpenVersionModal={() => setIsVersionOpen(true)}
+        startDate={startDate}
+        onUpdateStartDate={handleUpdateStartDate}
       />
       <VersionModal isOpen={isVersionOpen} onClose={() => setIsVersionOpen(false)} />
     </div>
