@@ -36,39 +36,37 @@
 const { useState, useEffect, useMemo, useRef } = React;
 
 // ==========================================
-// 📌 버전 및 패치노트 데이터 (v1.4.2)
+// 📌 버전 및 패치노트 데이터 (v1.5.0)
 // ==========================================
-const CURRENT_VERSION = 'v1.4.2';
+const CURRENT_VERSION = 'v1.5.0';
 const VERSION_HISTORY = [
+  {
+    version: 'v1.5.0',
+    date: '2026.10.18',
+    title: '6대 마음 근육 한글 명칭 직관성 전면 개편',
+    changes: [
+      '학술 직역투를 걷어내고 마음에 와닿는 실천적 일상어로 전면 개편',
+      '다정한 마음(온기), 다름의 존중(수용), 깊은 공감(공명), 너그러움(자비), 솔직한 용기(취약성), 지금을 음미(향유) 반영',
+      '레이더 차트, 근육 사전, 실천 루틴 카드, AI 코칭 프롬프트에 새로운 한글 명칭 일괄 동기화'
+    ]
+  },
   {
     version: 'v1.4.2',
     date: '2026.10.18',
     title: 'TCI 맞춤 6대 근육 실천 루틴 전면 구축 및 누적 횟수 클린 초기화',
     changes: [
-      '기존 실천 루틴(정서적 공명, 정서적 온기)의 누적 횟수를 0회로 깔끔하게 초기화',
-      'TCI 검사 프로파일(완벽주의 99% 상쇄, 연대감 7% 보완)을 타겟팅한 4종 맞춤 실천 루틴 신규 탑재',
-      '설정 창에 "루틴 누적 횟수 클린 리셋" 기능 추가 연동',
-      '실천 루틴 데이터가 로컬 및 Firebase 클라우드에 온전히 동기화되도록 보강'
-    ]
-  },
-  {
-    version: 'v1.4.1',
-    date: '2026.10.18',
-    title: '시계열 비교 더미 계수 제거 및 실제 기록 기반 정밀 연동',
-    changes: [
-      '1개월 전/분기/반기 선택 시 적용되던 가상 곱셈 수치를 전면 제거하고 실제 일기 데이터 역산 로직으로 개편',
-      '기록이 0회일 때 모든 기간 탭에서 TCI 기준선과 현재 점수가 완전 일치하도록 동기화'
+      '루틴 누적 횟수를 0회로 초기화 및 6대 근육 전용 실천 루틴 구축'
     ]
   }
 ];
 
 // ==========================================
-// 📌 TCI 2026.09.28 검사 결과 반영 6대 마음 근육 데이터
+// 📌 6대 마음 근육 데이터 (직관적 한글 명칭 반영)
 // ==========================================
 const INITIAL_MUSCLES = [
   {
     id: 'warmth',
-    name: '정서적 온기',
+    name: '다정한 마음',
     english: 'Emotional Warmth',
     color: '#F97316',
     source: 'TCI 사회적 민감성(RD 백분위 34%) & 게슈탈트 접촉 이론',
@@ -80,7 +78,7 @@ const INITIAL_MUSCLES = [
   },
   {
     id: 'acceptance',
-    name: '타인 수용',
+    name: '다름의 존중',
     english: 'Social Acceptance',
     color: '#10B981',
     source: 'TCI 연대감-타인수용(CO1 저조) & 칼 로저스의 무조건적 긍정 존중',
@@ -92,7 +90,7 @@ const INITIAL_MUSCLES = [
   },
   {
     id: 'empathy',
-    name: '정서적 공명',
+    name: '깊은 공감',
     english: 'Empathetic Resonance',
     color: '#EC4899',
     source: 'TCI 연대감-공감(CO2 저조) & 코액티브 코칭 맥락 경청(Level 3)',
@@ -104,7 +102,7 @@ const INITIAL_MUSCLES = [
   },
   {
     id: 'compassion',
-    name: '관대함과 자비',
+    name: '너그러움',
     english: 'Compassion & Grace',
     color: '#8B5CF6',
     source: 'TCI 연대감-관대함(CO4 저조) & 인내력 완벽주의(PS4 99%) 상쇄',
@@ -116,7 +114,7 @@ const INITIAL_MUSCLES = [
   },
   {
     id: 'vulnerability',
-    name: '취약성의 용기',
+    name: '솔직한 용기',
     english: 'Vulnerability & Courage',
     color: '#3B82F6',
     source: 'TCI 인내력(완벽주의 방패 99%) & 브레네 브라운 취약성의 힘',
@@ -128,10 +126,10 @@ const INITIAL_MUSCLES = [
   },
   {
     id: 'savoring',
-    name: '향유와 감사',
+    name: '지금을 음미',
     english: 'Savoring & Gratitude',
     color: '#F59E0B',
-    source: 'TCI 자기초월(ST 백분위 12%) & 프레드 브라이언트 향유(Savoring) 심리학',
+    source: 'TCI 자기초월(ST 백분위 12%) & 프레드 브라이언트 향유 심리학',
     asIs: '목표 달성 직후 곧바로 다음 과업으로 넘어가며, 현재의 성취와 일상의 은혜를 지나침.',
     toBe: '스쳐 지나가는 사소한 호의와 평온한 순간에 멈추어 깊이 음미하고 진심으로 감사함.',
     coachingQuestion: '오늘 무심히 스쳐 갈 뻔했던 작은 기쁨이나 평온함을 온전히 만끽했나요?',
@@ -141,7 +139,7 @@ const INITIAL_MUSCLES = [
 ];
 
 // ==========================================
-// 📌 TCI 맞춤형 6대 실천 루틴 & 서재 (누적 0회 클린 셋팅)
+// 📌 TCI 맞춤형 6대 실천 루틴 (누적 0회 셋팅)
 // ==========================================
 const INITIAL_RESOURCES = [
   {
@@ -1210,12 +1208,12 @@ function App() {
 
   // 로컬 로드 & 클라우드 Auto-Pull
   useEffect(() => {
-    const savedMuscles = localStorage.getItem('on_mindgym_muscles_v19');
-    const savedLogs = localStorage.getItem('on_mindgym_logs_v19');
-    const savedResources = localStorage.getItem('on_mindgym_resources_v19');
-    const savedAlarm = localStorage.getItem('on_mindgym_alarm_v19');
-    const savedStartDate = localStorage.getItem('on_mindgym_startdate_v19');
-    const savedLastActive = localStorage.getItem('on_mindgym_lastactive_v19');
+    const savedMuscles = localStorage.getItem('on_mindgym_muscles_v20');
+    const savedLogs = localStorage.getItem('on_mindgym_logs_v20');
+    const savedResources = localStorage.getItem('on_mindgym_resources_v20');
+    const savedAlarm = localStorage.getItem('on_mindgym_alarm_v20');
+    const savedStartDate = localStorage.getItem('on_mindgym_startdate_v20');
+    const savedLastActive = localStorage.getItem('on_mindgym_lastactive_v20');
     
     if (savedMuscles) setMuscles(JSON.parse(savedMuscles));
     if (savedLogs) setLogs(JSON.parse(savedLogs));
@@ -1258,7 +1256,7 @@ function App() {
     if (!confirm('현재 점수를 2026.09.28 TCI 순수 출발선 점수(34, 20, 25, 15, 20, 25)로 완전히 리셋하시겠습니까?')) return;
     const resetMuscles = INITIAL_MUSCLES.map(m => ({ ...m, current: m.baseline }));
     setMuscles(resetMuscles);
-    localStorage.setItem('on_mindgym_muscles_v19', JSON.stringify(resetMuscles));
+    localStorage.setItem('on_mindgym_muscles_v20', JSON.stringify(resetMuscles));
     triggerAutoSaveCloud(resetMuscles, logs, resources, startDate);
     alert('✅ 모든 근육 점수가 TCI 출발선과 정확히 일치하도록 정렬되었습니다.');
   };
@@ -1267,7 +1265,7 @@ function App() {
   const handleResetRoutines = () => {
     if (!confirm('실천 루틴을 6대 마음근육 전용 6종 루틴으로 재정렬하고, 모든 누적 횟수를 0회로 초기화하시겠습니까?')) return;
     setResources(INITIAL_RESOURCES);
-    localStorage.setItem('on_mindgym_resources_v19', JSON.stringify(INITIAL_RESOURCES));
+    localStorage.setItem('on_mindgym_resources_v20', JSON.stringify(INITIAL_RESOURCES));
     triggerAutoSaveCloud(muscles, logs, INITIAL_RESOURCES, startDate);
     alert('✅ 모든 실천 루틴이 누적 0회로 초기화되었으며, 6대 근육 맞춤 루틴이 탑재되었습니다.');
   };
@@ -1278,7 +1276,7 @@ function App() {
     const targetLog = logs.find(l => l.id === logId);
     const filtered = logs.filter(l => l.id !== logId);
     setLogs(filtered);
-    localStorage.setItem('on_mindgym_logs_v19', JSON.stringify(filtered));
+    localStorage.setItem('on_mindgym_logs_v20', JSON.stringify(filtered));
 
     let updatedMuscles = muscles;
     if (targetLog) {
@@ -1289,7 +1287,7 @@ function App() {
         return m;
       });
       setMuscles(updatedMuscles);
-      localStorage.setItem('on_mindgym_muscles_v19', JSON.stringify(updatedMuscles));
+      localStorage.setItem('on_mindgym_muscles_v20', JSON.stringify(updatedMuscles));
     }
 
     triggerAutoSaveCloud(updatedMuscles, filtered, resources, startDate);
@@ -1308,7 +1306,7 @@ function App() {
   const handleSaveEdit = (logId) => {
     const updatedLogs = logs.map(l => l.id === logId ? { ...l, ...editForm } : l);
     setLogs(updatedLogs);
-    localStorage.setItem('on_mindgym_logs_v19', JSON.stringify(updatedLogs));
+    localStorage.setItem('on_mindgym_logs_v20', JSON.stringify(updatedLogs));
     setEditingLogId(null);
     triggerAutoSaveCloud(muscles, updatedLogs, resources, startDate);
   };
@@ -1366,7 +1364,7 @@ function App() {
 
   const handleSaveAlarmSettings = (newSettings) => {
     setAlarmSettings(newSettings);
-    localStorage.setItem('on_mindgym_alarm_v19', JSON.stringify(newSettings));
+    localStorage.setItem('on_mindgym_alarm_v20', JSON.stringify(newSettings));
     if (newSettings.enabled && 'Notification' in window && Notification.permission !== 'granted') {
       Notification.requestPermission();
     }
@@ -1394,18 +1392,18 @@ function App() {
 
   const handleUpdateStartDate = (newDate) => {
     setStartDate(newDate);
-    localStorage.setItem('on_mindgym_startdate_v19', newDate);
+    localStorage.setItem('on_mindgym_startdate_v20', newDate);
     triggerAutoSaveCloud(muscles, logs, resources, newDate);
   };
 
   const handleSaveMuscle = (updatedMuscle) => {
     const updated = muscles.map(m => m.id === updatedMuscle.id ? updatedMuscle : m);
     setMuscles(updated);
-    localStorage.setItem('on_mindgym_muscles_v19', JSON.stringify(updated));
+    localStorage.setItem('on_mindgym_muscles_v20', JSON.stringify(updated));
     
     const todayFormatted = `${new Date().getMonth() + 1}.${new Date().getDate()}`;
     setLastActiveDate(todayFormatted);
-    localStorage.setItem('on_mindgym_lastactive_v19', todayFormatted);
+    localStorage.setItem('on_mindgym_lastactive_v20', todayFormatted);
 
     triggerAutoSaveCloud(updated, logs, resources, startDate);
   };
@@ -1413,16 +1411,16 @@ function App() {
   const handleAddResource = (newRes) => {
     const updated = [newRes, ...resources];
     setResources(updated);
-    localStorage.setItem('on_mindgym_resources_v19', JSON.stringify(updated));
+    localStorage.setItem('on_mindgym_resources_v20', JSON.stringify(updated));
     alert('새로운 루틴/학습 자료가 저장되었습니다.');
     triggerAutoSaveCloud(muscles, logs, updated, startDate);
   };
 
   const handleRestoreData = (data) => {
-    if (data.muscles) { setMuscles(data.muscles); localStorage.setItem('on_mindgym_muscles_v19', JSON.stringify(data.muscles)); }
-    if (data.logs) { setLogs(data.logs); localStorage.setItem('on_mindgym_logs_v19', JSON.stringify(data.logs)); }
-    if (data.resources) { setResources(data.resources); localStorage.setItem('on_mindgym_resources_v19', JSON.stringify(data.resources)); }
-    if (data.startDate) { setStartDate(data.startDate); localStorage.setItem('on_mindgym_startdate_v19', data.startDate); }
+    if (data.muscles) { setMuscles(data.muscles); localStorage.setItem('on_mindgym_muscles_v20', JSON.stringify(data.muscles)); }
+    if (data.logs) { setLogs(data.logs); localStorage.setItem('on_mindgym_logs_v20', JSON.stringify(data.logs)); }
+    if (data.resources) { setResources(data.resources); localStorage.setItem('on_mindgym_resources_v20', JSON.stringify(data.resources)); }
+    if (data.startDate) { setStartDate(data.startDate); localStorage.setItem('on_mindgym_startdate_v20', data.startDate); }
   };
 
   const generateContextualFeedback = (currentLog, targetMuscle) => {
@@ -1508,11 +1506,11 @@ function App() {
 
     const newLogs = [newLog, ...logs];
     setLogs(newLogs);
-    localStorage.setItem('on_mindgym_logs_v19', JSON.stringify(newLogs));
+    localStorage.setItem('on_mindgym_logs_v20', JSON.stringify(newLogs));
 
     const todayFormatted = `${new Date().getMonth() + 1}.${new Date().getDate()}`;
     setLastActiveDate(todayFormatted);
-    localStorage.setItem('on_mindgym_lastactive_v19', todayFormatted);
+    localStorage.setItem('on_mindgym_lastactive_v20', todayFormatted);
 
     const updatedMuscles = muscles.map(m => {
       if (m.id === selectedMuscleForLog) {
@@ -1521,7 +1519,7 @@ function App() {
       return m;
     });
     setMuscles(updatedMuscles);
-    localStorage.setItem('on_mindgym_muscles_v19', JSON.stringify(updatedMuscles));
+    localStorage.setItem('on_mindgym_muscles_v20', JSON.stringify(updatedMuscles));
 
     triggerAutoSaveCloud(updatedMuscles, newLogs, resources, startDate);
     handleRequestAiCoaching(newLog);
@@ -1598,7 +1596,7 @@ function App() {
 내담자가 ${periodName} 동안 기록한 감정일기 데이터:
 ${logSummaries}
 
-가장 많이 단련한 마음 근육: ${periodStats.topMuscle ? periodStats.topMuscle.name : '마음의 온기'}
+가장 많이 단련한 마음 근육: ${periodStats.topMuscle ? periodStats.topMuscle.name : '다정한 마음'}
 
 에세이 작성 지침:
 1. 제목: 서정적 제목 (예: "냉정의 강을 건너 온기의 바다로 나아가는 시간")
@@ -1631,7 +1629,7 @@ ${logSummaries}
     }
 
     setTimeout(() => {
-      const topName = periodStats.topMuscle ? periodStats.topMuscle.name : '마음의 온기';
+      const topName = periodStats.topMuscle ? periodStats.topMuscle.name : '다정한 마음';
       const sampleAction = filteredHistoryLogs[0]?.action || '새로운 시도';
       const sampleShift = filteredHistoryLogs[0]?.shift || '마음의 여운';
 
@@ -1944,7 +1942,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
             </div>
           )}
 
-          {/* TAB 3: 실천 루틴 & 서재 (6대 근육 맞춤형 전면 탑재) */}
+          {/* TAB 3: 실천 루틴 & 서재 */}
           {activeTab === 'rituals' && (
             <div className="space-y-3">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -2036,7 +2034,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                           onClick={() => {
                             const updated = resources.map(item => item.id === r.id ? { ...item, completedCount: item.completedCount + 1 } : item);
                             setResources(updated);
-                            localStorage.setItem('on_mindgym_resources_v19', JSON.stringify(updated));
+                            localStorage.setItem('on_mindgym_resources_v20', JSON.stringify(updated));
                             alert(`🌿 [${r.title}] 실천을 완료했습니다. (누적 ${r.completedCount + 1}회)`);
                             triggerAutoSaveCloud(muscles, logs, updated, startDate);
                           }}
