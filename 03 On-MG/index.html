@@ -36,34 +36,34 @@
 const { useState, useEffect, useMemo, useRef } = React;
 
 // ==========================================
-// 📌 버전 및 패치노트 데이터 (v1.4.1)
+// 📌 버전 및 패치노트 데이터 (v1.4.2)
 // ==========================================
-const CURRENT_VERSION = 'v1.4.1';
+const CURRENT_VERSION = 'v1.4.2';
 const VERSION_HISTORY = [
+  {
+    version: 'v1.4.2',
+    date: '2026.10.18',
+    title: 'TCI 맞춤 6대 근육 실천 루틴 전면 구축 및 누적 횟수 클린 초기화',
+    changes: [
+      '기존 실천 루틴(정서적 공명, 정서적 온기)의 누적 횟수를 0회로 깔끔하게 초기화',
+      'TCI 검사 프로파일(완벽주의 99% 상쇄, 연대감 7% 보완)을 타겟팅한 4종 맞춤 실천 루틴 신규 탑재',
+      '설정 창에 "루틴 누적 횟수 클린 리셋" 기능 추가 연동',
+      '실천 루틴 데이터가 로컬 및 Firebase 클라우드에 온전히 동기화되도록 보강'
+    ]
+  },
   {
     version: 'v1.4.1',
     date: '2026.10.18',
     title: '시계열 비교 더미 계수 제거 및 실제 기록 기반 정밀 연동',
     changes: [
       '1개월 전/분기/반기 선택 시 적용되던 가상 곱셈 수치를 전면 제거하고 실제 일기 데이터 역산 로직으로 개편',
-      '기록이 0회일 때 모든 기간 탭에서 TCI 기준선과 현재 점수가 완전 일치하도록 동기화',
-      '일기 삭제 시 해당 근육 점수 자동 차감(-5점, TCI 출발선 하한선 보장) 로직 연동',
-      '설정 창에 "현재 점수를 TCI 출발선 수치로 완전 초기화" 기능 제공'
-    ]
-  },
-  {
-    version: 'v1.4.0',
-    date: '2026.10.18',
-    title: 'TCI 검사 프로파일(2026.09.28) 기반 6대 근육 출발선 및 As-Is/To-Be 정밀 동기화',
-    changes: [
-      'TCI 성인용 검사 결과지의 백분위 수치를 반영하여 6대 근육의 객관적 출발선(Baseline) 재구축',
-      '완벽주의 인내력(99%)과 연대감(7%)의 기질적 균형을 회복하기 위한 As-Is 및 To-Be 성찰 카드 문구 개편'
+      '기록이 0회일 때 모든 기간 탭에서 TCI 기준선과 현재 점수가 완전 일치하도록 동기화'
     ]
   }
 ];
 
 // ==========================================
-// 📌 TCI 2026.09.28 검사 결과 반영 6대 마음 근육 데이터 (Baseline = Current 초기 일치)
+// 📌 TCI 2026.09.28 검사 결과 반영 6대 마음 근육 데이터
 // ==========================================
 const INITIAL_MUSCLES = [
   {
@@ -140,6 +140,9 @@ const INITIAL_MUSCLES = [
   }
 ];
 
+// ==========================================
+// 📌 TCI 맞춤형 6대 실천 루틴 & 서재 (누적 0회 클린 셋팅)
+// ==========================================
 const INITIAL_RESOURCES = [
   {
     id: 1,
@@ -148,8 +151,8 @@ const INITIAL_RESOURCES = [
     title: '해결책 멈추고 3초 마음 머물기',
     desc: '가족이나 동료가 고민을 털어놓을 때 즉각적인 솔루션을 멈추고, 숨을 고른 뒤 "정말 속상했겠구나" 하고 그 마음에 먼저 주파수 맞추기',
     url: '',
-    completedCount: 12,
-    date: '2026.10.15'
+    completedCount: 0,
+    date: '2026.09.28'
   },
   {
     id: 2,
@@ -158,28 +161,68 @@ const INITIAL_RESOURCES = [
     title: '따뜻한 눈맞춤과 다정한 안부',
     desc: '용건으로 바로 들어가지 않고, 상대의 눈을 부드럽게 바라보며 "오늘 하루는 어떻게 흘러가고 있나요?"라고 마음 열기',
     url: '',
-    completedCount: 8,
-    date: '2026.10.16'
+    completedCount: 0,
+    date: '2026.09.28'
   },
   {
     id: 3,
+    type: 'routine',
+    muscleId: 'acceptance',
+    title: '"그럴 수 있지" 호흡 머금기',
+    desc: '내 기준(효율, 논리, 속도)에 미치지 못해 답답함이 올라올 때, 즉시 지적하지 않고 깊은 숨을 내쉬며 "각자의 속도와 이유가 있다"고 품어주기',
+    url: '',
+    completedCount: 0,
+    date: '2026.09.28'
+  },
+  {
+    id: 4,
+    type: 'routine',
+    muscleId: 'compassion',
+    title: '80% 만족 미소 짓기 (완벽주의 내려놓기)',
+    desc: '나와 타인의 사소한 빈틈이나 서투른 실수 앞에서 날카로운 잣대를 내려놓고 "이 정도면 충분히 잘해냈다"며 너그럽게 미소 건네기',
+    url: '',
+    completedCount: 0,
+    date: '2026.09.28'
+  },
+  {
+    id: 5,
+    type: 'routine',
+    muscleId: 'vulnerability',
+    title: '완벽 방패 내리고 담백한 속마음 털어놓기',
+    desc: '모든 짐을 혼자 짊어지려 하지 않고, 가까운 이에게 "이 부분은 나도 조금 벅차네, 도움이 필요해"라고 솔직한 인간적 온도를 건네기',
+    url: '',
+    completedCount: 0,
+    date: '2026.09.28'
+  },
+  {
+    id: 6,
+    type: 'routine',
+    muscleId: 'savoring',
+    title: '성취 후 30초 멈춤과 감사 음미',
+    desc: '과업을 마친 직후 곧바로 다음 일로 넘어가지 않고, 창밖을 보며 따뜻한 차 한 모금과 함께 오늘 내게 닿은 호의와 평온함을 온전히 만끽하기',
+    url: '',
+    completedCount: 0,
+    date: '2026.09.28'
+  },
+  {
+    id: 7,
     type: 'youtube',
     muscleId: 'vulnerability',
     title: '브레네 브라운: 취약성의 힘 (TED)',
     desc: '완벽주의는 방패일 뿐이다. 내 약함을 있는 그대로 인정하고 연결될 때 가장 단단한 용기가 자라난다.',
     url: 'https://www.ted.com/talks/brene_brown_the_power_of_vulnerability',
     completedCount: 0,
-    date: '2026.10.17'
+    date: '2026.09.28'
   },
   {
-    id: 4,
+    id: 8,
     type: 'memo',
     muscleId: 'acceptance',
     title: '나의 인생오후 메모: 냉정을 넘어 포용으로',
     desc: '속도와 효율로 달려온 청년기를 지나, 인생오후에는 사람들의 불완전함과 다른 템포를 넉넉하게 품는 큰 나무가 되고 싶다.',
     url: '',
     completedCount: 0,
-    date: '2026.10.18'
+    date: '2026.09.28'
   }
 ];
 
@@ -252,14 +295,11 @@ async function fetchFromFirestore(cfg) {
   return null;
 }
 
-// ==========================================
-// 1. 레이더 차트 (실제 일기 기록 기반 정밀 역산 엔진)
-// ==========================================
+// 1. 레이더 차트
 function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle, startDate, lastActiveDate, logs }) {
   const [timeframe, setTimeframe] = useState('start');
   const size = 290, center = size / 2, radius = 100, totalPoints = muscles.length;
 
-  // 실제 일기 작성 시점(timestamp)을 기반으로 해당 과거 시점의 실제 점수 역산
   const getReferenceValue = (m) => {
     if (timeframe === 'start') return m.baseline;
     
@@ -269,12 +309,8 @@ function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle, startDate,
     else if (timeframe === '3m') cutoffTime = now - 90 * 24 * 60 * 60 * 1000;
     else if (timeframe === '6m') cutoffTime = now - 180 * 24 * 60 * 60 * 1000;
 
-    // cutoffTime 이후에 작성된 해당 근육의 일기 수 카운트
     const logsAfterCutoff = logs.filter(l => l.muscleId === m.id && (l.timestamp || 0) > cutoffTime).length;
-    
-    // 현재 점수에서 그 이후에 오른 점수(+5점씩)를 차감하여 당시 점수 계산 (출발선 미만으로 내려가지 않음)
-    const historicalScore = Math.max(m.baseline, m.current - (logsAfterCutoff * 5));
-    return historicalScore;
+    return Math.max(m.baseline, m.current - (logsAfterCutoff * 5));
   };
 
   const getCoordinates = (index, value) => {
@@ -314,7 +350,6 @@ function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle, startDate,
           </div>
         </div>
 
-        {/* 시계열 비교 필터 */}
         <div className="flex items-center justify-between bg-slate-100/70 p-1 rounded-xl text-[10px] text-slate-600 font-medium">
           <span className="text-slate-400 pl-1 font-semibold">비교 기준:</span>
           <div className="flex gap-1">
@@ -729,7 +764,8 @@ function SettingsModal({
   firebaseConfigStr,
   onSaveFirebaseConfig,
   onTriggerManualCloudSync,
-  onResetToBaseline
+  onResetToBaseline,
+  onResetRoutines
 }) {
   if (!isOpen) return null;
   const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_api_key') || '');
@@ -795,24 +831,31 @@ function SettingsModal({
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600">✕</button>
         </div>
 
-        {/* TCI 출발선 완전 초기화 (캐시 잔여 점수 리셋) */}
-        <div className="bg-rose-50/70 p-3 rounded-2xl border border-rose-200/70 space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="font-bold text-rose-950 flex items-center gap-1.5">
-              <span>🔄</span>
-              <span>TCI 출발선 점수 완전 정렬</span>
-            </span>
-          </div>
+        {/* TCI 출발선 & 루틴 초기화 */}
+        <div className="bg-rose-50/70 p-3 rounded-2xl border border-rose-200/70 space-y-2">
+          <span className="font-bold text-rose-950 flex items-center gap-1.5">
+            <span>🔄</span>
+            <span>데이터 클린 정렬 (TCI & 루틴)</span>
+          </span>
           <p className="text-[11px] text-rose-900 leading-relaxed">
-            일기를 작성하기 전, 현재 점수를 2026.09.28 TCI 순수 출발선(34, 20, 25, 15, 20, 25점)으로 깨끗이 맞춥니다.
+            점수를 2026.09.28 TCI 순수 출발선으로 정렬하고, 실천 루틴 누적 횟수를 0회로 초기화합니다.
           </p>
-          <button
-            type="button"
-            onClick={onResetToBaseline}
-            className="w-full py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-semibold text-xs transition-all shadow-xs"
-          >
-            현재 점수를 TCI 출발선으로 초기화
-          </button>
+          <div className="flex flex-col gap-1.5 pt-0.5">
+            <button
+              type="button"
+              onClick={onResetToBaseline}
+              className="w-full py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-semibold text-[11px] transition-all shadow-xs"
+            >
+              점수를 TCI 출발선으로 초기화
+            </button>
+            <button
+              type="button"
+              onClick={onResetRoutines}
+              className="w-full py-1.5 bg-white border border-rose-300 hover:bg-rose-100 text-rose-800 rounded-xl font-semibold text-[11px] transition-all"
+            >
+              루틴 목록 & 누적 횟수(0회) 초기화
+            </button>
+          </div>
         </div>
 
         {/* Firebase 설정 */}
@@ -827,7 +870,7 @@ function SettingsModal({
             </span>
           </div>
           <p className="text-[11px] text-indigo-900 leading-relaxed">
-            한 번만 키를 저장해 두시면 <strong>일기 작성/수정/삭제 시 자동 백업</strong>되며, <strong>앱을 열 때 최신 상태로 자동 동기화</strong>됩니다.
+            한 번만 키를 저장해 두시면 <strong>일기 작성/수정/삭제/루틴 실천 시 자동 백업</strong>되며, <strong>앱을 열 때 최신 상태로 자동 동기화</strong>됩니다.
           </p>
 
           <div className="pt-1 space-y-1.5">
@@ -1118,9 +1161,7 @@ function VersionModal({ isOpen, onClose }) {
   );
 }
 
-// ==========================================
 // 8. 메인 App 컴포넌트
-// ==========================================
 function App() {
   const [activeTab, setActiveTab] = useState('record');
   const [muscles, setMuscles] = useState(INITIAL_MUSCLES);
@@ -1164,17 +1205,17 @@ function App() {
     selectedRitualId: ''
   });
   
-  // 최초 일기 상태 (빈 배열로 시작)
+  // 최초 일기 상태
   const [logs, setLogs] = useState([]);
 
   // 로컬 로드 & 클라우드 Auto-Pull
   useEffect(() => {
-    const savedMuscles = localStorage.getItem('on_mindgym_muscles_v18');
-    const savedLogs = localStorage.getItem('on_mindgym_logs_v18');
-    const savedResources = localStorage.getItem('on_mindgym_resources_v18');
-    const savedAlarm = localStorage.getItem('on_mindgym_alarm_v18');
-    const savedStartDate = localStorage.getItem('on_mindgym_startdate_v18');
-    const savedLastActive = localStorage.getItem('on_mindgym_lastactive_v18');
+    const savedMuscles = localStorage.getItem('on_mindgym_muscles_v19');
+    const savedLogs = localStorage.getItem('on_mindgym_logs_v19');
+    const savedResources = localStorage.getItem('on_mindgym_resources_v19');
+    const savedAlarm = localStorage.getItem('on_mindgym_alarm_v19');
+    const savedStartDate = localStorage.getItem('on_mindgym_startdate_v19');
+    const savedLastActive = localStorage.getItem('on_mindgym_lastactive_v19');
     
     if (savedMuscles) setMuscles(JSON.parse(savedMuscles));
     if (savedLogs) setLogs(JSON.parse(savedLogs));
@@ -1217,18 +1258,27 @@ function App() {
     if (!confirm('현재 점수를 2026.09.28 TCI 순수 출발선 점수(34, 20, 25, 15, 20, 25)로 완전히 리셋하시겠습니까?')) return;
     const resetMuscles = INITIAL_MUSCLES.map(m => ({ ...m, current: m.baseline }));
     setMuscles(resetMuscles);
-    localStorage.setItem('on_mindgym_muscles_v18', JSON.stringify(resetMuscles));
+    localStorage.setItem('on_mindgym_muscles_v19', JSON.stringify(resetMuscles));
     triggerAutoSaveCloud(resetMuscles, logs, resources, startDate);
     alert('✅ 모든 근육 점수가 TCI 출발선과 정확히 일치하도록 정렬되었습니다.');
   };
 
-  // 🗑️ 일기 삭제 핸들러 (삭제 시 -5점 차감 연동)
+  // 🔄 실천 루틴 목록 및 누적 횟수(0회) 클린 리셋 핸들러
+  const handleResetRoutines = () => {
+    if (!confirm('실천 루틴을 6대 마음근육 전용 6종 루틴으로 재정렬하고, 모든 누적 횟수를 0회로 초기화하시겠습니까?')) return;
+    setResources(INITIAL_RESOURCES);
+    localStorage.setItem('on_mindgym_resources_v19', JSON.stringify(INITIAL_RESOURCES));
+    triggerAutoSaveCloud(muscles, logs, INITIAL_RESOURCES, startDate);
+    alert('✅ 모든 실천 루틴이 누적 0회로 초기화되었으며, 6대 근육 맞춤 루틴이 탑재되었습니다.');
+  };
+
+  // 🗑️ 일기 삭제 핸들러
   const handleDeleteLog = (logId) => {
     if (!confirm('이 일기 기록을 삭제하시겠습니까?')) return;
     const targetLog = logs.find(l => l.id === logId);
     const filtered = logs.filter(l => l.id !== logId);
     setLogs(filtered);
-    localStorage.setItem('on_mindgym_logs_v18', JSON.stringify(filtered));
+    localStorage.setItem('on_mindgym_logs_v19', JSON.stringify(filtered));
 
     let updatedMuscles = muscles;
     if (targetLog) {
@@ -1239,7 +1289,7 @@ function App() {
         return m;
       });
       setMuscles(updatedMuscles);
-      localStorage.setItem('on_mindgym_muscles_v18', JSON.stringify(updatedMuscles));
+      localStorage.setItem('on_mindgym_muscles_v19', JSON.stringify(updatedMuscles));
     }
 
     triggerAutoSaveCloud(updatedMuscles, filtered, resources, startDate);
@@ -1258,7 +1308,7 @@ function App() {
   const handleSaveEdit = (logId) => {
     const updatedLogs = logs.map(l => l.id === logId ? { ...l, ...editForm } : l);
     setLogs(updatedLogs);
-    localStorage.setItem('on_mindgym_logs_v18', JSON.stringify(updatedLogs));
+    localStorage.setItem('on_mindgym_logs_v19', JSON.stringify(updatedLogs));
     setEditingLogId(null);
     triggerAutoSaveCloud(muscles, updatedLogs, resources, startDate);
   };
@@ -1316,7 +1366,7 @@ function App() {
 
   const handleSaveAlarmSettings = (newSettings) => {
     setAlarmSettings(newSettings);
-    localStorage.setItem('on_mindgym_alarm_v18', JSON.stringify(newSettings));
+    localStorage.setItem('on_mindgym_alarm_v19', JSON.stringify(newSettings));
     if (newSettings.enabled && 'Notification' in window && Notification.permission !== 'granted') {
       Notification.requestPermission();
     }
@@ -1344,18 +1394,18 @@ function App() {
 
   const handleUpdateStartDate = (newDate) => {
     setStartDate(newDate);
-    localStorage.setItem('on_mindgym_startdate_v18', newDate);
+    localStorage.setItem('on_mindgym_startdate_v19', newDate);
     triggerAutoSaveCloud(muscles, logs, resources, newDate);
   };
 
   const handleSaveMuscle = (updatedMuscle) => {
     const updated = muscles.map(m => m.id === updatedMuscle.id ? updatedMuscle : m);
     setMuscles(updated);
-    localStorage.setItem('on_mindgym_muscles_v18', JSON.stringify(updated));
+    localStorage.setItem('on_mindgym_muscles_v19', JSON.stringify(updated));
     
     const todayFormatted = `${new Date().getMonth() + 1}.${new Date().getDate()}`;
     setLastActiveDate(todayFormatted);
-    localStorage.setItem('on_mindgym_lastactive_v18', todayFormatted);
+    localStorage.setItem('on_mindgym_lastactive_v19', todayFormatted);
 
     triggerAutoSaveCloud(updated, logs, resources, startDate);
   };
@@ -1363,16 +1413,16 @@ function App() {
   const handleAddResource = (newRes) => {
     const updated = [newRes, ...resources];
     setResources(updated);
-    localStorage.setItem('on_mindgym_resources_v18', JSON.stringify(updated));
+    localStorage.setItem('on_mindgym_resources_v19', JSON.stringify(updated));
     alert('새로운 루틴/학습 자료가 저장되었습니다.');
     triggerAutoSaveCloud(muscles, logs, updated, startDate);
   };
 
   const handleRestoreData = (data) => {
-    if (data.muscles) { setMuscles(data.muscles); localStorage.setItem('on_mindgym_muscles_v18', JSON.stringify(data.muscles)); }
-    if (data.logs) { setLogs(data.logs); localStorage.setItem('on_mindgym_logs_v18', JSON.stringify(data.logs)); }
-    if (data.resources) { setResources(data.resources); localStorage.setItem('on_mindgym_resources_v18', JSON.stringify(data.resources)); }
-    if (data.startDate) { setStartDate(data.startDate); localStorage.setItem('on_mindgym_startdate_v18', data.startDate); }
+    if (data.muscles) { setMuscles(data.muscles); localStorage.setItem('on_mindgym_muscles_v19', JSON.stringify(data.muscles)); }
+    if (data.logs) { setLogs(data.logs); localStorage.setItem('on_mindgym_logs_v19', JSON.stringify(data.logs)); }
+    if (data.resources) { setResources(data.resources); localStorage.setItem('on_mindgym_resources_v19', JSON.stringify(data.resources)); }
+    if (data.startDate) { setStartDate(data.startDate); localStorage.setItem('on_mindgym_startdate_v19', data.startDate); }
   };
 
   const generateContextualFeedback = (currentLog, targetMuscle) => {
@@ -1458,11 +1508,11 @@ function App() {
 
     const newLogs = [newLog, ...logs];
     setLogs(newLogs);
-    localStorage.setItem('on_mindgym_logs_v18', JSON.stringify(newLogs));
+    localStorage.setItem('on_mindgym_logs_v19', JSON.stringify(newLogs));
 
     const todayFormatted = `${new Date().getMonth() + 1}.${new Date().getDate()}`;
     setLastActiveDate(todayFormatted);
-    localStorage.setItem('on_mindgym_lastactive_v18', todayFormatted);
+    localStorage.setItem('on_mindgym_lastactive_v19', todayFormatted);
 
     const updatedMuscles = muscles.map(m => {
       if (m.id === selectedMuscleForLog) {
@@ -1471,7 +1521,7 @@ function App() {
       return m;
     });
     setMuscles(updatedMuscles);
-    localStorage.setItem('on_mindgym_muscles_v18', JSON.stringify(updatedMuscles));
+    localStorage.setItem('on_mindgym_muscles_v19', JSON.stringify(updatedMuscles));
 
     triggerAutoSaveCloud(updatedMuscles, newLogs, resources, startDate);
     handleRequestAiCoaching(newLog);
@@ -1894,13 +1944,13 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
             </div>
           )}
 
-          {/* TAB 3: 실천 루틴 & 서재 */}
+          {/* TAB 3: 실천 루틴 & 서재 (6대 근육 맞춤형 전면 탑재) */}
           {activeTab === 'rituals' && (
             <div className="space-y-3">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <h3 className="text-xs font-bold text-slate-700">마음 리추얼 & 학습 서재</h3>
-                  <p className="text-[11px] text-slate-400">언제든 꺼내 읽는 성찰의 보고</p>
+                  <p className="text-[11px] text-slate-400">6대 마음 근육을 깨우는 일상 실천 도량형</p>
                 </div>
                 <button
                   onClick={() => setIsAddResourceOpen(true)}
@@ -1956,7 +2006,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                             </span>
                           </div>
                           {r.type === 'routine' ? (
-                            <span className="text-[10px] font-medium text-slate-500">누적 {r.completedCount}회</span>
+                            <span className="text-[10px] font-bold text-slate-600 font-mono">누적 {r.completedCount}회</span>
                           ) : (
                             <span className="text-[10px] text-slate-400 font-mono">{r.date}</span>
                           )}
@@ -1986,13 +2036,14 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                           onClick={() => {
                             const updated = resources.map(item => item.id === r.id ? { ...item, completedCount: item.completedCount + 1 } : item);
                             setResources(updated);
-                            localStorage.setItem('on_mindgym_resources_v18', JSON.stringify(updated));
-                            alert(`🌿 [${r.title}] 실천을 완료했습니다.`);
+                            localStorage.setItem('on_mindgym_resources_v19', JSON.stringify(updated));
+                            alert(`🌿 [${r.title}] 실천을 완료했습니다. (누적 ${r.completedCount + 1}회)`);
                             triggerAutoSaveCloud(muscles, logs, updated, startDate);
                           }}
-                          className="mt-3 w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-semibold rounded-xl border border-slate-200 transition-all"
+                          className="mt-3 w-full py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-semibold rounded-xl border border-slate-200 transition-all flex items-center justify-center gap-1"
                         >
-                          오늘 실천 완료 체크
+                          <span>오늘 실천 완료 체크</span>
+                          <span>✓</span>
                         </button>
                       )}
                     </div>
@@ -2236,6 +2287,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
         onSaveFirebaseConfig={handleSaveFirebaseConfig}
         onTriggerManualCloudSync={handleManualCloudSync}
         onResetToBaseline={handleResetToBaseline}
+        onResetRoutines={handleResetRoutines}
       />
       <VersionModal isOpen={isVersionOpen} onClose={() => setIsVersionOpen(false)} />
     </div>
