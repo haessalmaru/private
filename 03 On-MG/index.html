@@ -36,18 +36,26 @@
 const { useState, useEffect, useMemo, useRef } = React;
 
 // ==========================================
-// 📌 버전 및 전체 판올림 히스토리 (v1.5.0)
+// 📌 버전 및 전체 판올림 히스토리 (v1.5.2)
 // ==========================================
-const CURRENT_VERSION = 'v1.5.0';
+const CURRENT_VERSION = 'v1.5.2';
 const VERSION_HISTORY = [
+  {
+    version: 'v1.5.2',
+    date: '2026.10.19',
+    title: '마인드 정원수 수고(키) 3단계 성장 및 지상 밑동 판근 뿌리 완벽 일체화',
+    changes: [
+      '머무름 횟수에 따라 묘목(낮은 키) → 상록수(중간 키) → 황금 거목(높은 키)으로 수고와 수관이 위로 성장하는 엔진 탑재',
+      '기둥 외곽으로 튀어나오던 어색한 선을 제거하고 나무 몸통과 대지가 유려한 곡면으로 일체화되는 지상 판근 밑동 구현',
+      '6대 마음 근육 개별 점수(0~100점)에 실시간 비례하여 각 과실의 알이 굵어지는 동적 스케일링 연동'
+    ]
+  },
   {
     version: 'v1.5.0',
     date: '2026.10.18',
     title: '6대 마음 근육 한글 명칭 직관성 전면 개편',
     changes: [
-      '학술 직역투를 걷어내고 마음에 와닿는 실천적 일상어로 전면 개편',
-      '다정한 마음(온기), 다름의 존중(수용), 깊은 공감(공명), 너그러움(자비), 솔직한 용기(취약성), 지금을 음미(향유) 반영',
-      '레이더 차트, 근육 사전, 실천 루틴 카드, AI 코칭 프롬프트에 새로운 한글 명칭 일괄 동기화'
+      '다정한 마음, 다름의 존중, 깊은 공감, 너그러움, 솔직한 용기, 지금을 음미로 전면 개편'
     ]
   },
   {
@@ -55,8 +63,7 @@ const VERSION_HISTORY = [
     date: '2026.10.18',
     title: 'TCI 맞춤 6대 근육 실천 루틴 전면 구축 및 누적 횟수 클린 초기화',
     changes: [
-      '루틴 누적 횟수를 0회로 초기화 및 6대 근육 전용 실천 루틴 구축',
-      '설정 창에 "루틴 목록 & 누적 횟수(0회) 초기화" 기능 추가'
+      '루틴 누적 횟수를 0회로 초기화 및 6대 근육 전용 실천 루틴 구축'
     ]
   },
   {
@@ -64,10 +71,7 @@ const VERSION_HISTORY = [
     date: '2026.10.18',
     title: '시계열 비교 더미 계수 제거 및 실제 기록 기반 정밀 연동',
     changes: [
-      '1개월 전/분기/반기 선택 시 적용되던 가상 곱셈 수치를 전면 제거하고 실제 일기 데이터 역산 로직으로 개편',
-      '기록이 0회일 때 모든 기간 탭에서 TCI 기준선과 현재 점수가 완전 일치하도록 동기화',
-      '일기 삭제 시 해당 근육 점수 자동 차감(-5점, TCI 출발선 하한선 보장) 로직 연동',
-      '설정 창에 "현재 점수를 TCI 출발선 수치로 완전 초기화" 기능 제공'
+      '1개월 전/분기/반기 선택 시 실제 일기 데이터 역산 로직으로 개편'
     ]
   },
   {
@@ -75,46 +79,7 @@ const VERSION_HISTORY = [
     date: '2026.10.18',
     title: 'TCI 검사 프로파일(2026.09.28) 기반 6대 근육 출발선 및 As-Is/To-Be 정밀 동기화',
     changes: [
-      'TCI 성인용 검사 결과지의 백분위 수치를 반영하여 6대 근육의 객관적 출발선(Baseline) 재구축',
-      '완벽주의 인내력(99%)과 연대감(7%)의 기질적 균형을 회복하기 위한 As-Is 및 To-Be 성찰 카드 문구 개편',
-      '시작 기준일을 공식 TCI 검사일(2026.09.28)로 셋팅 및 시계열 트래커 연동'
-    ]
-  },
-  {
-    version: 'v1.3.2',
-    date: '2026.10.18',
-    title: '일기 기록 인라인 수정 및 삭제 기능 탑재',
-    changes: [
-      '성장 연대기 탭의 각 일기 카드에 [수정] 및 [삭제] 기능 추가',
-      '삭제 및 수정 시 Firebase 클라우드 즉시 자동 동기화'
-    ]
-  },
-  {
-    version: 'v1.3.0',
-    date: '2026.10.18',
-    title: '완전 자동 클라우드 동기화(Auto-Sync) 엔진 구축',
-    changes: [
-      '수동 버튼 조작 없이 일기 작성 시 Firebase 클라우드 자동 업로드',
-      '앱 기동 시 클라우드 최신 일기 및 근육 스탯 감지 후 기기 간 자동 동기화',
-      '상단 헤더에 실시간 클라우드 동기화 상태 뱃지 제공'
-    ]
-  },
-  {
-    version: 'v1.2.0',
-    date: '2026.10.18',
-    title: '레이더 차트 시계열 트래킹 및 목표 비교 시스템 개편',
-    changes: [
-      '실제 시작일(Baseline)과 최근 성장일(Current) 자동 연동',
-      '레이더 차트 시계열 발전 비교 필터(시작일, 1개월, 분기, 반기) 탑재'
-    ]
-  },
-  {
-    version: 'v1.1.0',
-    date: '2026.10.18',
-    title: '레이더 차트 안정화 및 Firebase 동기화 설정 탑재',
-    changes: [
-      '레이더 차트 마우스 오버 시 꼭짓점 원 기호가 좌우로 흔들리던 SVG Transform 버그 수정',
-      '설정 창 내 Firebase 설정 키 입력 및 연동 인터페이스 구축'
+      'TCI 성인용 검사 결과지의 백분위 수치를 반영하여 6대 근육의 객관적 출발선(Baseline) 재구축'
     ]
   },
   {
@@ -122,15 +87,12 @@ const VERSION_HISTORY = [
     date: '2026.10.18',
     title: 'On溫 Mind GYM 첫 공식 릴리즈',
     changes: [
-      'TCI 기질 및 코칭 기반 6대 감정 근육 프레임워크 구축',
-      '3단계 감정일기 및 온(溫) 1:1 맞춤 AI 코칭 연동',
-      '감정 과실수 성장 시각화 엔진 탑재'
+      'TCI 기질 및 코칭 기반 6대 감정 근육 프레임워크 구축'
     ]
   }
 ];
-// ==========================================
-// 📌 6대 마음 근육 데이터 (직관적 한글 명칭 반영)
-// ==========================================
+
+// 6대 마음 근육 데이터 (직관적 한글 명칭 반영)
 const INITIAL_MUSCLES = [
   {
     id: 'warmth',
@@ -206,90 +168,16 @@ const INITIAL_MUSCLES = [
   }
 ];
 
-// ==========================================
-// 📌 TCI 맞춤형 6대 실천 루틴 (누적 0회 셋팅)
-// ==========================================
+// TCI 맞춤형 6대 실천 루틴
 const INITIAL_RESOURCES = [
-  {
-    id: 1,
-    type: 'routine',
-    muscleId: 'empathy',
-    title: '해결책 멈추고 3초 마음 머물기',
-    desc: '가족이나 동료가 고민을 털어놓을 때 즉각적인 솔루션을 멈추고, 숨을 고른 뒤 "정말 속상했겠구나" 하고 그 마음에 먼저 주파수 맞추기',
-    url: '',
-    completedCount: 0,
-    date: '2026.09.28'
-  },
-  {
-    id: 2,
-    type: 'routine',
-    muscleId: 'warmth',
-    title: '따뜻한 눈맞춤과 다정한 안부',
-    desc: '용건으로 바로 들어가지 않고, 상대의 눈을 부드럽게 바라보며 "오늘 하루는 어떻게 흘러가고 있나요?"라고 마음 열기',
-    url: '',
-    completedCount: 0,
-    date: '2026.09.28'
-  },
-  {
-    id: 3,
-    type: 'routine',
-    muscleId: 'acceptance',
-    title: '"그럴 수 있지" 호흡 머금기',
-    desc: '내 기준(효율, 논리, 속도)에 미치지 못해 답답함이 올라올 때, 즉시 지적하지 않고 깊은 숨을 내쉬며 "각자의 속도와 이유가 있다"고 품어주기',
-    url: '',
-    completedCount: 0,
-    date: '2026.09.28'
-  },
-  {
-    id: 4,
-    type: 'routine',
-    muscleId: 'compassion',
-    title: '80% 만족 미소 짓기 (완벽주의 내려놓기)',
-    desc: '나와 타인의 사소한 빈틈이나 서투른 실수 앞에서 날카로운 잣대를 내려놓고 "이 정도면 충분히 잘해냈다"며 너그럽게 미소 건네기',
-    url: '',
-    completedCount: 0,
-    date: '2026.09.28'
-  },
-  {
-    id: 5,
-    type: 'routine',
-    muscleId: 'vulnerability',
-    title: '완벽 방패 내리고 담백한 속마음 털어놓기',
-    desc: '모든 짐을 혼자 짊어지려 하지 않고, 가까운 이에게 "이 부분은 나도 조금 벅차네, 도움이 필요해"라고 솔직한 인간적 온도를 건네기',
-    url: '',
-    completedCount: 0,
-    date: '2026.09.28'
-  },
-  {
-    id: 6,
-    type: 'routine',
-    muscleId: 'savoring',
-    title: '성취 후 30초 멈춤과 감사 음미',
-    desc: '과업을 마친 직후 곧바로 다음 일로 넘어가지 않고, 창밖을 보며 따뜻한 차 한 모금과 함께 오늘 내게 닿은 호의와 평온함을 온전히 만끽하기',
-    url: '',
-    completedCount: 0,
-    date: '2026.09.28'
-  },
-  {
-    id: 7,
-    type: 'youtube',
-    muscleId: 'vulnerability',
-    title: '브레네 브라운: 취약성의 힘 (TED)',
-    desc: '완벽주의는 방패일 뿐이다. 내 약함을 있는 그대로 인정하고 연결될 때 가장 단단한 용기가 자라난다.',
-    url: 'https://www.ted.com/talks/brene_brown_the_power_of_vulnerability',
-    completedCount: 0,
-    date: '2026.09.28'
-  },
-  {
-    id: 8,
-    type: 'memo',
-    muscleId: 'acceptance',
-    title: '나의 인생오후 메모: 냉정을 넘어 포용으로',
-    desc: '속도와 효율로 달려온 청년기를 지나, 인생오후에는 사람들의 불완전함과 다른 템포를 넉넉하게 품는 큰 나무가 되고 싶다.',
-    url: '',
-    completedCount: 0,
-    date: '2026.09.28'
-  }
+  { id: 1, type: 'routine', muscleId: 'empathy', title: '해결책 멈추고 3초 마음 머물기', desc: '가족이나 동료가 고민을 털어놓을 때 즉각적인 솔루션을 멈추고, 숨을 고른 뒤 "정말 속상했겠구나" 하고 그 마음에 먼저 주파수 맞추기', url: '', completedCount: 0, date: '2026.09.28' },
+  { id: 2, type: 'routine', muscleId: 'warmth', title: '따뜻한 눈맞춤과 다정한 안부', desc: '용건으로 바로 들어가지 않고, 상대의 눈을 부드럽게 바라보며 "오늘 하루는 어떻게 흘러가고 있나요?"라고 마음 열기', url: '', completedCount: 0, date: '2026.09.28' },
+  { id: 3, type: 'routine', muscleId: 'acceptance', title: '"그럴 수 있지" 호흡 머금기', desc: '내 기준(효율, 논리, 속도)에 미치지 못해 답답함이 올라올 때, 즉시 지적하지 않고 깊은 숨을 내쉬며 "각자의 속도와 이유가 있다"고 품어주기', url: '', completedCount: 0, date: '2026.09.28' },
+  { id: 4, type: 'routine', muscleId: 'compassion', title: '80% 만족 미소 짓기 (완벽주의 내려놓기)', desc: '나와 타인의 사소한 빈틈이나 서투른 실수 앞에서 날카로운 잣대를 내려놓고 "이 정도면 충분히 잘해냈다"며 너그럽게 미소 건네기', url: '', completedCount: 0, date: '2026.09.28' },
+  { id: 5, type: 'routine', muscleId: 'vulnerability', title: '완벽 방패 내리고 담백한 속마음 털어놓기', desc: '모든 짐을 혼자 짊어지려 하지 않고, 가까운 이에게 "이 부분은 나도 조금 벅차네, 도움이 필요해"라고 솔직한 인간적 온도를 건네기', url: '', completedCount: 0, date: '2026.09.28' },
+  { id: 6, type: 'routine', muscleId: 'savoring', title: '성취 후 30초 멈춤과 감사 음미', desc: '과업을 마친 직후 곧바로 다음 일로 넘어가지 않고, 창밖을 보며 따뜻한 차 한 모금과 함께 오늘 내게 닿은 호의와 평온함을 온전히 만끽하기', url: '', completedCount: 0, date: '2026.09.28' },
+  { id: 7, type: 'youtube', muscleId: 'vulnerability', title: '브레네 브라운: 취약성의 힘 (TED)', desc: '완벽주의는 방패일 뿐이다. 내 약함을 있는 그대로 인정하고 연결될 때 가장 단단한 용기가 자라난다.', url: 'https://www.ted.com/talks/brene_brown_the_power_of_vulnerability', completedCount: 0, date: '2026.09.28' },
+  { id: 8, type: 'memo', muscleId: 'acceptance', title: '나의 인생오후 메모: 냉정을 넘어 포용으로', desc: '속도와 효율로 달려온 청년기를 지나, 인생오후에는 사람들의 불완전함과 다른 템포를 넉넉하게 품는 큰 나무가 되고 싶다.', url: '', completedCount: 0, date: '2026.09.28' }
 ];
 
 // Firebase Firestore REST API 헬퍼 함수
@@ -478,7 +366,7 @@ function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle, startDate,
           );
         })}
 
-       {muscles.map((m, i) => {
+        {muscles.map((m, i) => {
           const angle = (Math.PI * 2 / totalPoints) * i - Math.PI / 2;
           const labelDist = radius + 22;
           const lx = center + labelDist * Math.cos(angle);
@@ -498,11 +386,11 @@ function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle, startDate,
               >
                 {m.name}
               </text>
-              <text 
-                x={lx} 
-                y={ly + 10} 
-                textAnchor="middle" 
-                dominantBaseline="central" 
+              <text
+                x={lx}
+                y={ly + 10}
+                textAnchor="middle"
+                dominantBaseline="central"
                 className={`text-[10px] font-mono select-none ${
                   isSelected ? 'fill-blue-500 font-bold' : 'fill-slate-400 font-medium'
                 }`}
@@ -520,23 +408,105 @@ function RadarBalanceChart({ muscles, activeMuscleId, onSelectMuscle, startDate,
   );
 }
 
-// 2. 마음 과실수
+// ==========================================
+// 2. 🌳 마인드 정원수 (3단계 수고 키 성장 & 매끄러운 지상 판근 밑동 엔진)
+// ==========================================
 function PrismFruitTree({ muscles, totalLogsCount }) {
-  const growthStage = useMemo(() => {
-    if (totalLogsCount < 3) return { stage: 1, name: '뿌리내리는 묘목', desc: '대지에 든든한 온기의 뿌리를 내리는 중' };
-    if (totalLogsCount < 7) return { stage: 2, name: '자라나는 상록수', desc: '푸른 잎새 사이로 새로운 가지가 뻗어납니다' };
-    if (totalLogsCount < 15) return { stage: 3, name: '열매 맺는 정원수', desc: '6대 감정 근육의 과실이 풍성히 영글어갑니다' };
-    if (totalLogsCount < 30) return { stage: 4, name: '우거진 안식처', desc: '인생의 오후를 너그럽게 품는 큰 나무' };
-    return { stage: 5, name: '풍요로운 황금 거목', desc: '깊은 연대감과 온기가 가득한 성숙의 숲' };
+  const treeConfig = useMemo(() => {
+    if (totalLogsCount < 5) {
+      return {
+        stage: 1,
+        name: '대지에 착근하는 묘목',
+        desc: '대지 위에 조용히 자리 잡은 아담한 묘목',
+        trunkD: `
+          M 108 236
+          Q 113 205 113 175
+          C 98 165, 82 152, 75 142
+          C 80 144, 95 153, 114 162
+          C 116 150, 117 138, 118 126
+          C 122 138, 124 150, 126 162
+          C 145 153, 160 144, 165 142
+          C 158 152, 142 165, 127 175
+          Q 127 205 132 236
+          Z
+        `,
+        barkD: `M 120 178 L 120 230`,
+        barkWidth: 1.4,
+        canopyTransform: 'translate(0px, 35px) scale(0.85)',
+        canopyOrigin: '120px 140px',
+        glowAura: false
+      };
+    }
+    if (totalLogsCount < 15) {
+      return {
+        stage: 2,
+        name: '가지를 넓히는 상록수',
+        desc: '키가 자라나고 단단해진 밑동 뿌리가 흙을 움켜쥡니다',
+        trunkD: `
+          M 94 238
+          C 104 228, 108 200, 111 150
+          C 94 140, 77 122, 69 110
+          C 75 112, 91 125, 113 135
+          C 115 120, 116 105, 117 92
+          C 121 105, 123 120, 125 135
+          C 147 122, 163 112, 169 110
+          C 161 122, 144 140, 127 150
+          C 130 200, 134 228, 146 238
+          Q 136 233 128 230
+          Q 120 236 112 230
+          Q 104 233 94 238
+          Z
+        `,
+        barkD: `
+          M 116 155 Q 114 195 106 232
+          M 124 155 Q 126 195 134 232
+        `,
+        barkWidth: 1.8,
+        canopyTransform: 'translate(0px, 0px) scale(1.0)',
+        canopyOrigin: '120px 105px',
+        glowAura: false
+      };
+    }
+    return {
+      stage: 3,
+      name: '풍요로운 황금 거목',
+      desc: '높게 솟은 기둥과 거대한 밑동 뿌리가 굳건한 안식을 줍니다',
+      trunkD: `
+        M 76 242
+        C 92 234, 102 205, 108 135
+        C 91 125, 75 107, 67 95
+        C 75 97, 91 110, 113 120
+        C 115 105, 116 90, 117 77
+        C 121 90, 123 105, 125 120
+        C 147 107, 163 97, 171 95
+        C 163 107, 147 125, 129 135
+        C 136 205, 146 234, 164 242
+        Q 150 236 142 228
+        Q 135 238 128 242
+        Q 120 233 112 242
+        Q 105 238 98 228
+        Q 90 236 76 242
+        Z
+      `,
+      barkD: `
+        M 114 140 Q 112 190 98 228
+        M 120 140 L 120 233
+        M 126 140 Q 128 190 142 228
+      `,
+      barkWidth: 2.0,
+      canopyTransform: 'translate(0px, -25px) scale(1.15)',
+      canopyOrigin: '120px 80px',
+      glowAura: true
+    };
   }, [totalLogsCount]);
 
   const fruitPositions = [
-    { cx: 78,  cy: 88,  r: 12 },
-    { cx: 165, cy: 92,  r: 12 },
-    { cx: 118, cy: 62,  r: 13 },
-    { cx: 70,  cy: 128, r: 11 },
-    { cx: 168, cy: 135, r: 11 },
-    { cx: 122, cy: 112, r: 12.5 }
+    { cx: 78,  cy: 88 },
+    { cx: 165, cy: 92 },
+    { cx: 118, cy: 62 },
+    { cx: 70,  cy: 128 },
+    { cx: 168, cy: 135 },
+    { cx: 122, cy: 112 }
   ];
 
   return (
@@ -550,21 +520,54 @@ function PrismFruitTree({ muscles, totalLogsCount }) {
         </div>
         <div className="text-right">
           <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100/80 text-emerald-800">
-            {growthStage.name}
+            {treeConfig.name}
           </span>
-          <p className="text-[10px] text-slate-400 mt-0.5">총 {totalLogsCount}번 머무름</p>
+          <p className="text-[10px] text-slate-400 mt-0.5 font-mono">총 {totalLogsCount}번 머무름</p>
         </div>
       </div>
 
-      <div className="relative w-48 h-52 sm:w-52 sm:h-56 flex items-center justify-center my-1">
-        <svg viewBox="0 0 240 250" className="w-full h-full filter drop-shadow-xs overflow-visible">
-          <ellipse cx="120" cy="225" rx="72" ry="16" fill="#D4A359" opacity="0.85" />
-          <ellipse cx="120" cy="223" rx="60" ry="11" fill="#C59345" opacity="0.5" />
+      <div className="relative w-48 h-56 sm:w-56 sm:h-60 flex items-center justify-center my-1">
+        <svg viewBox="0 0 240 270" className="w-full h-full filter drop-shadow-xs overflow-visible">
+          
+          {/* 황금 거목 아우라 */}
+          {treeConfig.glowAura && (
+            <circle cx="120" cy="80" r="95" fill="rgba(245, 158, 11, 0.22)" />
+          )}
+
+          {/* 대지 흙 베이스 */}
+          <ellipse cx="120" cy="236" rx="84" ry="16" fill="#D4A359" opacity="0.9" />
+          <ellipse cx="120" cy="234" rx="72" ry="11" fill="#C59345" opacity="0.6" />
+
+          {/* 일체화된 나무 기둥 & 지상 판근 밑동 패스 */}
           <path
-            d="M 120 220 C 105 220, 92 216, 78 222 C 92 205, 102 185, 104 150 C 85 140, 68 122, 60 110 C 66 112, 85 125, 108 135 C 112 120, 114 105, 116 92 C 122 105, 126 120, 130 135 C 152 122, 172 110, 180 108 C 172 122, 155 140, 136 150 C 138 185, 148 205, 162 222 C 148 216, 135 220, 120 220 Z"
-            fill="#80624C"
+            d={treeConfig.trunkD}
+            fill="#7A563C"
+            className="transition-all duration-500"
           />
-          <g fill="#76BA38" stroke="#68A72F" strokeWidth="2" strokeLinejoin="round">
+
+          {/* 기둥 내부 골짜기 음영 라인 */}
+          <path
+            d={treeConfig.barkD}
+            fill="none"
+            stroke="#5E402A"
+            strokeWidth={treeConfig.barkWidth}
+            strokeLinecap="round"
+            opacity="0.45"
+            className="transition-all duration-500"
+          />
+
+          {/* 나뭇잎 수관 (수고에 따라 상하 이동 및 스케일링) */}
+          <g 
+            fill="#76BA38" 
+            stroke="#68A72F" 
+            strokeWidth="2" 
+            strokeLinejoin="round"
+            className="transition-all duration-500"
+            style={{ 
+              transform: treeConfig.canopyTransform,
+              transformOrigin: treeConfig.canopyOrigin
+            }}
+          >
             <circle cx="75" cy="118" r="38" />
             <circle cx="165" cy="118" r="38" />
             <circle cx="82" cy="78" r="36" />
@@ -573,22 +576,66 @@ function PrismFruitTree({ muscles, totalLogsCount }) {
             <circle cx="120" cy="105" r="44" />
           </g>
 
-          {muscles.map((m, idx) => {
-            const pos = fruitPositions[idx];
-            return (
-              <g key={m.id} className="transition-all duration-300 hover:opacity-80 cursor-pointer origin-center">
-                <circle cx={pos.cx} cy={pos.cy} r={pos.r} fill={m.color} stroke="#FFFFFF" strokeWidth="1.8" className="filter drop-shadow-xs" />
-                <circle cx={pos.cx - pos.r * 0.35} cy={pos.cy - pos.r * 0.35} r={pos.r * 0.28} fill="#FFFFFF" opacity="0.65" />
-              </g>
-            );
-          })}
+          {/* 과실 그룹 (수고 높이에 따라 함께 이동하며, 점수에 비례해 크기 성장) */}
+          <g
+            className="transition-all duration-500"
+            style={{ 
+              transform: treeConfig.canopyTransform,
+              transformOrigin: treeConfig.canopyOrigin
+            }}
+          >
+            {muscles.map((m, idx) => {
+              const pos = fruitPositions[idx];
+              // 0점: 7px ~ 100점: 18px 스케일링
+              const fruitRadius = 7 + (m.current / 100) * 11;
+              const highlightRadius = fruitRadius * 0.28;
+
+              return (
+                <g 
+                  key={m.id} 
+                  className="transition-all duration-500 hover:opacity-80 cursor-pointer origin-center"
+                  title={`${m.name}: ${m.current}점`}
+                >
+                  {/* 꼭지 */}
+                  <path 
+                    d={`M ${pos.cx} ${pos.cy - fruitRadius} Q ${pos.cx - 2} ${pos.cy - fruitRadius - 4} ${pos.cx + 2} ${pos.cy - fruitRadius - 5}`} 
+                    stroke="#4D2E18" 
+                    strokeWidth="1.5" 
+                    fill="none" 
+                    strokeLinecap="round" 
+                  />
+                  {/* 과실 몸체 */}
+                  <circle 
+                    cx={pos.cx} 
+                    cy={pos.cy} 
+                    r={fruitRadius} 
+                    fill={m.color} 
+                    stroke="#FFFFFF" 
+                    strokeWidth={fruitRadius > 13 ? 2.2 : 1.8} 
+                    className="filter drop-shadow-xs transition-all duration-500" 
+                  />
+                  {/* 하이라이트 광택 */}
+                  <circle 
+                    cx={pos.cx - fruitRadius * 0.35} 
+                    cy={pos.cy - fruitRadius * 0.35} 
+                    r={highlightRadius} 
+                    fill="#FFFFFF" 
+                    opacity="0.75" 
+                  />
+                </g>
+              );
+            })}
+          </g>
         </svg>
       </div>
 
       <div className="w-full text-center bg-stone-50 py-2 px-3 rounded-xl border border-stone-200/60 mt-1">
-        <p className="text-[11px] font-medium text-slate-700 leading-tight">{growthStage.desc}</p>
+        <p className="text-[11px] font-medium text-slate-700 leading-tight">{treeConfig.desc}</p>
         <div className="w-full bg-slate-200 h-1.5 rounded-full mt-1.5 overflow-hidden">
-          <div className="bg-emerald-600 h-full rounded-full transition-all duration-700" style={{ width: `${Math.min(100, Math.max(15, (totalLogsCount / 30) * 100))}%` }}></div>
+          <div 
+            className="bg-emerald-600 h-full rounded-full transition-all duration-700" 
+            style={{ width: `${Math.min(100, Math.max(12, (totalLogsCount / 15) * 100))}%` }}
+          ></div>
         </div>
       </div>
     </div>
@@ -1247,7 +1294,7 @@ function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isVersionOpen, setIsVersionOpen] = useState(false);
 
-  // 시계열 트래킹 상태 (TCI 검사일자 2026.09.28로 초기화)
+  // 시계열 트래킹 상태 (TCI 검사일자 2026.09.28)
   const [startDate, setStartDate] = useState('2026.09.28');
   const [lastActiveDate, setLastActiveDate] = useState('10.18');
 
@@ -1284,12 +1331,12 @@ function App() {
 
   // 로컬 로드 & 클라우드 Auto-Pull
   useEffect(() => {
-    const savedMuscles = localStorage.getItem('on_mindgym_muscles_v20');
-    const savedLogs = localStorage.getItem('on_mindgym_logs_v20');
-    const savedResources = localStorage.getItem('on_mindgym_resources_v20');
-    const savedAlarm = localStorage.getItem('on_mindgym_alarm_v20');
-    const savedStartDate = localStorage.getItem('on_mindgym_startdate_v20');
-    const savedLastActive = localStorage.getItem('on_mindgym_lastactive_v20');
+    const savedMuscles = localStorage.getItem('on_mindgym_muscles_v22');
+    const savedLogs = localStorage.getItem('on_mindgym_logs_v22');
+    const savedResources = localStorage.getItem('on_mindgym_resources_v22');
+    const savedAlarm = localStorage.getItem('on_mindgym_alarm_v22');
+    const savedStartDate = localStorage.getItem('on_mindgym_startdate_v22');
+    const savedLastActive = localStorage.getItem('on_mindgym_lastactive_v22');
     
     if (savedMuscles) setMuscles(JSON.parse(savedMuscles));
     if (savedLogs) setLogs(JSON.parse(savedLogs));
@@ -1332,7 +1379,7 @@ function App() {
     if (!confirm('현재 점수를 2026.09.28 TCI 순수 출발선 점수(34, 20, 25, 15, 20, 25)로 완전히 리셋하시겠습니까?')) return;
     const resetMuscles = INITIAL_MUSCLES.map(m => ({ ...m, current: m.baseline }));
     setMuscles(resetMuscles);
-    localStorage.setItem('on_mindgym_muscles_v20', JSON.stringify(resetMuscles));
+    localStorage.setItem('on_mindgym_muscles_v22', JSON.stringify(resetMuscles));
     triggerAutoSaveCloud(resetMuscles, logs, resources, startDate);
     alert('✅ 모든 근육 점수가 TCI 출발선과 정확히 일치하도록 정렬되었습니다.');
   };
@@ -1341,18 +1388,18 @@ function App() {
   const handleResetRoutines = () => {
     if (!confirm('실천 루틴을 6대 마음근육 전용 6종 루틴으로 재정렬하고, 모든 누적 횟수를 0회로 초기화하시겠습니까?')) return;
     setResources(INITIAL_RESOURCES);
-    localStorage.setItem('on_mindgym_resources_v20', JSON.stringify(INITIAL_RESOURCES));
+    localStorage.setItem('on_mindgym_resources_v22', JSON.stringify(INITIAL_RESOURCES));
     triggerAutoSaveCloud(muscles, logs, INITIAL_RESOURCES, startDate);
     alert('✅ 모든 실천 루틴이 누적 0회로 초기화되었으며, 6대 근육 맞춤 루틴이 탑재되었습니다.');
   };
 
-  // 🗑️ 일기 삭제 핸들러
+  // 🗑️ 일기 삭제 핸들러 (삭제 시 -5점 차감 연동)
   const handleDeleteLog = (logId) => {
     if (!confirm('이 일기 기록을 삭제하시겠습니까?')) return;
     const targetLog = logs.find(l => l.id === logId);
     const filtered = logs.filter(l => l.id !== logId);
     setLogs(filtered);
-    localStorage.setItem('on_mindgym_logs_v20', JSON.stringify(filtered));
+    localStorage.setItem('on_mindgym_logs_v22', JSON.stringify(filtered));
 
     let updatedMuscles = muscles;
     if (targetLog) {
@@ -1363,7 +1410,7 @@ function App() {
         return m;
       });
       setMuscles(updatedMuscles);
-      localStorage.setItem('on_mindgym_muscles_v20', JSON.stringify(updatedMuscles));
+      localStorage.setItem('on_mindgym_muscles_v22', JSON.stringify(updatedMuscles));
     }
 
     triggerAutoSaveCloud(updatedMuscles, filtered, resources, startDate);
@@ -1382,7 +1429,7 @@ function App() {
   const handleSaveEdit = (logId) => {
     const updatedLogs = logs.map(l => l.id === logId ? { ...l, ...editForm } : l);
     setLogs(updatedLogs);
-    localStorage.setItem('on_mindgym_logs_v20', JSON.stringify(updatedLogs));
+    localStorage.setItem('on_mindgym_logs_v22', JSON.stringify(updatedLogs));
     setEditingLogId(null);
     triggerAutoSaveCloud(muscles, updatedLogs, resources, startDate);
   };
@@ -1440,7 +1487,7 @@ function App() {
 
   const handleSaveAlarmSettings = (newSettings) => {
     setAlarmSettings(newSettings);
-    localStorage.setItem('on_mindgym_alarm_v20', JSON.stringify(newSettings));
+    localStorage.setItem('on_mindgym_alarm_v22', JSON.stringify(newSettings));
     if (newSettings.enabled && 'Notification' in window && Notification.permission !== 'granted') {
       Notification.requestPermission();
     }
@@ -1468,18 +1515,18 @@ function App() {
 
   const handleUpdateStartDate = (newDate) => {
     setStartDate(newDate);
-    localStorage.setItem('on_mindgym_startdate_v20', newDate);
+    localStorage.setItem('on_mindgym_startdate_v22', newDate);
     triggerAutoSaveCloud(muscles, logs, resources, newDate);
   };
 
   const handleSaveMuscle = (updatedMuscle) => {
     const updated = muscles.map(m => m.id === updatedMuscle.id ? updatedMuscle : m);
     setMuscles(updated);
-    localStorage.setItem('on_mindgym_muscles_v20', JSON.stringify(updated));
+    localStorage.setItem('on_mindgym_muscles_v22', JSON.stringify(updated));
     
     const todayFormatted = `${new Date().getMonth() + 1}.${new Date().getDate()}`;
     setLastActiveDate(todayFormatted);
-    localStorage.setItem('on_mindgym_lastactive_v20', todayFormatted);
+    localStorage.setItem('on_mindgym_lastactive_v22', todayFormatted);
 
     triggerAutoSaveCloud(updated, logs, resources, startDate);
   };
@@ -1487,16 +1534,16 @@ function App() {
   const handleAddResource = (newRes) => {
     const updated = [newRes, ...resources];
     setResources(updated);
-    localStorage.setItem('on_mindgym_resources_v20', JSON.stringify(updated));
+    localStorage.setItem('on_mindgym_resources_v22', JSON.stringify(updated));
     alert('새로운 루틴/학습 자료가 저장되었습니다.');
     triggerAutoSaveCloud(muscles, logs, updated, startDate);
   };
 
   const handleRestoreData = (data) => {
-    if (data.muscles) { setMuscles(data.muscles); localStorage.setItem('on_mindgym_muscles_v20', JSON.stringify(data.muscles)); }
-    if (data.logs) { setLogs(data.logs); localStorage.setItem('on_mindgym_logs_v20', JSON.stringify(data.logs)); }
-    if (data.resources) { setResources(data.resources); localStorage.setItem('on_mindgym_resources_v20', JSON.stringify(data.resources)); }
-    if (data.startDate) { setStartDate(data.startDate); localStorage.setItem('on_mindgym_startdate_v20', data.startDate); }
+    if (data.muscles) { setMuscles(data.muscles); localStorage.setItem('on_mindgym_muscles_v22', JSON.stringify(data.muscles)); }
+    if (data.logs) { setLogs(data.logs); localStorage.setItem('on_mindgym_logs_v22', JSON.stringify(data.logs)); }
+    if (data.resources) { setResources(data.resources); localStorage.setItem('on_mindgym_resources_v22', JSON.stringify(data.resources)); }
+    if (data.startDate) { setStartDate(data.startDate); localStorage.setItem('on_mindgym_startdate_v22', data.startDate); }
   };
 
   const generateContextualFeedback = (currentLog, targetMuscle) => {
@@ -1582,11 +1629,11 @@ function App() {
 
     const newLogs = [newLog, ...logs];
     setLogs(newLogs);
-    localStorage.setItem('on_mindgym_logs_v20', JSON.stringify(newLogs));
+    localStorage.setItem('on_mindgym_logs_v22', JSON.stringify(newLogs));
 
     const todayFormatted = `${new Date().getMonth() + 1}.${new Date().getDate()}`;
     setLastActiveDate(todayFormatted);
-    localStorage.setItem('on_mindgym_lastactive_v20', todayFormatted);
+    localStorage.setItem('on_mindgym_lastactive_v22', todayFormatted);
 
     const updatedMuscles = muscles.map(m => {
       if (m.id === selectedMuscleForLog) {
@@ -1595,7 +1642,7 @@ function App() {
       return m;
     });
     setMuscles(updatedMuscles);
-    localStorage.setItem('on_mindgym_muscles_v20', JSON.stringify(updatedMuscles));
+    localStorage.setItem('on_mindgym_muscles_v22', JSON.stringify(updatedMuscles));
 
     triggerAutoSaveCloud(updatedMuscles, newLogs, resources, startDate);
     handleRequestAiCoaching(newLog);
@@ -1792,7 +1839,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
       {/* 2. 메인 2단 분할 레이아웃 */}
       <main className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-3.5 sm:gap-5 pb-6">
         
-        {/* 좌측: 레이더 차트 & 정원수 */}
+        {/* 좌측: 레이더 차트 & 동적 정원수 */}
         <section className="md:col-span-5 flex flex-col gap-3.5">
           <RadarBalanceChart
             muscles={muscles}
@@ -2110,7 +2157,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                           onClick={() => {
                             const updated = resources.map(item => item.id === r.id ? { ...item, completedCount: item.completedCount + 1 } : item);
                             setResources(updated);
-                            localStorage.setItem('on_mindgym_resources_v20', JSON.stringify(updated));
+                            localStorage.setItem('on_mindgym_resources_v22', JSON.stringify(updated));
                             alert(`🌿 [${r.title}] 실천을 완료했습니다. (누적 ${r.completedCount + 1}회)`);
                             triggerAutoSaveCloud(muscles, logs, updated, startDate);
                           }}
