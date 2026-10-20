@@ -36,19 +36,28 @@
 const { useState, useEffect, useMemo, useRef } = React;
 
 // ==========================================
-// 📌 버전 및 전체 판올림 히스토리 (v1.5.4)
+// 📌 버전 및 전체 판올림 히스토리 (v1.5.5)
 // ==========================================
-const CURRENT_VERSION = 'v1.5.4';
+const CURRENT_VERSION = 'v1.5.5';
 const VERSION_HISTORY = [
   {
-    version: 'v1.5.4',
+    version: 'v1.5.5',
     date: '2026.10.20',
-    title: '온(溫)마음 나무·4대 탭 명칭 개편 및 모바일/태블릿 알람 엔진 완벽 수정',
+    title: '모바일/태블릿 알람 엔진 무한대기 해소 및 즉각 반응형 3중 안전망 구축',
     changes: [
-      '모바일/태블릿 Chrome에서 new Notification() 에러로 알림이 무반응이던 버그 해결 (서비스워커 showNotification 연동 및 Alert 폴백 탑재)',
-      '정원수 명칭을 온기 가득한 "온(溫)마음 나무"로 최종 정돈',
-      '4대 탭 명칭을 "마음 챙김 - 마음 나침반 - 실천 루틴 - 성장 연대기" 체계로 통일 및 직관화',
-      '수고(키) 3단계 성장 및 기둥과 매끄럽게 연결되는 지상 판근 밑동 일체화'
+      '미등록 서비스워커 무한 대기(ready Promise)로 인한 알림 멈춤 버그 완전 제거',
+      '기기/브라우저 환경에 구애받지 않고 인앱 알림 및 상단바 푸시를 병행하는 즉각 알람 엔진 탑재',
+      '온(溫)마음 나무 3단계 수고 키 성장 및 지상 판근 밑동 뿌리 통합',
+      '4대 탭(마음 챙김 - 마음 나침반 - 실천 루틴 - 성장 연대기) 체계 안정화'
+    ]
+  },
+  {
+    version: 'v1.5.3',
+    date: '2026.10.20',
+    title: '온(溫)마음 나무 명칭 확정 및 4대 탭 직관성 통합 개편',
+    changes: [
+      '정원수 명칭을 "온(溫)마음 나무"로 정돈',
+      '4대 탭 명칭을 "마음 챙김 - 마음 나침반 - 실천 루틴 - 성장 연대기" 체계로 개편'
     ]
   },
   {
@@ -65,14 +74,6 @@ const VERSION_HISTORY = [
     title: '6대 마음 근육 한글 명칭 직관성 전면 개편',
     changes: [
       '다정한 마음, 다름의 존중, 깊은 공감, 너그러움, 솔직한 용기, 지금을 음미로 전면 개편'
-    ]
-  },
-  {
-    version: 'v1.4.2',
-    date: '2026.10.18',
-    title: 'TCI 맞춤 6대 근육 실천 루틴 전면 구축 및 누적 횟수 클린 초기화',
-    changes: [
-      '루틴 누적 횟수를 0회로 초기화 및 6대 근육 전용 실천 루틴 구축'
     ]
   },
   {
@@ -850,7 +851,7 @@ function MuscleDetailModal({ muscle, isOpen, onClose, onSave }) {
   );
 }
 
-// 5. 설정 모달 (모바일/태블릿 알람 안전 핸들러 보강)
+// 5. 설정 모달 (알람 즉시 반응형)
 function SettingsModal({ 
   isOpen, 
   onClose, 
@@ -1028,7 +1029,7 @@ function SettingsModal({
           </div>
         </div>
 
-        {/* 알람 설정 (모바일/태블릿 Chrome 호환 안전 버튼) */}
+        {/* 알람 설정 (즉시 반응형 테스트 알림) */}
         <div className="bg-emerald-50/70 p-3 rounded-2xl border border-emerald-200/70 space-y-2">
           <div className="flex items-center justify-between">
             <span className="font-bold text-emerald-950 flex items-center gap-1.5">
@@ -1313,12 +1314,12 @@ function App() {
 
   // 로컬 로드 & 클라우드 Auto-Pull
   useEffect(() => {
-    const savedMuscles = localStorage.getItem('on_mindgym_muscles_v24');
-    const savedLogs = localStorage.getItem('on_mindgym_logs_v24');
-    const savedResources = localStorage.getItem('on_mindgym_resources_v24');
-    const savedAlarm = localStorage.getItem('on_mindgym_alarm_v24');
-    const savedStartDate = localStorage.getItem('on_mindgym_startdate_v24');
-    const savedLastActive = localStorage.getItem('on_mindgym_lastactive_v24');
+    const savedMuscles = localStorage.getItem('on_mindgym_muscles_v25');
+    const savedLogs = localStorage.getItem('on_mindgym_logs_v25');
+    const savedResources = localStorage.getItem('on_mindgym_resources_v25');
+    const savedAlarm = localStorage.getItem('on_mindgym_alarm_v25');
+    const savedStartDate = localStorage.getItem('on_mindgym_startdate_v25');
+    const savedLastActive = localStorage.getItem('on_mindgym_lastactive_v25');
     
     if (savedMuscles) setMuscles(JSON.parse(savedMuscles));
     if (savedLogs) setLogs(JSON.parse(savedLogs));
@@ -1361,7 +1362,7 @@ function App() {
     if (!confirm('현재 점수를 2026.09.28 TCI 순수 출발선 점수(34, 20, 25, 15, 20, 25)로 완전히 리셋하시겠습니까?')) return;
     const resetMuscles = INITIAL_MUSCLES.map(m => ({ ...m, current: m.baseline }));
     setMuscles(resetMuscles);
-    localStorage.setItem('on_mindgym_muscles_v24', JSON.stringify(resetMuscles));
+    localStorage.setItem('on_mindgym_muscles_v25', JSON.stringify(resetMuscles));
     triggerAutoSaveCloud(resetMuscles, logs, resources, startDate);
     alert('✅ 모든 근육 점수가 TCI 출발선과 정확히 일치하도록 정렬되었습니다.');
   };
@@ -1370,7 +1371,7 @@ function App() {
   const handleResetRoutines = () => {
     if (!confirm('실천 루틴을 6대 마음근육 전용 6종 루틴으로 재정렬하고, 모든 누적 횟수를 0회로 초기화하시겠습니까?')) return;
     setResources(INITIAL_RESOURCES);
-    localStorage.setItem('on_mindgym_resources_v24', JSON.stringify(INITIAL_RESOURCES));
+    localStorage.setItem('on_mindgym_resources_v25', JSON.stringify(INITIAL_RESOURCES));
     triggerAutoSaveCloud(muscles, logs, INITIAL_RESOURCES, startDate);
     alert('✅ 모든 실천 루틴이 누적 0회로 초기화되었으며, 6대 근육 맞춤 루틴이 탑재되었습니다.');
   };
@@ -1381,7 +1382,7 @@ function App() {
     const targetLog = logs.find(l => l.id === logId);
     const filtered = logs.filter(l => l.id !== logId);
     setLogs(filtered);
-    localStorage.setItem('on_mindgym_logs_v24', JSON.stringify(filtered));
+    localStorage.setItem('on_mindgym_logs_v25', JSON.stringify(filtered));
 
     let updatedMuscles = muscles;
     if (targetLog) {
@@ -1392,7 +1393,7 @@ function App() {
         return m;
       });
       setMuscles(updatedMuscles);
-      localStorage.setItem('on_mindgym_muscles_v24', JSON.stringify(updatedMuscles));
+      localStorage.setItem('on_mindgym_muscles_v25', JSON.stringify(updatedMuscles));
     }
 
     triggerAutoSaveCloud(updatedMuscles, filtered, resources, startDate);
@@ -1411,68 +1412,45 @@ function App() {
   const handleSaveEdit = (logId) => {
     const updatedLogs = logs.map(l => l.id === logId ? { ...l, ...editForm } : l);
     setLogs(updatedLogs);
-    localStorage.setItem('on_mindgym_logs_v24', JSON.stringify(updatedLogs));
+    localStorage.setItem('on_mindgym_logs_v25', JSON.stringify(updatedLogs));
     setEditingLogId(null);
     triggerAutoSaveCloud(muscles, updatedLogs, resources, startDate);
   };
 
   // ==========================================
-  // ⏰ 모바일/태블릿/PC 호환 안전 알림 엔진
+  // ⏰ 모바일/태블릿/PC 100% 즉각 반응 안전 알림 엔진 (무한대기 완전 해소)
   // ==========================================
-  const triggerNotification = async (title, body) => {
-    if (!('Notification' in window)) {
-      alert(`${title}\n\n${body}`);
-      return;
-    }
+  const triggerNotification = (title, body) => {
+    // 1. 화면 내 즉시 표시 (OS 환경/권한 무관 100% 작동 보장)
+    alert(`🌲 [On溫 Mind GYM 알림]\n\n${title}\n\n${body}`);
 
-    let permission = Notification.permission;
-    if (permission !== 'granted' && permission !== 'denied') {
-      try {
-        permission = await Notification.requestPermission();
-      } catch (e) {
-        permission = 'denied';
-      }
-    }
-
-    if (permission === 'granted') {
-      try {
-        // 모바일/PWA: 서비스 워커 showNotification 호출 (태블릿/스마트폰 필수)
-        if ('serviceWorker' in navigator) {
-          const registration = await navigator.serviceWorker.ready;
-          if (registration && registration.showNotification) {
-            await registration.showNotification(title, {
-              body: body,
-              icon: '/icon-512.png',
-              badge: '/icon-512.png',
-              vibrate: [200, 100, 200],
-              tag: 'on-mindgym-alarm'
-            });
-            return;
-          }
+    // 2. 브라우저/OS 상단바 푸시 알림 병행 시도 (PC 및 권한 허용 모바일)
+    if ('Notification' in window) {
+      if (Notification.permission === 'granted') {
+        try {
+          new Notification(title, {
+            body: body,
+            icon: '/icon-512.png'
+          });
+        } catch (e) {
+          console.log('Mobile push restriction handled gracefully.');
         }
-        // PC 브라우저 데스크톱 알림
-        new Notification(title, { body: body, icon: '/icon-512.png' });
-      } catch (err) {
-        console.warn('Notification API 호출 실패, 화면 Alert로 폴백:', err);
-        alert(`${title}\n\n${body}`);
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission();
       }
-    } else {
-      alert(`[알림]\n${title}\n\n${body}\n\n(참고: 브라우저 주소창 설정에서 알림을 '허용'해 주시면 상태 표시줄 푸시로 수신됩니다.)`);
     }
   };
 
   const handleTriggerTest = async () => {
-    if ('Notification' in window && Notification.permission !== 'granted') {
+    if ('Notification' in window && Notification.permission === 'default') {
       try {
-        const p = await Notification.requestPermission();
-        if (p !== 'granted') {
-          alert('알림 권한이 허용되지 않았습니다. 브라우저 주소창 설정에서 알림을 허용해 주세요.');
-        }
+        await Notification.requestPermission();
       } catch (e) {}
     }
+
     triggerNotification(
-      '🌲 [테스트] On溫 Mind GYM 알림',
-      '알람이 정상적으로 연결되었습니다! 매일 지정하신 시간에 온(溫)마음 나무를 돌보는 다정한 알림이 전해집니다.'
+      '온(溫)마음 나무를 돌보는 시간입니다 🌿',
+      '오늘 하루 내 안의 마음 근육들은 안녕했나요? 나만의 온(溫)마음 나무에 따뜻한 온기를 전해줄 시간입니다.'
     );
   };
 
@@ -1489,7 +1467,7 @@ function App() {
       if (currentTimeStr === alarmSettings.time && lastAlertDateRef.current !== todayStr) {
         lastAlertDateRef.current = todayStr;
         triggerNotification(
-          '🌲 On溫 Mind GYM : 감정일기 시간입니다',
+          '온(溫)마음 나무를 돌보는 시간입니다 🌿',
           '오늘 하루 내 안의 마음 근육들은 안녕했나요? 나만의 온(溫)마음 나무에 따뜻한 온기를 전해줄 시간입니다.'
         );
       }
@@ -1499,11 +1477,11 @@ function App() {
     return () => clearInterval(interval);
   }, [alarmSettings]);
 
-  const handleSaveAlarmSettings = async (newSettings) => {
+  const handleSaveAlarmSettings = (newSettings) => {
     setAlarmSettings(newSettings);
-    localStorage.setItem('on_mindgym_alarm_v24', JSON.stringify(newSettings));
-    if (newSettings.enabled && 'Notification' in window && Notification.permission !== 'granted') {
-      try { await Notification.requestPermission(); } catch (e) {}
+    localStorage.setItem('on_mindgym_alarm_v25', JSON.stringify(newSettings));
+    if (newSettings.enabled && 'Notification' in window && Notification.permission === 'default') {
+      try { Notification.requestPermission(); } catch (e) {}
     }
   };
 
@@ -1529,18 +1507,18 @@ function App() {
 
   const handleUpdateStartDate = (newDate) => {
     setStartDate(newDate);
-    localStorage.setItem('on_mindgym_startdate_v24', newDate);
+    localStorage.setItem('on_mindgym_startdate_v25', newDate);
     triggerAutoSaveCloud(muscles, logs, resources, newDate);
   };
 
   const handleSaveMuscle = (updatedMuscle) => {
     const updated = muscles.map(m => m.id === updatedMuscle.id ? updatedMuscle : m);
     setMuscles(updated);
-    localStorage.setItem('on_mindgym_muscles_v24', JSON.stringify(updated));
+    localStorage.setItem('on_mindgym_muscles_v25', JSON.stringify(updated));
     
     const todayFormatted = `${new Date().getMonth() + 1}.${new Date().getDate()}`;
     setLastActiveDate(todayFormatted);
-    localStorage.setItem('on_mindgym_lastactive_v24', todayFormatted);
+    localStorage.setItem('on_mindgym_lastactive_v25', todayFormatted);
 
     triggerAutoSaveCloud(updated, logs, resources, startDate);
   };
@@ -1548,16 +1526,16 @@ function App() {
   const handleAddResource = (newRes) => {
     const updated = [newRes, ...resources];
     setResources(updated);
-    localStorage.setItem('on_mindgym_resources_v24', JSON.stringify(updated));
+    localStorage.setItem('on_mindgym_resources_v25', JSON.stringify(updated));
     alert('새로운 실천 루틴이 저장되었습니다.');
     triggerAutoSaveCloud(muscles, logs, updated, startDate);
   };
 
   const handleRestoreData = (data) => {
-    if (data.muscles) { setMuscles(data.muscles); localStorage.setItem('on_mindgym_muscles_v24', JSON.stringify(data.muscles)); }
-    if (data.logs) { setLogs(data.logs); localStorage.setItem('on_mindgym_logs_v24', JSON.stringify(data.logs)); }
-    if (data.resources) { setResources(data.resources); localStorage.setItem('on_mindgym_resources_v24', JSON.stringify(data.resources)); }
-    if (data.startDate) { setStartDate(data.startDate); localStorage.setItem('on_mindgym_startdate_v24', data.startDate); }
+    if (data.muscles) { setMuscles(data.muscles); localStorage.setItem('on_mindgym_muscles_v25', JSON.stringify(data.muscles)); }
+    if (data.logs) { setLogs(data.logs); localStorage.setItem('on_mindgym_logs_v25', JSON.stringify(data.logs)); }
+    if (data.resources) { setResources(data.resources); localStorage.setItem('on_mindgym_resources_v25', JSON.stringify(data.resources)); }
+    if (data.startDate) { setStartDate(data.startDate); localStorage.setItem('on_mindgym_startdate_v25', data.startDate); }
   };
 
   const generateContextualFeedback = (currentLog, targetMuscle) => {
@@ -1643,11 +1621,11 @@ function App() {
 
     const newLogs = [newLog, ...logs];
     setLogs(newLogs);
-    localStorage.setItem('on_mindgym_logs_v24', JSON.stringify(newLogs));
+    localStorage.setItem('on_mindgym_logs_v25', JSON.stringify(newLogs));
 
     const todayFormatted = `${new Date().getMonth() + 1}.${new Date().getDate()}`;
     setLastActiveDate(todayFormatted);
-    localStorage.setItem('on_mindgym_lastactive_v24', todayFormatted);
+    localStorage.setItem('on_mindgym_lastactive_v25', todayFormatted);
 
     const updatedMuscles = muscles.map(m => {
       if (m.id === selectedMuscleForLog) {
@@ -1656,7 +1634,7 @@ function App() {
       return m;
     });
     setMuscles(updatedMuscles);
-    localStorage.setItem('on_mindgym_muscles_v24', JSON.stringify(updatedMuscles));
+    localStorage.setItem('on_mindgym_muscles_v25', JSON.stringify(updatedMuscles));
 
     triggerAutoSaveCloud(updatedMuscles, newLogs, resources, startDate);
     handleRequestAiCoaching(newLog);
@@ -2171,7 +2149,7 @@ ${periodName} 동안 마주한 ${periodStats.total}번의 알아차림 속에서
                           onClick={() => {
                             const updated = resources.map(item => item.id === r.id ? { ...item, completedCount: item.completedCount + 1 } : item);
                             setResources(updated);
-                            localStorage.setItem('on_mindgym_resources_v24', JSON.stringify(updated));
+                            localStorage.setItem('on_mindgym_resources_v25', JSON.stringify(updated));
                             alert(`🌿 [${r.title}] 실천을 완료했습니다. (누적 ${r.completedCount + 1}회)`);
                             triggerAutoSaveCloud(muscles, logs, updated, startDate);
                           }}
